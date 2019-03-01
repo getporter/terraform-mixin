@@ -1,4 +1,4 @@
-MIXIN = helm
+MIXIN = terraform
 PKG = github.com/deislabs/porter-$(MIXIN)
 SHELL = bash
 
@@ -40,7 +40,7 @@ build-client: build-templates
 	go build -ldflags '$(LDFLAGS)' -o $(BINDIR)/$(MIXIN)$(FILE_EXT) ./cmd/$(MIXIN)
 
 build-templates: get-deps
-	cd pkg/helm && packr2 build
+	cd pkg/terraform && packr2 build
 
 HAS_PACKR2 := $(shell command -v packr2)
 get-deps:

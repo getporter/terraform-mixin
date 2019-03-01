@@ -1,0 +1,4 @@
+terraform:
+  description: "Status MySQL"
+  releases:
+  - porter-ci-mysql
