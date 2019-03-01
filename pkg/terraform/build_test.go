@@ -13,13 +13,9 @@ func TestMixin_Build(t *testing.T) {
 	err := m.Build()
 	require.NoError(t, err)
 
-	wantOutput := `RUN apt-get update && \
- apt-get install -y curl && \
- curl -o terraform.tgz https://storage.googleapis.com/kubernetes-terraform/terraform-v2.12.3-linux-amd64.tar.gz && \
- tar -xzf terraform.tgz && \
- mv linux-amd64/terraform /usr/local/bin && \
- rm terraform.tgz
-RUN terraform init --client-only`
+	wantOutput := `ENV TERRAFORM_VERSION=0.11.11
+RUN wget https://releases.hashicorp.com/terraform/${TERRAFORM_VERSION}/terraform_${TERRAFORM_VERSION}_linux_amd64.zip && \
+ unzip terraform_${TERRAFORM_VERSION}_linux_amd64.zip -d /usr/bin`
 
 	gotOutput := m.TestContext.GetOutput()
 	assert.Equal(t, wantOutput, gotOutput)
