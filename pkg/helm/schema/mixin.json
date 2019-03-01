@@ -1,0 +1,14 @@
+{
+  "install": {
+    "type": "object",
+    "properties": {
+      "name": {
+        "type": "string"
+      },
+      "chart": {
+        "type": "string"
+      }
+    },
+    "additionalProperties": true
+  }
+}
