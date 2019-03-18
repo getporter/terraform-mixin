@@ -1,18 +1,2 @@
 terraform:
   description: "Upgrade MySQL"
-  name: porter-ci-mysql
-  chart: stable/mysql
-  version: 0.10.2
-  wait: true
-  resetValues: true
-  reuseValues: true
-  set:
-    mysqlDatabase: mydb
-    mysqlUser: myuser
-  outputs:
-    - name: mysql-root-password
-      secret: porter-ci-mysql
-      key: mysql-root-password
-    - name: mysql-password
-      secret: porter-ci-mysql
-      key: mysql-password

@@ -26,33 +26,13 @@ func TestMixin_UnmarshalUninstallStep(t *testing.T) {
 	require.NoError(t, err)
 
 	assert.Equal(t, "Uninstall MySQL", step.Description)
-	assert.Equal(t, []string{"porter-ci-mysql"}, step.Releases)
-	assert.True(t, step.Purge)
 }
 
 func TestMixin_Uninstall(t *testing.T) {
-	releases := []string{
-		"foo",
-		"bar",
-	}
-
 	uninstallTests := []UninstallTest{
 		{
-			expectedCommand: `terraform delete foo bar`,
-			uninstallStep: UninstallStep{
-				UninstallArguments: UninstallArguments{
-					Releases: releases,
-				},
-			},
-		},
-		{
-			expectedCommand: `terraform delete --purge foo bar`,
-			uninstallStep: UninstallStep{
-				UninstallArguments: UninstallArguments{
-					Purge:    true,
-					Releases: releases,
-				},
-			},
+			expectedCommand: "terraform destroy --help",
+			uninstallStep: UninstallStep{},
 		},
 	}
 

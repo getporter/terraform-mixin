@@ -29,7 +29,6 @@ func TestMixin_UnmarshalStatusStep(t *testing.T) {
 	require.NoError(t, err)
 
 	assert.Equal(t, "Status MySQL", step.Description)
-	assert.Equal(t, []string{"porter-ci-mysql"}, step.Releases)
 }
 
 func TestMixin_Status(t *testing.T) {
@@ -48,34 +47,25 @@ func TestMixin_Status(t *testing.T) {
 		},
 	}
 
-	releases := []string{
-		"foo",
-		"bar",
-	}
-
 	defer os.Unsetenv(test.ExpectedCommandEnv)
 	for testName, testCase := range testCases {
-		for _, release := range releases {
-			t.Run(testName, func(t *testing.T) {
-				os.Setenv(test.ExpectedCommandEnv,
-					strings.TrimSpace(fmt.Sprintf(`terraform status %s %s`, release, testCase.expectedCommandSuffix)))
+		t.Run(testName, func(t *testing.T) {
+			os.Setenv(test.ExpectedCommandEnv,
+				strings.TrimSpace(fmt.Sprintf(`terraform status %s`, testCase.expectedCommandSuffix)))
 
-				statusStep := StatusStep{
-					StatusArguments: StatusArguments{
-						Releases: []string{release},
-					},
-				}
+			statusStep := StatusStep{
+				StatusArguments: StatusArguments{},
+			}
 
-				b, _ := yaml.Marshal(statusStep)
+			b, _ := yaml.Marshal(statusStep)
 
-				h := NewTestMixin(t)
-				h.In = bytes.NewReader(b)
+			h := NewTestMixin(t)
+			h.In = bytes.NewReader(b)
 
-				opts := printer.PrintOptions{testCase.format}
-				err := h.Status(opts)
+			opts := printer.PrintOptions{Format: testCase.format}
+			err := h.Status(opts)
 
-				require.NoError(t, err)
-			})
-		}
+			require.NoError(t, err)
+		})
 	}
 }

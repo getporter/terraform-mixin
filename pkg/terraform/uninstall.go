@@ -15,12 +15,9 @@ type UninstallStep struct {
 // UninstallArguments are the arguments available for the Uninstall action
 type UninstallArguments struct {
 	Step `yaml:",inline"`
-
-	Releases []string `yaml:"releases"`
-	Purge    bool     `yaml:"purge"`
 }
 
-// Uninstall deletes a provided set of terraform releases, supplying optional flags/params
+// Uninstall runs a terraform destroy
 func (m *Mixin) Uninstall() error {
 	payload, err := m.getPayloadData()
 	if err != nil {
@@ -33,15 +30,7 @@ func (m *Mixin) Uninstall() error {
 		return err
 	}
 
-	cmd := m.NewCommand("terraform", "delete")
-
-	if step.Purge {
-		cmd.Args = append(cmd.Args, "--purge")
-	}
-
-	for _, release := range step.Releases {
-		cmd.Args = append(cmd.Args, release)
-	}
+	cmd := m.NewCommand("terraform", "destroy", "--help")
 
 	cmd.Stdout = m.Out
 	cmd.Stderr = m.Err
