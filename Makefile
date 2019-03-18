@@ -14,8 +14,8 @@ BINDIR = bin/mixins/$(MIXIN)
 
 CLIENT_PLATFORM = $(shell go env GOOS)
 CLIENT_ARCH = $(shell go env GOARCH)
-RUNTIME_PLATFORM = linux
-RUNTIME_ARCH = amd64
+RUNTIME_PLATFORM ?= linux
+RUNTIME_ARCH ?= amd64
 SUPPORTED_CLIENT_PLATFORMS = linux darwin windows
 SUPPORTED_CLIENT_ARCHES = amd64 386
 
