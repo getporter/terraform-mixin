@@ -14,7 +14,8 @@ func TestMixin_Build(t *testing.T) {
 	require.NoError(t, err)
 
 	wantOutput := `ENV TERRAFORM_VERSION=0.11.11
-RUN wget https://releases.hashicorp.com/terraform/${TERRAFORM_VERSION}/terraform_${TERRAFORM_VERSION}_linux_amd64.zip && \
+RUN apt-get update && apt-get install -y wget unzip && \
+ wget https://releases.hashicorp.com/terraform/${TERRAFORM_VERSION}/terraform_${TERRAFORM_VERSION}_linux_amd64.zip && \
  unzip terraform_${TERRAFORM_VERSION}_linux_amd64.zip -d /usr/bin`
 
 	gotOutput := m.TestContext.GetOutput()
