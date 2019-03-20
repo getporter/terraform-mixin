@@ -12,7 +12,6 @@ import (
 	"strings"
 	"sync"
 
-	"github.com/gobuffalo/events"
 	"github.com/markbates/oncer"
 	"github.com/markbates/safe"
 	"github.com/pkg/errors"
@@ -142,30 +141,39 @@ func (r *Runner) FindStep(name string) (*Step, error) {
 	return s, nil
 }
 
+func (r *Runner) ReplaceStep(name string, s *Step) error {
+	os, err := r.FindStep(name)
+	if err != nil {
+		return errors.WithStack(err)
+	}
+	s.index = os.index
+	return r.WithStep(name, s)
+}
+
 func (r *Runner) Run() error {
 	if f, ok := r.Logger.(io.Closer); ok {
 		defer f.Close()
 	}
 	steps := r.Steps()
 
-	payload := events.Payload{
-		"runner": r,
-		"steps":  steps,
-	}
+	// payload := events.Payload{
+	// 	"runner": r,
+	// 	"steps":  steps,
+	// }
 
-	events.EmitPayload(EvtStarted, payload)
+	// events.EmitPayload(EvtStarted, payload)
 
 	for _, step := range steps {
 		if err := step.Run(r); err != nil {
-			payload = events.Payload{
-				"runner": r,
-				"step":   step,
-			}
-			events.EmitError(EvtFinishedErr, err, payload)
+			// payload = events.Payload{
+			// 	"runner": r,
+			// 	"step":   step,
+			// }
+			// events.EmitError(EvtFinishedErr, err, payload)
 			return errors.WithStack(err)
 		}
 	}
-	events.EmitPayload(EvtFinished, payload)
+	// events.EmitPayload(EvtFinished, payload)
 
 	return nil
 }

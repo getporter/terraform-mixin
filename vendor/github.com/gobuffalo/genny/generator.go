@@ -1,12 +1,13 @@
 package genny
 
 import (
+	"fmt"
 	"math/rand"
 	"os/exec"
 	"sync"
 	"time"
 
-	"github.com/gobuffalo/events"
+	"github.com/gobuffalo/mapi"
 	"github.com/gobuffalo/packd"
 	"github.com/pkg/errors"
 )
@@ -37,10 +38,12 @@ func New() *Generator {
 	return g
 }
 
-func (g *Generator) Event(kind string, payload events.Payload) {
-	g.RunFn(func(r *Runner) error {
-		return events.EmitPayload(kind, payload)
-	})
+// Event has been deprecated and does nothing.
+func (g *Generator) Event(kind string, payload mapi.Mapi) {
+	fmt.Println("Events have been deprecated. Please manually trigger events if needed.")
+	// g.RunFn(func(r *Runner) error {
+	// 	return events.EmitPayload(kind, payload)
+	// })
 }
 
 // File adds a file to be run when the generator is run

@@ -77,6 +77,10 @@ func (c *TestContext) AddTestFile(src, dest string) []byte {
 	return data
 }
 
+func (c *TestContext) AddTestFileContents(file []byte, dest string) error {
+	return c.FileSystem.WriteFile(dest, file, os.ModePerm)
+}
+
 func (c *TestContext) AddTestDirectory(srcDir, destDir string) {
 	err := filepath.Walk(srcDir, func(path string, info os.FileInfo, err error) error {
 		if err != nil {
@@ -105,4 +109,36 @@ func (c *TestContext) AddTestDirectory(srcDir, destDir string) {
 
 func (c *TestContext) GetOutput() string {
 	return string(c.output.Bytes())
+}
+
+func (c *TestContext) FindBinDir() string {
+	var binDir string
+	d, err := os.Getwd()
+	if err != nil {
+		c.T.Fatal(err)
+	}
+	for {
+		binDir = c.getBinDir(d)
+		if binDir != "" {
+			return binDir
+		}
+
+		d = filepath.Dir(d)
+		if d == "." || d == "" {
+			c.T.Fatal("could not find the bin directory")
+		}
+	}
+}
+
+func (c *TestContext) getBinDir(dir string) string {
+	children, err := ioutil.ReadDir(dir)
+	if err != nil {
+		c.T.Fatal(err)
+	}
+	for _, child := range children {
+		if child.IsDir() && child.Name() == "bin" {
+			return filepath.Join(dir, child.Name())
+		}
+	}
+	return ""
 }
