@@ -14,12 +14,10 @@ type TestMixin struct {
 // NewTestMixin initializes a terraform mixin, with the output buffered, and an in-memory file system.
 func NewTestMixin(t *testing.T) *TestMixin {
 	c := context.NewTestContext(t)
-	m := &TestMixin{
-		Mixin: &Mixin{
-			Context: c.Context,
-		},
+	m := New()
+	m.Context = c.Context
+	return &TestMixin{
+		Mixin:       m,
 		TestContext: c,
 	}
-
-	return m
 }
