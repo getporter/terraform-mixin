@@ -2,6 +2,7 @@ package terraform
 
 import (
 	"bytes"
+	"fmt"
 	"io/ioutil"
 	"os"
 	"testing"
@@ -26,19 +27,35 @@ func TestMixin_UnmarshalInstallStep(t *testing.T) {
 	b, err := ioutil.ReadFile("testdata/install-input.yaml")
 	require.NoError(t, err)
 
-	var step InstallStep
-	err = yaml.Unmarshal(b, &step)
+	var action InstallAction
+	err = yaml.Unmarshal(b, &action)
 	require.NoError(t, err)
+	require.Len(t, action.Steps, 1)
+	step := action.Steps[0]
 
 	assert.Equal(t, "Install MySQL", step.Description)
+	assert.Equal(t, true, step.Init)
+	assert.Equal(t, "TRACE", step.LogLevel)
 }
 
 func TestMixin_Install(t *testing.T) {
 	installTests := []InstallTest{
 		{
-			expectedCommand: "terraform apply --help",
-			installStep: InstallStep{},
+			expectedCommand: fmt.Sprintf(
+				"terraform apply -auto-approve -var cool=true -var foo=bar %s", DefaultWorkingDir),
+			installStep: InstallStep{
+				InstallArguments: InstallArguments{
+					AutoApprove: true,
+					Init:        false,
+					LogLevel: "TRACE",
+					Vars: map[string]string{
+						"cool": "true",
+						"foo":  "bar",
+					},
+				},
+			},
 		},
+		// TODO: test Init: true (requires main test helper refactor to support one action issuing multiple commands)
 	}
 
 	defer os.Unsetenv(test.ExpectedCommandEnv)
@@ -46,14 +63,16 @@ func TestMixin_Install(t *testing.T) {
 		t.Run(installTest.expectedCommand, func(t *testing.T) {
 			os.Setenv(test.ExpectedCommandEnv, installTest.expectedCommand)
 
-			b, _ := yaml.Marshal(installTest.installStep)
+			action := InstallAction{Steps: []InstallStep{installTest.installStep}}
+			b, err := yaml.Marshal(action)
+			require.NoError(t, err)
 
 			h := NewTestMixin(t)
 			h.In = bytes.NewReader(b)
 
-			err := h.Install()
-
+			err = h.Install()
 			require.NoError(t, err)
+			assert.Equal(t, "TRACE", os.Getenv("TF_LOG"))
 		})
 	}
 }

@@ -2,9 +2,15 @@ package terraform
 
 import (
 	"fmt"
-	"github.com/deislabs/porter/pkg/printer"
+	"os"
+	"strings"
+
 	"gopkg.in/yaml.v2"
 )
+
+type StatusAction struct {
+	Steps []StatusStep `yaml:"status"`
+}
 
 // StatusStep represents the structure of an Status action
 type StatusStep struct {
@@ -14,33 +20,47 @@ type StatusStep struct {
 // StatusArguments are the arguments available for the Status action
 type StatusArguments struct {
 	Step `yaml:",inline"`
+
+	LogLevel string `yaml:"logLevel"`
 }
 
 // Status reports the status for infrastructure provisioned by Terraform
-func (m *Mixin) Status(opts printer.PrintOptions) error {
+func (m *Mixin) Status() error {
 	payload, err := m.getPayloadData()
 	if err != nil {
 		return err
 	}
 
-	var step StatusStep
-	err = yaml.Unmarshal(payload, &step)
+	var action StatusAction
+	err = yaml.Unmarshal(payload, &action)
 	if err != nil {
 		return err
 	}
-
-	format := ""
-	switch opts.Format {
-	case printer.FormatPlaintext:
-		// do nothing, as default output is plaintext
-	case printer.FormatYaml:
-		format = `-o yaml`
-	case printer.FormatJson:
-		format = `-o json`
-	default:
-		return fmt.Errorf("invalid format: %s", opts.Format)
+	if len(action.Steps) != 1 {
+		return fmt.Errorf("expected a single step, but got %d", len(action.Steps))
 	}
-	fmt.Sprintf("%s", format)
+	step := action.Steps[0]
+
+	if step.LogLevel != "" {
+		os.Setenv("TF_LOG", step.LogLevel)
+	}
+
+	cmd := m.NewCommand("terraform", "show")
+
+	cmd.Stdout = m.Out
+	cmd.Stderr = m.Err
+
+	prettyCmd := fmt.Sprintf("%s %s", cmd.Path, strings.Join(cmd.Args, " "))
+	fmt.Fprintln(m.Out, prettyCmd)
+
+	err = cmd.Start()
+	if err != nil {
+		return fmt.Errorf("could not execute command, %s: %s", prettyCmd, err)
+	}
+	err = cmd.Wait()
+	if err != nil {
+		return err
+	}
 
 	return nil
 }

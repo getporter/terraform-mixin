@@ -28,9 +28,11 @@ func buildRootCommand(in io.Reader) *cobra.Command {
 			m.Out = cmd.OutOrStdout()
 			m.Err = cmd.OutOrStderr()
 		},
+		SilenceUsage: true,
 	}
 
 	cmd.PersistentFlags().BoolVar(&m.Debug, "debug", false, "Enable debug logging")
+	cmd.PersistentFlags().StringVarP(&m.WorkingDir, "work-dir", "w", terraform.DefaultWorkingDir, "The Terraform working directory filepath")
 
 	cmd.AddCommand(buildVersionCommand(m))
 	cmd.AddCommand(buildSchemaCommand(m))

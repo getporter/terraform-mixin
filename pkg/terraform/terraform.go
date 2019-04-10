@@ -8,15 +8,20 @@ import (
 	"github.com/pkg/errors"
 )
 
+// DefaultWorkingDir is the default working directory for Terraform
+const DefaultWorkingDir = "/cnab/app"
+
 // terraform is the logic behind the terraform mixin
 type Mixin struct {
 	*context.Context
+	WorkingDir string
 }
 
 // New terraform mixin client, initialized with useful defaults.
 func New() *Mixin {
 	return &Mixin{
-		Context: context.New(),
+		Context:    context.New(),
+		WorkingDir: DefaultWorkingDir,
 	}
 }
 

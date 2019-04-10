@@ -2,10 +2,16 @@ package terraform
 
 import (
 	"fmt"
+	"os"
+	"sort"
 	"strings"
 
 	yaml "gopkg.in/yaml.v2"
 )
+
+type UninstallAction struct {
+	Steps []UninstallStep `yaml:"uninstall"`
+}
 
 // UninstallStep represents the structure of an Uninstall action
 type UninstallStep struct {
@@ -15,6 +21,10 @@ type UninstallStep struct {
 // UninstallArguments are the arguments available for the Uninstall action
 type UninstallArguments struct {
 	Step `yaml:",inline"`
+
+	AutoApprove bool              `yaml:"autoApprove"`
+	Vars        map[string]string `yaml:"vars"`
+	LogLevel    string            `yaml:"logLevel"`
 }
 
 // Uninstall runs a terraform destroy
@@ -24,13 +34,39 @@ func (m *Mixin) Uninstall() error {
 		return err
 	}
 
-	var step UninstallStep
-	err = yaml.Unmarshal(payload, &step)
+	var action UninstallAction
+	err = yaml.Unmarshal(payload, &action)
 	if err != nil {
 		return err
 	}
+	if len(action.Steps) != 1 {
+		return fmt.Errorf("expected a single step, but got %d", len(action.Steps))
+	}
+	step := action.Steps[0]
 
-	cmd := m.NewCommand("terraform", "destroy", "--help")
+	if step.LogLevel != "" {
+		os.Setenv("TF_LOG", step.LogLevel)
+	}
+
+	cmd := m.NewCommand("terraform", "destroy")
+
+	if step.AutoApprove {
+		cmd.Args = append(cmd.Args, "-auto-approve")
+	}
+
+	// sort the vars consistently
+	varKeys := make([]string, 0, len(step.Vars))
+	for k := range step.Vars {
+		varKeys = append(varKeys, k)
+	}
+	sort.Strings(varKeys)
+
+	for _, k := range varKeys {
+		cmd.Args = append(cmd.Args, "-var", fmt.Sprintf("%s=%s", k, step.Vars[k]))
+	}
+
+	// Configuration path must represent the last argument
+	cmd.Args = append(cmd.Args, m.WorkingDir)
 
 	cmd.Stdout = m.Out
 	cmd.Stderr = m.Err

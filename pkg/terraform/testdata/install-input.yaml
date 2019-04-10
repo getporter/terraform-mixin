@@ -1,2 +1,5 @@
-terraform:
-  description: "Install MySQL"
+install:
+- terraform:
+    description: "Install MySQL"
+    init: true
+    logLevel: TRACE

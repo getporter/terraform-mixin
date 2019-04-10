@@ -2,10 +2,8 @@ package terraform
 
 import (
 	"bytes"
-	"fmt"
 	"io/ioutil"
 	"os"
-	"strings"
 	"testing"
 
 	"github.com/deislabs/porter/pkg/printer"
@@ -24,48 +22,29 @@ func TestMixin_UnmarshalStatusStep(t *testing.T) {
 	b, err := ioutil.ReadFile("testdata/status-input.yaml")
 	require.NoError(t, err)
 
-	var step StatusStep
-	err = yaml.Unmarshal(b, &step)
+	var action StatusAction
+	err = yaml.Unmarshal(b, &action)
 	require.NoError(t, err)
+	require.Len(t, action.Steps, 1)
+	step := action.Steps[0]
 
 	assert.Equal(t, "Status MySQL", step.Description)
 }
 
 func TestMixin_Status(t *testing.T) {
-	testCases := map[string]statusTest{
-		"default": {
-			format:                printer.FormatPlaintext,
-			expectedCommandSuffix: "",
-		},
-		"json": {
-			format:                printer.FormatJson,
-			expectedCommandSuffix: "-o json",
-		},
-		"yaml": {
-			format:                printer.FormatYaml,
-			expectedCommandSuffix: "-o yaml",
-		},
+	os.Setenv(test.ExpectedCommandEnv, "terraform show")
+
+	statusStep := StatusStep{
+		StatusArguments: StatusArguments{},
 	}
 
-	defer os.Unsetenv(test.ExpectedCommandEnv)
-	for testName, testCase := range testCases {
-		t.Run(testName, func(t *testing.T) {
-			os.Setenv(test.ExpectedCommandEnv,
-				strings.TrimSpace(fmt.Sprintf(`terraform status %s`, testCase.expectedCommandSuffix)))
+	action := StatusAction{Steps: []StatusStep{statusStep}}
+	b, err := yaml.Marshal(action)
+	require.NoError(t, err)
 
-			statusStep := StatusStep{
-				StatusArguments: StatusArguments{},
-			}
+	h := NewTestMixin(t)
+	h.In = bytes.NewReader(b)
 
-			b, _ := yaml.Marshal(statusStep)
-
-			h := NewTestMixin(t)
-			h.In = bytes.NewReader(b)
-
-			opts := printer.PrintOptions{Format: testCase.format}
-			err := h.Status(opts)
-
-			require.NoError(t, err)
-		})
-	}
+	err = h.Status()
+	require.NoError(t, err)
 }

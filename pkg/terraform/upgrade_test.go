@@ -2,6 +2,7 @@ package terraform
 
 import (
 	"bytes"
+	"fmt"
 	"io/ioutil"
 	"os"
 	"testing"
@@ -21,9 +22,11 @@ func TestMixin_UnmarshalUpgradeStep(t *testing.T) {
 	b, err := ioutil.ReadFile("testdata/upgrade-input.yaml")
 	require.NoError(t, err)
 
-	var step UpgradeStep
-	err = yaml.Unmarshal(b, &step)
+	var action UpgradeAction
+	err = yaml.Unmarshal(b, &action)
 	require.NoError(t, err)
+	require.Len(t, action.Steps, 1)
+	step := action.Steps[0]
 
 	assert.Equal(t, "Upgrade MySQL", step.Description)
 }
@@ -31,8 +34,17 @@ func TestMixin_UnmarshalUpgradeStep(t *testing.T) {
 func TestMixin_Upgrade(t *testing.T) {
 	upgradeTests := []UpgradeTest{
 		{
-			expectedCommand: "terraform apply --help",
-			upgradeStep: UpgradeStep{},
+			expectedCommand: fmt.Sprintf(
+				"terraform apply -auto-approve -var cool=true -var foo=bar %s", DefaultWorkingDir),
+			upgradeStep: UpgradeStep{
+				UpgradeArguments: UpgradeArguments{
+					AutoApprove: true,
+					Vars: map[string]string{
+						"cool": "true",
+						"foo":  "bar",
+					},
+				},
+			},
 		},
 	}
 
@@ -41,7 +53,8 @@ func TestMixin_Upgrade(t *testing.T) {
 		t.Run(upgradeTest.expectedCommand, func(t *testing.T) {
 
 			os.Setenv(test.ExpectedCommandEnv, upgradeTest.expectedCommand)
-			b, err := yaml.Marshal(upgradeTest.upgradeStep)
+			action := UpgradeAction{Steps: []UpgradeStep{upgradeTest.upgradeStep}}
+			b, err := yaml.Marshal(action)
 			require.NoError(t, err)
 
 			h := NewTestMixin(t)
