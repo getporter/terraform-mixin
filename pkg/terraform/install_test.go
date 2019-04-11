@@ -34,7 +34,6 @@ func TestMixin_UnmarshalInstallStep(t *testing.T) {
 	step := action.Steps[0]
 
 	assert.Equal(t, "Install MySQL", step.Description)
-	assert.Equal(t, true, step.Init)
 	assert.Equal(t, "TRACE", step.LogLevel)
 }
 
@@ -46,8 +45,7 @@ func TestMixin_Install(t *testing.T) {
 			installStep: InstallStep{
 				InstallArguments: InstallArguments{
 					AutoApprove: true,
-					Init:        false,
-					LogLevel: "TRACE",
+					LogLevel:    "TRACE",
 					Vars: map[string]string{
 						"cool": "true",
 						"foo":  "bar",
@@ -55,7 +53,6 @@ func TestMixin_Install(t *testing.T) {
 				},
 			},
 		},
-		// TODO: test Init: true (requires main test helper refactor to support one action issuing multiple commands)
 	}
 
 	defer os.Unsetenv(test.ExpectedCommandEnv)

@@ -48,6 +48,14 @@ func (m *Mixin) Upgrade() error {
 		os.Setenv("TF_LOG", step.LogLevel)
 	}
 
+	// First, initialize Terraform
+	fmt.Println("Initializing Terraform...")
+	err = m.Init()
+	if err != nil {
+		return fmt.Errorf("could not init terraform, %s", err)
+	}
+
+	// Next, run terraform apply
 	cmd := m.NewCommand("terraform", "apply")
 
 	if step.AutoApprove {

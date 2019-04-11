@@ -13,5 +13,8 @@ func buildUpgradeCommand(m *terraform.Mixin) *cobra.Command {
 			return m.Upgrade()
 		},
 	}
+
+	cmd.PersistentFlags().StringVarP(&m.WorkingDir, "work-dir", "w", terraform.DefaultWorkingDir, "The Terraform working directory filepath")
+
 	return cmd
 }

@@ -23,7 +23,6 @@ type InstallArguments struct {
 	Step `yaml:",inline"`
 
 	AutoApprove bool              `yaml:"autoApprove"`
-	Init        bool              `yaml:"init"`
 	Vars        map[string]string `yaml:"vars"`
 	LogLevel    string            `yaml:"logLevel"`
 }
@@ -50,12 +49,10 @@ func (m *Mixin) Install() error {
 	}
 
 	// First, initialize Terraform
-	if step.Init {
-		fmt.Println("Initializing Terraform...")
-		err = m.Init()
-		if err != nil {
-			return fmt.Errorf("could not init terraform, %s", err)
-		}
+	fmt.Println("Initializing Terraform...")
+	err = m.Init()
+	if err != nil {
+		return fmt.Errorf("could not init terraform, %s", err)
 	}
 
 	// Next, run Terraform apply
