@@ -17,8 +17,5 @@ func buildInstallCommand(m *terraform.Mixin) *cobra.Command {
 			return m.Install()
 		},
 	}
-
-	cmd.PersistentFlags().StringVarP(&m.WorkingDir, "work-dir", "w", terraform.DefaultWorkingDir, "The Terraform working directory filepath")
-
 	return cmd
 }

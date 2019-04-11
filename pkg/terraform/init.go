@@ -7,7 +7,7 @@ import (
 
 // Init runs terraform init
 func (m *Mixin) Init() error {
-	cmd := m.NewCommand("terraform", "init", m.WorkingDir)
+	cmd := m.NewCommand("terraform", "init")
 
 	cmd.Stdout = m.Out
 	cmd.Stderr = m.Err

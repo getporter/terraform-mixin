@@ -2,9 +2,9 @@ package terraform
 
 import (
 	"bytes"
-	"fmt"
 	"io/ioutil"
 	"os"
+	"strings"
 	"testing"
 
 	"github.com/deislabs/porter/pkg/test"
@@ -40,8 +40,10 @@ func TestMixin_UnmarshalInstallStep(t *testing.T) {
 func TestMixin_Install(t *testing.T) {
 	installTests := []InstallTest{
 		{
-			expectedCommand: fmt.Sprintf(
-				"terraform apply -auto-approve -var cool=true -var foo=bar %s", DefaultWorkingDir),
+			expectedCommand: strings.Join([]string{
+				"terraform init",
+				"terraform apply -auto-approve -var cool=true -var foo=bar",
+			}, "\n"),
 			installStep: InstallStep{
 				InstallArguments: InstallArguments{
 					AutoApprove: true,
@@ -67,9 +69,18 @@ func TestMixin_Install(t *testing.T) {
 			h := NewTestMixin(t)
 			h.In = bytes.NewReader(b)
 
+			// Set up working dir as current dir
+			h.WorkingDir, err = os.Getwd()
+			require.NoError(t, err)
+
 			err = h.Install()
 			require.NoError(t, err)
+
 			assert.Equal(t, "TRACE", os.Getenv("TF_LOG"))
+
+			wd, err := os.Getwd()
+			require.NoError(t, err)
+			assert.Equal(t, wd, h.WorkingDir)
 		})
 	}
 }

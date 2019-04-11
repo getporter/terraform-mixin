@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"io/ioutil"
 	"os"
+	"strings"
 	"testing"
 
 	"github.com/deislabs/porter/pkg/printer"
@@ -32,7 +33,10 @@ func TestMixin_UnmarshalStatusStep(t *testing.T) {
 }
 
 func TestMixin_Status(t *testing.T) {
-	os.Setenv(test.ExpectedCommandEnv, "terraform show")
+	os.Setenv(test.ExpectedCommandEnv, strings.Join([]string{
+		"terraform init",
+		"terraform show",
+	}, "\n"))
 
 	statusStep := StatusStep{
 		StatusArguments: StatusArguments{},
@@ -45,6 +49,14 @@ func TestMixin_Status(t *testing.T) {
 	h := NewTestMixin(t)
 	h.In = bytes.NewReader(b)
 
+	// Set up working dir as current dir
+	h.WorkingDir, err = os.Getwd()
+	require.NoError(t, err)
+
 	err = h.Status()
 	require.NoError(t, err)
+
+	wd, err := os.Getwd()
+	require.NoError(t, err)
+	assert.Equal(t, wd, h.WorkingDir)
 }

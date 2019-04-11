@@ -13,8 +13,5 @@ func buildUninstallCommand(m *terraform.Mixin) *cobra.Command {
 			return m.Uninstall()
 		},
 	}
-
-	cmd.PersistentFlags().StringVarP(&m.WorkingDir, "work-dir", "w", terraform.DefaultWorkingDir, "The Terraform working directory filepath")
-
 	return cmd
 }

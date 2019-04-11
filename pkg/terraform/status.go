@@ -45,14 +45,19 @@ func (m *Mixin) Status() error {
 		os.Setenv("TF_LOG", step.LogLevel)
 	}
 
-	// First, initialize Terraform
+	// First, change to specified working dir
+	if err := os.Chdir(m.WorkingDir); err != nil {
+		return fmt.Errorf("could not change directory to specified working dir: %s", err)
+	}
+
+	// Initialize Terraform
 	fmt.Println("Initializing Terraform...")
 	err = m.Init()
 	if err != nil {
 		return fmt.Errorf("could not init terraform, %s", err)
 	}
 
-	// Next, run terraform show
+	// Run terraform show
 	cmd := m.NewCommand("terraform", "show")
 
 	cmd.Stdout = m.Out

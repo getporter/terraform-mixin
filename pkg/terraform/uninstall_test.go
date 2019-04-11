@@ -2,9 +2,9 @@ package terraform
 
 import (
 	"bytes"
-	"fmt"
 	"io/ioutil"
 	"os"
+	"strings"
 	"testing"
 
 	"github.com/deislabs/porter/pkg/test"
@@ -34,8 +34,10 @@ func TestMixin_UnmarshalUninstallStep(t *testing.T) {
 func TestMixin_Uninstall(t *testing.T) {
 	uninstallTests := []UninstallTest{
 		{
-			expectedCommand: fmt.Sprintf(
-				"terraform destroy -auto-approve -var cool=true -var foo=bar %s", DefaultWorkingDir),
+			expectedCommand: strings.Join([]string{
+				"terraform init",
+				"terraform destroy -auto-approve -var cool=true -var foo=bar",
+			}, "\n"),
 			uninstallStep: UninstallStep{
 				UninstallArguments: UninstallArguments{
 					AutoApprove: true,
@@ -60,8 +62,16 @@ func TestMixin_Uninstall(t *testing.T) {
 			h := NewTestMixin(t)
 			h.In = bytes.NewReader(b)
 
+			// Set up working dir as current dir
+			h.WorkingDir, err = os.Getwd()
+			require.NoError(t, err)
+
 			err = h.Uninstall()
 			require.NoError(t, err)
+
+			wd, err := os.Getwd()
+			require.NoError(t, err)
+			assert.Equal(t, wd, h.WorkingDir)
 		})
 	}
 }

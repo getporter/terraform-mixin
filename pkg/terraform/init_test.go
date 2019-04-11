@@ -1,7 +1,6 @@
 package terraform
 
 import (
-	"fmt"
 	"os"
 	"testing"
 
@@ -11,7 +10,7 @@ import (
 
 func TestMixin_Init(t *testing.T) {
 	defer os.Unsetenv(test.ExpectedCommandEnv)
-	os.Setenv(test.ExpectedCommandEnv, fmt.Sprintf("terraform init %s", DefaultWorkingDir))
+	os.Setenv(test.ExpectedCommandEnv, "terraform init")
 
 	h := NewTestMixin(t)
 

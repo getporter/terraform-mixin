@@ -2,9 +2,9 @@ package terraform
 
 import (
 	"bytes"
-	"fmt"
 	"io/ioutil"
 	"os"
+	"strings"
 	"testing"
 
 	"github.com/deislabs/porter/pkg/test"
@@ -34,8 +34,10 @@ func TestMixin_UnmarshalUpgradeStep(t *testing.T) {
 func TestMixin_Upgrade(t *testing.T) {
 	upgradeTests := []UpgradeTest{
 		{
-			expectedCommand: fmt.Sprintf(
-				"terraform apply -auto-approve -var cool=true -var foo=bar %s", DefaultWorkingDir),
+			expectedCommand: strings.Join([]string{
+				"terraform init",
+				"terraform apply -auto-approve -var cool=true -var foo=bar",
+			}, "\n"),
 			upgradeStep: UpgradeStep{
 				UpgradeArguments: UpgradeArguments{
 					AutoApprove: true,
@@ -60,9 +62,16 @@ func TestMixin_Upgrade(t *testing.T) {
 			h := NewTestMixin(t)
 			h.In = bytes.NewReader(b)
 
-			err = h.Upgrade()
-
+			// Set up working dir as current dir
+			h.WorkingDir, err = os.Getwd()
 			require.NoError(t, err)
+
+			err = h.Upgrade()
+			require.NoError(t, err)
+
+			wd, err := os.Getwd()
+			require.NoError(t, err)
+			assert.Equal(t, wd, h.WorkingDir)
 		})
 	}
 }

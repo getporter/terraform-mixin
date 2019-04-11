@@ -48,14 +48,19 @@ func (m *Mixin) Uninstall() error {
 		os.Setenv("TF_LOG", step.LogLevel)
 	}
 
-	// First, initialize Terraform
+	// First, change to specified working dir
+	if err := os.Chdir(m.WorkingDir); err != nil {
+		return fmt.Errorf("could not change directory to specified working dir: %s", err)
+	}
+
+	// Initialize Terraform
 	fmt.Println("Initializing Terraform...")
 	err = m.Init()
 	if err != nil {
 		return fmt.Errorf("could not init terraform, %s", err)
 	}
 
-	// Next, run terraform destroy
+	// Run terraform destroy
 	cmd := m.NewCommand("terraform", "destroy")
 
 	if step.AutoApprove {
@@ -72,9 +77,6 @@ func (m *Mixin) Uninstall() error {
 	for _, k := range varKeys {
 		cmd.Args = append(cmd.Args, "-var", fmt.Sprintf("%s=%s", k, step.Vars[k]))
 	}
-
-	// Configuration path must represent the last argument
-	cmd.Args = append(cmd.Args, m.WorkingDir)
 
 	cmd.Stdout = m.Out
 	cmd.Stderr = m.Err
