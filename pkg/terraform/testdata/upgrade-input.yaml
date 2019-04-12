@@ -1,2 +1,3 @@
-terraform:
-  description: "Upgrade MySQL"
+upgrade:
+- terraform:
+    description: "Upgrade MySQL"

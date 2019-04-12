@@ -1,2 +1,3 @@
-terraform:
-  description: "Status MySQL"
+status:
+- terraform:
+    description: "Status MySQL"
