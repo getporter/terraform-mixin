@@ -17,7 +17,7 @@ import (
 	"github.com/gobuffalo/packr/v2/file/resolver"
 	"github.com/gobuffalo/packr/v2/plog"
 	"github.com/markbates/oncer"
-	"github.com/pkg/errors"
+	"errors"
 )
 
 var _ packd.Box = &Box{}
@@ -65,6 +65,13 @@ func New(name string, path string) *Box {
 	return b
 }
 
+// Folder returns a Box that will NOT be packed.
+// This is useful for writing tests or tools that
+// need to work with a folder at runtime.
+func Folder(path string) *Box {
+	return New(path, path)
+}
+
 // SetResolver allows for the use of a custom resolver for
 // the specified file
 func (b *Box) SetResolver(file string, res resolver.Resolver) {
@@ -84,7 +91,7 @@ func (b *Box) AddBytes(path string, t []byte) error {
 	m := map[string]file.File{}
 	f, err := file.NewFile(path, t)
 	if err != nil {
-		return errors.WithStack(err)
+		return err
 	}
 	m[resolver.Key(path)] = f
 	res := resolver.NewInMemory(m)
@@ -121,8 +128,9 @@ func (b *Box) Has(name string) bool {
 func (b *Box) HasDir(name string) bool {
 	oncer.Do("packr2/box/HasDir"+b.Name, func() {
 		for _, f := range b.List() {
-			d := filepath.Dir(f)
-			b.dirs.Store(d, true)
+			for d := filepath.Dir(f); d != "."; d = filepath.Dir(d) {
+				b.dirs.Store(d, true)
+			}
 		}
 	})
 	if name == "/" {
@@ -216,11 +224,11 @@ func (b *Box) Resolve(key string) (file.File, error) {
 		}
 		b, err := ioutil.ReadAll(f)
 		if err != nil {
-			return f, errors.WithStack(err)
+			return f, err
 		}
 		f, err = file.NewFile(key, b)
 		if err != nil {
-			return f, errors.WithStack(err)
+			return f, err
 		}
 	}
 	plog.Debug(r, "Resolve", "box", b.Name, "key", key, "file", f.Name())
