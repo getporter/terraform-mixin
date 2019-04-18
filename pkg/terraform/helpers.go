@@ -1,6 +1,7 @@
 package terraform
 
 import (
+	"sort"
 	"testing"
 
 	"github.com/deislabs/porter/pkg/context"
@@ -20,4 +21,14 @@ func NewTestMixin(t *testing.T) *TestMixin {
 		Mixin:       m,
 		TestContext: c,
 	}
+}
+
+func sortKeys(m map[string]string) []string {
+	keys := make([]string, 0, len(m))
+	for k := range m {
+		keys = append(keys, k)
+	}
+	sort.Strings(keys)
+
+	return keys
 }

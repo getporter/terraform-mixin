@@ -1,0 +1,137 @@
+mixins:
+  - terraform
+
+name: porter-aks
+version: 0.1.0
+# TODO: change image org
+invocationImage: quay.io/vdice/porter-aks:latest
+
+credentials:
+  - name: subscription_id
+    env: TF_VAR_subscription_id
+
+  - name: tenant_id
+    env: TF_VAR_tenant_id
+
+  - name: client_id
+    env: TF_VAR_client_id
+
+  - name: client_secret
+    env: TF_VAR_client_secret
+
+  - name: ssh_public_key
+    env: TF_VAR_ssh_public_key
+
+parameters:
+
+# AKS config
+
+  - name: location
+    type: string
+    default: "East US"
+    destination:
+      env: TF_VAR_location
+
+  - name: kubernetes_version
+    type: string
+    default: "1.12.7"
+    destination:
+      env: TF_VAR_kubernetes_version
+
+  - name: agent_count
+    type: integer
+    default: 1
+    destination:
+      env: TF_VAR_agent_count
+
+  - name: dns_prefix
+    type: string
+    default: "porteraks"
+    destination:
+      env: TF_VAR_dns_prefix
+
+  - name: cluster_name
+    type: string
+    default: "porteraks"
+    destination:
+      env: TF_VAR_cluster_name
+
+  - name: resource_group_name
+    type: string
+    default: "porteraks"
+    destination:
+      env: TF_VAR_resource_group_name
+
+# Backend config (using the azurerm backend provider)
+
+# TODO: put backend-related values up in creds, since they represent values for bundle infrastructure?
+
+  - name: backend_storage_account
+    type: string
+    default: "porteraksbackend"
+
+  - name: backend_storage_container
+    type: string
+    default: "porteraksbackend"
+
+  - name: backend_storage_access_key
+    type: string
+    sensitive: true
+
+# Action step definitions
+
+# TODO: pass in a backend init/prereqs script, to run prior to terraform init?
+#
+# For example, 'Create these backend resources required/used by terraform init...'
+
+# TODO: support for a separate, non-standard 'init' action that may be consumed during any standard action (install, uninstall, upgrade)?
+#
+# init:
+#   backendConfig:
+#     key: "{{ bundle.name }}.tfstate"
+#     storage_account_name: "{{ bundle.parameters.backend_storage_account }}"
+#     container_name: "{{ bundle.parameters.backend_storage_container }}"
+#     access_key: "{{ bundle.parameters.backend_storage_access_key }}"
+#
+# ...thus preventing duplication of same config for each standard action.
+
+install:
+  - terraform:
+      description: "Install Azure Kubernetes Service"
+      autoApprove: true
+      input: false
+      backendConfig:
+        key: "{{ bundle.name }}.tfstate"
+        storage_account_name: "{{ bundle.parameters.backend_storage_account }}"
+        container_name: "{{ bundle.parameters.backend_storage_container }}"
+        access_key: "{{ bundle.parameters.backend_storage_access_key }}"
+
+upgrade:
+  - terraform:
+      description: "Upgrade Azure Kubernetes Service"
+      autoApprove: true
+      input: false
+      backendConfig:
+        key: "{{ bundle.name }}.tfstate"
+        storage_account_name: "{{ bundle.parameters.backend_storage_account }}"
+        container_name: "{{ bundle.parameters.backend_storage_container }}"
+        access_key: "{{ bundle.parameters.backend_storage_access_key }}"
+
+status:
+  - terraform:
+      description: "Get Azure Kubernetes Service status"
+      backendConfig:
+        key: "{{ bundle.name }}.tfstate"
+        storage_account_name: "{{ bundle.parameters.backend_storage_account }}"
+        container_name: "{{ bundle.parameters.backend_storage_container }}"
+        access_key: "{{ bundle.parameters.backend_storage_access_key }}"
+
+uninstall:
+  - terraform:
+      description: "Uninstall Azure Kubernetes Service"
+      autoApprove: true
+      backendConfig:
+        key: "{{ bundle.name }}.tfstate"
+        storage_account_name: "{{ bundle.parameters.backend_storage_account }}"
+        container_name: "{{ bundle.parameters.backend_storage_container }}"
+        access_key: "{{ bundle.parameters.backend_storage_access_key }}"
