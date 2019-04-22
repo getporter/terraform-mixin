@@ -3,8 +3,7 @@ mixins:
 
 name: porter-aks
 version: 0.1.0
-# TODO: change image org
-invocationImage: quay.io/vdice/porter-aks:latest
+invocationImage: deislabs/porter-aks:latest
 
 credentials:
   - name: subscription_id
@@ -22,10 +21,16 @@ credentials:
   - name: ssh_public_key
     env: TF_VAR_ssh_public_key
 
+  - name: backend_storage_access_key
+    env: TF_VAR_backend_storage_access_key
+
+  - name: backend_storage_account
+    env: TF_VAR_backend_storage_account
+
+  - name: backend_storage_container
+    env: TF_VAR_backend_storage_container
+
 parameters:
-
-# AKS config
-
   - name: location
     type: string
     default: "East US"
@@ -62,39 +67,6 @@ parameters:
     destination:
       env: TF_VAR_resource_group_name
 
-# Backend config (using the azurerm backend provider)
-
-# TODO: put backend-related values up in creds, since they represent values for bundle infrastructure?
-
-  - name: backend_storage_account
-    type: string
-    default: "porteraksbackend"
-
-  - name: backend_storage_container
-    type: string
-    default: "porteraksbackend"
-
-  - name: backend_storage_access_key
-    type: string
-    sensitive: true
-
-# Action step definitions
-
-# TODO: pass in a backend init/prereqs script, to run prior to terraform init?
-#
-# For example, 'Create these backend resources required/used by terraform init...'
-
-# TODO: support for a separate, non-standard 'init' action that may be consumed during any standard action (install, uninstall, upgrade)?
-#
-# init:
-#   backendConfig:
-#     key: "{{ bundle.name }}.tfstate"
-#     storage_account_name: "{{ bundle.parameters.backend_storage_account }}"
-#     container_name: "{{ bundle.parameters.backend_storage_container }}"
-#     access_key: "{{ bundle.parameters.backend_storage_access_key }}"
-#
-# ...thus preventing duplication of same config for each standard action.
-
 install:
   - terraform:
       description: "Install Azure Kubernetes Service"
@@ -102,9 +74,9 @@ install:
       input: false
       backendConfig:
         key: "{{ bundle.name }}.tfstate"
-        storage_account_name: "{{ bundle.parameters.backend_storage_account }}"
-        container_name: "{{ bundle.parameters.backend_storage_container }}"
-        access_key: "{{ bundle.parameters.backend_storage_access_key }}"
+        storage_account_name: "{{ bundle.credentials.backend_storage_account }}"
+        container_name: "{{ bundle.credentials.backend_storage_container }}"
+        access_key: "{{ bundle.credentials.backend_storage_access_key }}"
 
 upgrade:
   - terraform:
@@ -113,18 +85,18 @@ upgrade:
       input: false
       backendConfig:
         key: "{{ bundle.name }}.tfstate"
-        storage_account_name: "{{ bundle.parameters.backend_storage_account }}"
-        container_name: "{{ bundle.parameters.backend_storage_container }}"
-        access_key: "{{ bundle.parameters.backend_storage_access_key }}"
+        storage_account_name: "{{ bundle.credentials.backend_storage_account }}"
+        container_name: "{{ bundle.credentials.backend_storage_container }}"
+        access_key: "{{ bundle.credentials.backend_storage_access_key }}"
 
 status:
   - terraform:
       description: "Get Azure Kubernetes Service status"
       backendConfig:
         key: "{{ bundle.name }}.tfstate"
-        storage_account_name: "{{ bundle.parameters.backend_storage_account }}"
-        container_name: "{{ bundle.parameters.backend_storage_container }}"
-        access_key: "{{ bundle.parameters.backend_storage_access_key }}"
+        storage_account_name: "{{ bundle.credentials.backend_storage_account }}"
+        container_name: "{{ bundle.credentials.backend_storage_container }}"
+        access_key: "{{ bundle.credentials.backend_storage_access_key }}"
 
 uninstall:
   - terraform:
@@ -132,6 +104,6 @@ uninstall:
       autoApprove: true
       backendConfig:
         key: "{{ bundle.name }}.tfstate"
-        storage_account_name: "{{ bundle.parameters.backend_storage_account }}"
-        container_name: "{{ bundle.parameters.backend_storage_container }}"
-        access_key: "{{ bundle.parameters.backend_storage_access_key }}"
+        storage_account_name: "{{ bundle.credentials.backend_storage_account }}"
+        container_name: "{{ bundle.credentials.backend_storage_container }}"
+        access_key: "{{ bundle.credentials.backend_storage_access_key }}"
