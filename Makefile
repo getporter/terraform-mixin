@@ -12,12 +12,12 @@ LDFLAGS = -w -X $(PKG)/pkg.Version=$(VERSION) -X $(PKG)/pkg.Commit=$(COMMIT)
 XBUILD = CGO_ENABLED=0 go build -a -tags netgo -ldflags '$(LDFLAGS)'
 BINDIR = bin/mixins/$(MIXIN)
 
-CLIENT_PLATFORM = $(shell go env GOOS)
-CLIENT_ARCH = $(shell go env GOARCH)
+CLIENT_PLATFORM ?= $(shell go env GOOS)
+CLIENT_ARCH ?= $(shell go env GOARCH)
 RUNTIME_PLATFORM ?= linux
 RUNTIME_ARCH ?= amd64
-SUPPORTED_CLIENT_PLATFORMS = linux darwin windows
-SUPPORTED_CLIENT_ARCHES = amd64 386
+SUPPORTED_PLATFORMS = linux darwin windows
+SUPPORTED_ARCHES = amd64
 
 ifeq ($(CLIENT_PLATFORM),windows)
 FILE_EXT=.exe
@@ -29,34 +29,33 @@ endif
 
 REGISTRY ?= $(USER)
 
+.PHONY: build
 build: build-client build-runtime
 
-build-runtime:
+build-runtime: generate
 	mkdir -p $(BINDIR)
 	GOARCH=$(RUNTIME_ARCH) GOOS=$(RUNTIME_PLATFORM) go build -ldflags '$(LDFLAGS)' -o $(BINDIR)/$(MIXIN)-runtime$(FILE_EXT) ./cmd/$(MIXIN)
 
-build-client: build-templates
+build-client: generate
 	mkdir -p $(BINDIR)
 	go build -ldflags '$(LDFLAGS)' -o $(BINDIR)/$(MIXIN)$(FILE_EXT) ./cmd/$(MIXIN)
 
-build-templates: get-deps
-	cd pkg/terraform && packr2 build
+generate: packr2
+	go generate ./...
 
 HAS_PACKR2 := $(shell command -v packr2)
-get-deps:
+packr2:
 ifndef HAS_PACKR2
 	go get -u github.com/gobuffalo/packr/v2/packr2
 endif
 
-xbuild-all: xbuild-runtime $(addprefix xbuild-for-,$(SUPPORTED_CLIENT_PLATFORMS))
+xbuild-all:
+	$(foreach OS, $(SUPPORTED_PLATFORMS), \
+		$(foreach ARCH, $(SUPPORTED_ARCHES), \
+				$(MAKE) $(MAKE_OPTS) CLIENT_PLATFORM=$(OS) CLIENT_ARCH=$(ARCH) MIXIN=$(MIXIN) xbuild; \
+		))
 
-xbuild-for-%:
-	$(MAKE) CLIENT_PLATFORM=$* xbuild-client
-
-xbuild-runtime:
-	GOARCH=$(RUNTIME_ARCH) GOOS=$(RUNTIME_PLATFORM) $(XBUILD) -o $(BINDIR)/$(VERSION)/$(MIXIN)-runtime-$(RUNTIME_PLATFORM)-$(RUNTIME_ARCH)$(FILE_EXT) ./cmd/$(MIXIN)
-
-xbuild-client: $(BINDIR)/$(VERSION)/$(MIXIN)-$(CLIENT_PLATFORM)-$(CLIENT_ARCH)$(FILE_EXT)
+xbuild: $(BINDIR)/$(VERSION)/$(MIXIN)-$(CLIENT_PLATFORM)-$(CLIENT_ARCH)$(FILE_EXT)
 $(BINDIR)/$(VERSION)/$(MIXIN)-$(CLIENT_PLATFORM)-$(CLIENT_ARCH)$(FILE_EXT):
 	mkdir -p $(dir $@)
 	GOOS=$(CLIENT_PLATFORM) GOARCH=$(CLIENT_ARCH) $(XBUILD) -o $@ ./cmd/$(MIXIN)
