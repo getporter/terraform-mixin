@@ -19,13 +19,6 @@ variables:
   modulePath: '$(GOPATH)/src/github.com/$(build.repository.name)' # Path to the module's cod
 
 steps:
-- task: Docker@1
-  displayName: Login
-  inputs:
-    containerRegistryType: Container Registry
-    dockerRegistryEndpoint: deislabs-registry
-    command: login
-
 - script: |
     mkdir -p '$(GOBIN)'
     mkdir -p '$(GOPATH)/pkg'
@@ -42,7 +35,12 @@ steps:
   displayName: 'Unit Test'
 
 - script: |
-    AZURE_STORAGE_CONNECTION_STRING=$(AZURE_STORAGE_CONNECTION_STRING) make xbuild-all publish
+    make xbuild-all
+  workingDirectory: '$(modulePath)'
+  displayName: 'Cross Compile'
+
+- script: |
+    AZURE_STORAGE_CONNECTION_STRING=$(AZURE_STORAGE_CONNECTION_STRING) make publish
   workingDirectory: '$(modulePath)'
   displayName: 'Publish'
   condition: and(succeeded(), ne(variables['Build.Reason'], 'PullRequest'))
