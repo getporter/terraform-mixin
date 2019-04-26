@@ -76,5 +76,6 @@ func (m *Mixin) Status() error {
 		return err
 	}
 
+	m.handleOutputs(step.Outputs)
 	return nil
 }
