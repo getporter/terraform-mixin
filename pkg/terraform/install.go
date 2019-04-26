@@ -92,5 +92,6 @@ func (m *Mixin) Install() error {
 		return err
 	}
 
+	m.handleOutputs(step.Outputs)
 	return nil
 }

@@ -91,5 +91,6 @@ func (m *Mixin) Upgrade() error {
 		return err
 	}
 
+	m.handleOutputs(step.Outputs)
 	return nil
 }
