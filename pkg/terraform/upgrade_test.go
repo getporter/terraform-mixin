@@ -29,6 +29,7 @@ func TestMixin_UnmarshalUpgradeStep(t *testing.T) {
 	step := action.Steps[0]
 
 	assert.Equal(t, "Upgrade MySQL", step.Description)
+	assert.Equal(t, false, step.Input)
 }
 
 func TestMixin_Upgrade(t *testing.T) {
@@ -36,7 +37,7 @@ func TestMixin_Upgrade(t *testing.T) {
 		{
 			expectedCommand: strings.Join([]string{
 				"terraform init",
-				"terraform apply -auto-approve -var cool=true -var foo=bar",
+				"terraform apply -auto-approve -input=false -var cool=true -var foo=bar",
 			}, "\n"),
 			upgradeStep: UpgradeStep{
 				UpgradeArguments: UpgradeArguments{

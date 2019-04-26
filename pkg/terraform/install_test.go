@@ -35,6 +35,7 @@ func TestMixin_UnmarshalInstallStep(t *testing.T) {
 
 	assert.Equal(t, "Install MySQL", step.Description)
 	assert.Equal(t, "TRACE", step.LogLevel)
+	assert.Equal(t, false, step.Input)
 }
 
 func TestMixin_Install(t *testing.T) {
@@ -42,7 +43,7 @@ func TestMixin_Install(t *testing.T) {
 		{
 			expectedCommand: strings.Join([]string{
 				"terraform init",
-				"terraform apply -auto-approve -var cool=true -var foo=bar",
+				"terraform apply -auto-approve -input=false -var cool=true -var foo=bar",
 			}, "\n"),
 			installStep: InstallStep{
 				InstallArguments: InstallArguments{

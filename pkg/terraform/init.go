@@ -5,9 +5,19 @@ import (
 	"strings"
 )
 
-// Init runs terraform init
-func (m *Mixin) Init() error {
+// Init runs terraform init with the provided backendConfig, if supplied
+func (m *Mixin) Init(backendConfig map[string]string) error {
 	cmd := m.NewCommand("terraform", "init")
+
+	if len(backendConfig) > 0 {
+		cmd.Args = append(cmd.Args, "-backend=true")
+
+		for _, k := range sortKeys(backendConfig) {
+			cmd.Args = append(cmd.Args, fmt.Sprintf("-backend-config=%s=%s", k, backendConfig[k]))
+		}
+
+		cmd.Args = append(cmd.Args, "-reconfigure")
+	}
 
 	cmd.Stdout = m.Out
 	cmd.Stderr = m.Err

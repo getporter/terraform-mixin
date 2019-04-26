@@ -21,7 +21,8 @@ type StatusStep struct {
 type StatusArguments struct {
 	Step `yaml:",inline"`
 
-	LogLevel string `yaml:"logLevel"`
+	LogLevel      string            `yaml:"logLevel"`
+	BackendConfig map[string]string `yaml:"backendConfig"`
 }
 
 // Status reports the status for infrastructure provisioned by Terraform
@@ -52,7 +53,7 @@ func (m *Mixin) Status() error {
 
 	// Initialize Terraform
 	fmt.Println("Initializing Terraform...")
-	err = m.Init()
+	err = m.Init(step.BackendConfig)
 	if err != nil {
 		return fmt.Errorf("could not init terraform, %s", err)
 	}

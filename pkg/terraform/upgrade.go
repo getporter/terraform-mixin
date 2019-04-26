@@ -3,7 +3,6 @@ package terraform
 import (
 	"fmt"
 	"os"
-	"sort"
 	"strings"
 
 	"gopkg.in/yaml.v2"
@@ -22,9 +21,11 @@ type UpgradeStep struct {
 type UpgradeArguments struct {
 	Step `yaml:",inline"`
 
-	AutoApprove bool              `yaml:"autoApprove"`
-	Vars        map[string]string `yaml:"vars"`
-	LogLevel    string            `yaml:"logLevel"`
+	AutoApprove   bool              `yaml:"autoApprove"`
+	Vars          map[string]string `yaml:"vars"`
+	LogLevel      string            `yaml:"logLevel"`
+	Input         bool              `yaml:"input"`
+	BackendConfig map[string]string `yaml:"backendConfig"`
 }
 
 // Upgrade runs a terraform apply
@@ -55,7 +56,7 @@ func (m *Mixin) Upgrade() error {
 
 	// Initialize Terraform
 	fmt.Println("Initializing Terraform...")
-	err = m.Init()
+	err = m.Init(step.BackendConfig)
 	if err != nil {
 		return fmt.Errorf("could not init terraform, %s", err)
 	}
@@ -67,14 +68,11 @@ func (m *Mixin) Upgrade() error {
 		cmd.Args = append(cmd.Args, "-auto-approve")
 	}
 
-	// sort the vars consistently
-	varKeys := make([]string, 0, len(step.Vars))
-	for k := range step.Vars {
-		varKeys = append(varKeys, k)
+	if !step.Input {
+		cmd.Args = append(cmd.Args, "-input=false")
 	}
-	sort.Strings(varKeys)
 
-	for _, k := range varKeys {
+	for _, k := range sortKeys(step.Vars) {
 		cmd.Args = append(cmd.Args, "-var", fmt.Sprintf("%s=%s", k, step.Vars[k]))
 	}
 

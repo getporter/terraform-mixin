@@ -1,0 +1,109 @@
+mixins:
+  - terraform
+
+name: porter-aks
+version: 0.1.0
+invocationImage: deislabs/porter-aks:latest
+
+credentials:
+  - name: subscription_id
+    env: TF_VAR_subscription_id
+
+  - name: tenant_id
+    env: TF_VAR_tenant_id
+
+  - name: client_id
+    env: TF_VAR_client_id
+
+  - name: client_secret
+    env: TF_VAR_client_secret
+
+  - name: ssh_public_key
+    env: TF_VAR_ssh_public_key
+
+  - name: backend_storage_access_key
+    env: TF_VAR_backend_storage_access_key
+
+  - name: backend_storage_account
+    env: TF_VAR_backend_storage_account
+
+  - name: backend_storage_container
+    env: TF_VAR_backend_storage_container
+
+parameters:
+  - name: location
+    type: string
+    default: "East US"
+    destination:
+      env: TF_VAR_location
+
+  - name: kubernetes_version
+    type: string
+    default: "1.12.7"
+    destination:
+      env: TF_VAR_kubernetes_version
+
+  - name: agent_count
+    type: integer
+    default: 1
+    destination:
+      env: TF_VAR_agent_count
+
+  - name: dns_prefix
+    type: string
+    default: "porteraks"
+    destination:
+      env: TF_VAR_dns_prefix
+
+  - name: cluster_name
+    type: string
+    default: "porteraks"
+    destination:
+      env: TF_VAR_cluster_name
+
+  - name: resource_group_name
+    type: string
+    default: "porteraks"
+    destination:
+      env: TF_VAR_resource_group_name
+
+install:
+  - terraform:
+      description: "Install Azure Kubernetes Service"
+      autoApprove: true
+      input: false
+      backendConfig:
+        key: "{{ bundle.name }}.tfstate"
+        storage_account_name: "{{ bundle.credentials.backend_storage_account }}"
+        container_name: "{{ bundle.credentials.backend_storage_container }}"
+        access_key: "{{ bundle.credentials.backend_storage_access_key }}"
+
+upgrade:
+  - terraform:
+      description: "Upgrade Azure Kubernetes Service"
+      autoApprove: true
+      input: false
+      backendConfig:
+        key: "{{ bundle.name }}.tfstate"
+        storage_account_name: "{{ bundle.credentials.backend_storage_account }}"
+        container_name: "{{ bundle.credentials.backend_storage_container }}"
+        access_key: "{{ bundle.credentials.backend_storage_access_key }}"
+
+status:
+  - terraform:
+      description: "Get Azure Kubernetes Service status"
+      backendConfig:
+        key: "{{ bundle.name }}.tfstate"
+        storage_account_name: "{{ bundle.credentials.backend_storage_account }}"
+        container_name: "{{ bundle.credentials.backend_storage_container }}"
+        access_key: "{{ bundle.credentials.backend_storage_access_key }}"
+
+uninstall:
+  - terraform:
+      description: "Uninstall Azure Kubernetes Service"
+      autoApprove: true
+      backendConfig:
+        key: "{{ bundle.name }}.tfstate"
+        storage_account_name: "{{ bundle.credentials.backend_storage_account }}"
+        container_name: "{{ bundle.credentials.backend_storage_container }}"
+        access_key: "{{ bundle.credentials.backend_storage_access_key }}"
