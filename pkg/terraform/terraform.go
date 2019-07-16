@@ -33,29 +33,30 @@ func (m *Mixin) getPayloadData() ([]byte, error) {
 	return data, errors.Wrap(err, "could not read the payload from STDIN")
 }
 
-func (m *Mixin) getOutput(outputName string) (string, error) {
+func (m *Mixin) getOutput(outputName string) ([]byte, error) {
 	cmd := m.NewCommand("terraform", "output", outputName)
 	cmd.Stderr = m.Err
 
 	out, err := cmd.Output()
 	if err != nil {
 		prettyCmd := fmt.Sprintf("%s %s", cmd.Path, strings.Join(cmd.Args, " "))
-		return "", errors.Wrap(err, fmt.Sprintf("couldn't run command %s", prettyCmd))
+		return nil, errors.Wrap(err, fmt.Sprintf("couldn't run command %s", prettyCmd))
 	}
 
-	return string(out), nil
+	return out, nil
 }
 
 func (m *Mixin) handleOutputs(outputs []terraformOutput) error {
-	var lines []string
 	for _, output := range outputs {
-		val, err := m.getOutput(output.Name)
+		bytes, err := m.getOutput(output.Name)
 		if err != nil {
 			return err
 		}
-		l := fmt.Sprintf("%s=%s", output.Name, val)
-		lines = append(lines, l)
+
+		err = m.Context.WriteMixinOutputToFile(output.Name, bytes)
+		if err != nil {
+			return errors.Wrapf(err, "unable to write output '%s'", output.Name)
+		}
 	}
-	m.Context.WriteOutput(lines)
 	return nil
 }
