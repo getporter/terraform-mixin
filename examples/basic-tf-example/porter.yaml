@@ -1,0 +1,78 @@
+mixins:
+  - terraform
+
+name: basic-tf-example
+version: 0.1.0
+invocationImage: basic-tf-example:latest
+tag: deislabs/basic-tf-example-bundle:v0.1.0
+
+outputs:
+  - name: a
+    type: string
+    applyTo:
+      - install
+      - status
+      - upgrade
+  - name: b
+    type: string
+    applyTo:
+      - status
+      - upgrade
+  - name: c
+    type: string
+    applyTo:
+      - install
+      - status
+
+customActions:
+  plan:
+    description: "Invoke 'terraform plan'"
+    modifies: false
+    stateless: true
+  show:
+    description: "Invoke 'terraform show'"
+    modifies: false
+    stateless: true
+  printVersion:
+    description: "Invoke 'terraform version'"
+    modifies: false
+    stateless: true
+
+install:
+  - terraform:
+      description: "Install Terraform assets"
+      autoApprove: true
+      outputs:
+        - name: a
+        - name: b
+        - name: c
+
+upgrade:
+  - terraform:
+      description: "Upgrade Terraform assets"
+      autoApprove: true
+      outputs:
+        - name: a
+        - name: b
+        - name: c
+
+show:
+  - terraform:
+      description: "Invoke 'terraform show'"
+
+plan:
+  - terraform:
+      description: "Invoke 'terraform plan'"
+
+# Note: this can't be 'version:' as this would conflict with top-level field
+# Hence the need for the 'command:' override
+printVersion:
+  - terraform:
+      description: "Invoke 'terraform version'"
+      command: "version"
+
+uninstall:
+  - terraform:
+      autoApprove: true
+      description: "Uninstall Terraform assets"
+
