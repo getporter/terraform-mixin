@@ -1,8 +1,9 @@
 package main
 
 import (
-	"github.com/deislabs/porter-terraform/pkg/terraform"
 	"github.com/spf13/cobra"
+
+	"github.com/deislabs/porter-terraform/pkg/terraform"
 )
 
 func buildInvokeCommand(mixin *terraform.Mixin) *cobra.Command {
