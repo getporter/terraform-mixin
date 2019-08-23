@@ -6,7 +6,8 @@ import (
 	"io/ioutil"
 	"strings"
 
-	"github.com/deislabs/porter/pkg/context"
+	"github.com/deislabs/porter/pkg/context" // We are not using go-yaml because of serialization problems with jsonschema, don't use this library elsewhere
+	"github.com/gobuffalo/packr/v2"
 	"github.com/pkg/errors"
 )
 
@@ -16,6 +17,7 @@ const DefaultWorkingDir = "/cnab/app/terraform"
 // terraform is the logic behind the terraform mixin
 type Mixin struct {
 	*context.Context
+	schema     *packr.Box
 	WorkingDir string
 }
 
@@ -23,6 +25,7 @@ type Mixin struct {
 func New() *Mixin {
 	return &Mixin{
 		Context:    context.New(),
+		schema:     packr.New("schema", "./schema"),
 		WorkingDir: DefaultWorkingDir,
 	}
 }
@@ -30,7 +33,10 @@ func New() *Mixin {
 func (m *Mixin) getPayloadData() ([]byte, error) {
 	reader := bufio.NewReader(m.In)
 	data, err := ioutil.ReadAll(reader)
-	return data, errors.Wrap(err, "could not read the payload from STDIN")
+	if err != nil {
+		return nil, errors.Wrap(err, "could not read the payload from STDIN")
+	}
+	return data, nil
 }
 
 func (m *Mixin) getOutput(outputName string) ([]byte, error) {

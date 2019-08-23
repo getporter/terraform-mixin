@@ -11,18 +11,15 @@ outputs:
     type: string
     applyTo:
       - install
-      - status
       - upgrade
   - name: b
     type: string
     applyTo:
-      - status
       - upgrade
   - name: c
     type: string
     applyTo:
       - install
-      - status
 
 customActions:
   plan:

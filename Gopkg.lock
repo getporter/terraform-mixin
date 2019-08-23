@@ -11,15 +11,22 @@
 
 [[projects]]
   branch = "master"
-  digest = "1:8a414fd29b38499ee95f5b374bf64991ea251f7b508e43775c523ef90469fe87"
+  digest = "1:9d12b7590ad4a39a29b55bde07abaa6eb2bfdddfb6b91b6018f57a1d8f388eda"
   name = "github.com/deislabs/porter"
   packages = [
     "pkg/context",
-    "pkg/printer",
     "pkg/test",
   ]
   pruneopts = "NUT"
   revision = "51221b2438ae7490880982840cc5003a16b8243e"
+
+[[projects]]
+  digest = "1:81466b4218bf6adddac2572a30ac733a9255919bc2f470b4827a317bd4ee1756"
+  name = "github.com/ghodss/yaml"
+  packages = ["."]
+  pruneopts = "NUT"
+  revision = "0ca9ea5df5451ffdf184b4428c902747c2c11cd7"
+  version = "v1.0.0"
 
 [[projects]]
   digest = "1:9059915429f7f3a5f18cfa6b7cab9a28721d7ac6db4079a62044aa229eb7f2a8"
@@ -220,6 +227,30 @@
 
 [[projects]]
   branch = "master"
+  digest = "1:6dadf98a3dd66127f7a6b0314d9dc4301e496aa5e3095b9f630bf3621c50bd13"
+  name = "github.com/xeipuuv/gojsonpointer"
+  packages = ["."]
+  pruneopts = "NUT"
+  revision = "df4f5c81cb3b310899c091852a576ea7d178aedb"
+
+[[projects]]
+  branch = "master"
+  digest = "1:131db546a264d76defd7a4ce233796316b2ab856991cb4b7d6ced2a3c7294ad3"
+  name = "github.com/xeipuuv/gojsonreference"
+  packages = ["."]
+  pruneopts = "NUT"
+  revision = "bd5ef7bd5415a7ac448318e64f11a24cd21e594b"
+
+[[projects]]
+  digest = "1:5185937abbca299da07bcbeb4e38dfa186c09fbf60042c3d07e0073a0634a78f"
+  name = "github.com/xeipuuv/gojsonschema"
+  packages = ["."]
+  pruneopts = "NUT"
+  revision = "f971f3cd73b2899de6923801c147f075263e0c50"
+  version = "v1.1.0"
+
+[[projects]]
+  branch = "master"
   digest = "1:bbe51412d9915d64ffaa96b51d409e070665efc5194fcf145c4a27d4133107a4"
   name = "golang.org/x/crypto"
   packages = ["ssh/terminal"]
@@ -285,14 +316,14 @@
   analyzer-version = 1
   input-imports = [
     "github.com/deislabs/porter/pkg/context",
-    "github.com/deislabs/porter/pkg/printer",
     "github.com/deislabs/porter/pkg/test",
+    "github.com/ghodss/yaml",
     "github.com/gobuffalo/packr/v2",
-    "github.com/gobuffalo/packr/v2/file/resolver",
     "github.com/pkg/errors",
     "github.com/spf13/cobra",
     "github.com/stretchr/testify/assert",
     "github.com/stretchr/testify/require",
+    "github.com/xeipuuv/gojsonschema",
     "gopkg.in/yaml.v2",
   ]
   solver-name = "gps-cdcl"

@@ -1,0 +1,11 @@
+custom:
+- terraform:
+    description: "Custom Action"
+    command: "command-override"
+    # Supports usual install args as well
+    autoApprove: false
+    logLevel: TRACE
+    backendConfig:
+      key: "my.tfstate"
+    vars:
+      var1: "foo"

@@ -67,6 +67,11 @@ parameters:
     destination:
       env: TF_VAR_resource_group_name
 
+customActions:
+  show:
+    description: "Invoke 'terraform show'"
+    modifies: false
+
 install:
   - terraform:
       description: "Install Azure Kubernetes Service"
@@ -89,9 +94,9 @@ upgrade:
         container_name: "{{ bundle.credentials.backend_storage_container }}"
         access_key: "{{ bundle.credentials.backend_storage_access_key }}"
 
-status:
+show:
   - terraform:
-      description: "Get Azure Kubernetes Service status"
+      description: "Invoke 'terraform show'"
       backendConfig:
         key: "{{ bundle.name }}.tfstate"
         storage_account_name: "{{ bundle.credentials.backend_storage_account }}"
