@@ -1,0 +1,4 @@
+uninstall:
+- terraform:
+    description: "Invalid Uninstall"
+    input: true

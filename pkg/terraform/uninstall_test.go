@@ -40,6 +40,7 @@ func TestMixin_Uninstall(t *testing.T) {
 			}, "\n"),
 			uninstallStep: UninstallStep{
 				UninstallArguments: UninstallArguments{
+					Step: Step{Description: "Uninstall"},
 					AutoApprove: true,
 					Vars: map[string]string{
 						"cool": "true",

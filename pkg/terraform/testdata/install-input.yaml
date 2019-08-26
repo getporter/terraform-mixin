@@ -1,5 +1,10 @@
 install:
 - terraform:
     description: "Install MySQL"
-    init: true
+    autoApprove: false
+    input: false
     logLevel: TRACE
+    backendConfig:
+      key: "my.tfstate"
+    vars:
+      myvar: "foo"

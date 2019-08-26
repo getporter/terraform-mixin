@@ -1,7 +1,0 @@
-{
-  "install": {
-    "type": "object",
-    "properties": {},
-    "additionalProperties": true
-  }
-}
