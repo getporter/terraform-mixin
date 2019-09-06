@@ -38,7 +38,6 @@ customActions:
 install:
   - terraform:
       description: "Install Terraform assets"
-      autoApprove: true
       outputs:
         - name: a
         - name: b
@@ -47,7 +46,6 @@ install:
 upgrade:
   - terraform:
       description: "Upgrade Terraform assets"
-      autoApprove: true
       outputs:
         - name: a
         - name: b
@@ -70,6 +68,5 @@ printVersion:
 
 uninstall:
   - terraform:
-      autoApprove: true
       description: "Uninstall Terraform assets"
 
