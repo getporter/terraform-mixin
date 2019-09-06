@@ -41,8 +41,7 @@ func TestMixin_Upgrade(t *testing.T) {
 			}, "\n"),
 			upgradeStep: UpgradeStep{
 				UpgradeArguments: UpgradeArguments{
-					Step:        Step{Description: "Upgrade"},
-					AutoApprove: true,
+					Step: Step{Description: "Upgrade"},
 					Vars: map[string]string{
 						"cool": "true",
 						"foo":  "bar",

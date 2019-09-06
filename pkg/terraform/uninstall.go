@@ -21,6 +21,7 @@ type UninstallStep struct {
 type UninstallArguments struct {
 	Step `yaml:",inline"`
 
+	// AutoApprove will be deprecated in a later release, it is no longer used, --auto-approve=true is always passed to terraform
 	AutoApprove   bool              `yaml:"autoApprove"`
 	Vars          map[string]string `yaml:"vars"`
 	LogLevel      string            `yaml:"logLevel"`
@@ -63,9 +64,8 @@ func (m *Mixin) Uninstall() error {
 	// Run terraform destroy
 	cmd := m.NewCommand("terraform", "destroy")
 
-	if step.AutoApprove {
-		cmd.Args = append(cmd.Args, "-auto-approve")
-	}
+	// Always run in non-interactive mode
+	cmd.Args = append(cmd.Args, "-auto-approve")
 
 	for _, k := range sortKeys(step.Vars) {
 		cmd.Args = append(cmd.Args, "-var", fmt.Sprintf("%s=%s", k, step.Vars[k]))
