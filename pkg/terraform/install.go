@@ -21,7 +21,9 @@ type InstallStep struct {
 type InstallArguments struct {
 	Step `yaml:",inline"`
 
+	// AutoApprove will be deprecated in a later release, it is no longer used, --auto-approve=true is always passed to terraform
 	AutoApprove   bool              `yaml:"autoApprove"`
+
 	Vars          map[string]string `yaml:"vars"`
 	LogLevel      string            `yaml:"logLevel"`
 	Input         bool              `yaml:"input"`
@@ -64,9 +66,8 @@ func (m *Mixin) Install() error {
 	// Run Terraform apply
 	cmd := m.NewCommand("terraform", "apply")
 
-	if step.AutoApprove {
-		cmd.Args = append(cmd.Args, "-auto-approve")
-	}
+	// Always run in non-interactive mode
+	cmd.Args = append(cmd.Args, "-auto-approve")
 
 	if !step.Input {
 		cmd.Args = append(cmd.Args, "-input=false")

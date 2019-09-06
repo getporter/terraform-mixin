@@ -1,7 +1,6 @@
 upgrade:
 - terraform:
     description: "Upgrade MySQL"
-    autoApprove: false
     input: false
     logLevel: TRACE
     backendConfig:

@@ -1,7 +1,6 @@
 uninstall:
 - terraform:
     description: "Uninstall MySQL"
-    autoApprove: false
     logLevel: TRACE
     backendConfig:
       key: "my.tfstate"

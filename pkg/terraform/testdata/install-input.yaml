@@ -1,7 +1,6 @@
 install:
 - terraform:
     description: "Install MySQL"
-    autoApprove: false
     input: false
     logLevel: TRACE
     backendConfig:

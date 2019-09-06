@@ -47,9 +47,8 @@ func TestMixin_Install(t *testing.T) {
 			}, "\n"),
 			installStep: InstallStep{
 				InstallArguments: InstallArguments{
-					Step: Step{Description: "Install"},
-					AutoApprove: true,
-					LogLevel:    "TRACE",
+					Step:     Step{Description: "Install"},
+					LogLevel: "TRACE",
 					Vars: map[string]string{
 						"cool": "true",
 						"foo":  "bar",
