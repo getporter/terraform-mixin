@@ -1,14 +1,6 @@
 [[constraint]]
   name = "github.com/deislabs/porter"
-  branch = "master"
-
-[[constraint]]
-  name = "github.com/spf13/cobra"
-  version = "0.0.3"
-
-[[constraint]]
-  name = "github.com/gobuffalo/packr"
-  version = "2.0.0-rc.13"
+  version = "v0.14.1-beta.2"
 
 [prune]
   non-go = true
