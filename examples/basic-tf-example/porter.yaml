@@ -6,6 +6,17 @@ version: 0.1.0
 invocationImage: basic-tf-example:latest
 tag: deislabs/basic-tf-example-bundle:v0.1.0
 
+parameters:
+  - name: a
+    type: string
+    default: a
+  - name: b
+    type: string
+    default: b
+  - name: c
+    type: string
+    default: c
+
 outputs:
   - name: a
     type: string
@@ -38,6 +49,10 @@ customActions:
 install:
   - terraform:
       description: "Install Terraform assets"
+      vars:
+        a: "{{bundle.parameters.a}}"
+        b: "{{bundle.parameters.b}}"
+        c: "{{bundle.parameters.c}}"
       outputs:
         - name: a
         - name: b
@@ -46,6 +61,10 @@ install:
 upgrade:
   - terraform:
       description: "Upgrade Terraform assets"
+      vars:
+        a: "{{bundle.parameters.a}}"
+        b: "{{bundle.parameters.b}}"
+        c: "{{bundle.parameters.c}}"
       outputs:
         - name: a
         - name: b
@@ -58,6 +77,13 @@ show:
 plan:
   - terraform:
       description: "Invoke 'terraform plan'"
+      flags:
+        no-color:
+        out: "/dev/null"
+        var:
+          - "a={{bundle.parameters.a}}"
+          - "b={{bundle.parameters.b}}"
+          - "c={{bundle.parameters.c}}"
 
 # Note: this can't be 'version:' as this would conflict with top-level field
 # Hence the need for the 'command:' override

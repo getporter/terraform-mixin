@@ -5,8 +5,8 @@ import (
 	"os"
 	"strings"
 
+	"github.com/deislabs/porter/pkg/exec/builder"
 	"github.com/pkg/errors"
-
 	yaml "gopkg.in/yaml.v2"
 )
 
@@ -57,6 +57,9 @@ type ExecuteInstruction struct {
 
 	// Command allows an override of the actual terraform command
 	Command string `yaml:"command,omitempty"`
+
+	// Flags represents a mapping of a flag to flag value(s) specific to the command
+	Flags builder.Flags `yaml:"flags,omitempty"`
 }
 
 // Execute will reapply manifests using kubectl
@@ -100,6 +103,12 @@ func (m *Mixin) Execute(opts ExecuteCommandOptions) error {
 		command = step.Command
 	}
 	cmd := m.NewCommand("terraform", command)
+
+	// All flags in the terraform cli use a single dash
+	for i := range step.Flags {
+		step.Flags[i].Dash = "-"
+	}
+	cmd.Args = append(cmd.Args, step.Flags.ToSlice()...)
 
 	cmd.Stdout = m.Out
 	cmd.Stderr = m.Err

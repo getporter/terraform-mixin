@@ -1,6 +1,9 @@
 [[constraint]]
   name = "github.com/deislabs/porter"
-  version = "v0.14.1-beta.2"
+  # version = "v0.17.0-beta.1"
+  # TODO: change to proper version above
+  source = "github.com/vdice/porter"
+  branch = "feat/exec-flag-dash"
 
 [prune]
   non-go = true

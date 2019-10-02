@@ -1,11 +1,11 @@
 output "a" {
-  value = "a"
+  value = "${var.a}"
 }
 
 output "b" {
-  value = "b"
+  value = "${var.b}"
 }
 
 output "c" {
-  value = "c"
+  value = "${var.c}"
 }
