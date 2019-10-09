@@ -11,7 +11,11 @@ import (
 type Flag struct {
 	Name   string
 	Values []string
-	Dash   string
+}
+
+type Dashes struct {
+	Long  string
+	Short string
 }
 
 // NewFlag creates an instance of a Flag.
@@ -27,15 +31,11 @@ func NewFlag(name string, values ...string) Flag {
 }
 
 // ToSlice converts to a string array suitable of command arguments suitable for passing to exec.Command
-func (flag Flag) ToSlice() []string {
+func (flag Flag) ToSlice(dashes Dashes) []string {
 	var flagName string
-	dash := flag.Dash
-
-	if dash == "" {
-		dash = "--"
-		if len(flag.Name) == 1 {
-			dash = "-"
-		}
+	dash := dashes.Long
+	if len(flag.Name) == 1 {
+		dash = dashes.Short
 	}
 	flagName = fmt.Sprintf("%s%s", dash, flag.Name)
 
@@ -54,12 +54,12 @@ func (flag Flag) ToSlice() []string {
 type Flags []Flag
 
 // ToSlice converts to a string array suitable of command arguments suitable for passing to exec.Command
-func (flags *Flags) ToSlice() []string {
+func (flags *Flags) ToSlice(dashes Dashes) []string {
 	result := make([]string, 0, 2*len(*flags))
 
 	sort.Sort(flags)
 	for _, flag := range *flags {
-		result = append(result, flag.ToSlice()...)
+		result = append(result, flag.ToSlice(dashes)...)
 	}
 
 	return result

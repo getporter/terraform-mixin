@@ -51,6 +51,29 @@ type ExecuteStep struct {
 	ExecuteInstruction `yaml:"terraform"`
 }
 
+var _ builder.ExecutableStep = ExecuteStep{}
+var _ builder.HasCustomDashes = ExecuteStep{}
+
+func (s ExecuteStep) GetCommand() string {
+	return "terraform"
+}
+
+func (s ExecuteStep) GetArguments() []string {
+	return []string{}
+}
+
+func (s ExecuteStep) GetFlags() builder.Flags {
+	return s.Flags
+}
+
+func (s Step) GetDashes() builder.Dashes {
+	// All flags in the terraform cli use a single dash
+	return builder.Dashes{
+		Long:  "-",
+		Short: "-",
+	}
+}
+
 type ExecuteInstruction struct {
 	// InstallAguments contains the usual terraform command args for re-use here
 	InstallArguments `yaml:",inline"`
@@ -104,11 +127,7 @@ func (m *Mixin) Execute(opts ExecuteCommandOptions) error {
 	}
 	cmd := m.NewCommand("terraform", command)
 
-	// All flags in the terraform cli use a single dash
-	for i := range step.Flags {
-		step.Flags[i].Dash = "-"
-	}
-	cmd.Args = append(cmd.Args, step.Flags.ToSlice()...)
+	cmd.Args = append(cmd.Args, step.Flags.ToSlice(step.GetDashes())...)
 
 	cmd.Stdout = m.Out
 	cmd.Stderr = m.Err

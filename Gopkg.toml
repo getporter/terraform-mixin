@@ -3,7 +3,7 @@
   # version = "v0.17.0-beta.1"
   # TODO: change to proper version above
   source = "github.com/vdice/porter"
-  branch = "feat/exec-flag-dash"
+  branch = "feat/step-get-dashes"
 
 [prune]
   non-go = true

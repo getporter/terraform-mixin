@@ -26,8 +26,8 @@
   version = "v1.1.1"
 
 [[projects]]
-  branch = "feat/exec-flag-dash"
-  digest = "1:f2c455a817c2ef84bdea2e2dbe7e67cbd75763e76fb0847867752a2a3608c467"
+  branch = "feat/step-get-dashes"
+  digest = "1:7b60cddd9808f265ba077cd3be2dc871777e9336655abdd8af529f65a99ccf07"
   name = "github.com/deislabs/porter"
   packages = [
     "pkg/context",
@@ -38,7 +38,7 @@
     "pkg/test",
   ]
   pruneopts = "NUT"
-  revision = "6a4a0dbf75a9ebb5424dd61d84acb1c84659d86b"
+  revision = "4acf56c2fac2eed5dab36e0e0017415f2f78d20e"
   source = "github.com/vdice/porter"
 
 [[projects]]
