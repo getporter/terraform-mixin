@@ -26,8 +26,7 @@
   version = "v1.1.1"
 
 [[projects]]
-  branch = "feat/step-get-dashes"
-  digest = "1:7b60cddd9808f265ba077cd3be2dc871777e9336655abdd8af529f65a99ccf07"
+  digest = "1:c54d409ca84f6c69053941ee8306d9a9c1518938139558adc1e3ad69054b0c3b"
   name = "github.com/deislabs/porter"
   packages = [
     "pkg/context",
@@ -38,8 +37,8 @@
     "pkg/test",
   ]
   pruneopts = "NUT"
-  revision = "4acf56c2fac2eed5dab36e0e0017415f2f78d20e"
-  source = "github.com/vdice/porter"
+  revision = "bd404082eb41bc2fd836c15f70497c40ae120309"
+  version = "v0.20.0-beta.1"
 
 [[projects]]
   digest = "1:81466b4218bf6adddac2572a30ac733a9255919bc2f470b4827a317bd4ee1756"

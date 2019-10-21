@@ -66,7 +66,7 @@ func (s ExecuteStep) GetFlags() builder.Flags {
 	return s.Flags
 }
 
-func (s Step) GetDashes() builder.Dashes {
+func (s ExecuteStep) GetDashes() builder.Dashes {
 	// All flags in the terraform cli use a single dash
 	return builder.Dashes{
 		Long:  "-",
