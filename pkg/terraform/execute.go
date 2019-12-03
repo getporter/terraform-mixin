@@ -5,8 +5,8 @@ import (
 	"os"
 	"strings"
 
+	"github.com/deislabs/porter/pkg/exec/builder"
 	"github.com/pkg/errors"
-
 	yaml "gopkg.in/yaml.v2"
 )
 
@@ -51,12 +51,38 @@ type ExecuteStep struct {
 	ExecuteInstruction `yaml:"terraform"`
 }
 
+var _ builder.ExecutableStep = ExecuteStep{}
+var _ builder.HasCustomDashes = ExecuteStep{}
+
+func (s ExecuteStep) GetCommand() string {
+	return "terraform"
+}
+
+func (s ExecuteStep) GetArguments() []string {
+	return []string{}
+}
+
+func (s ExecuteStep) GetFlags() builder.Flags {
+	return s.Flags
+}
+
+func (s ExecuteStep) GetDashes() builder.Dashes {
+	// All flags in the terraform cli use a single dash
+	return builder.Dashes{
+		Long:  "-",
+		Short: "-",
+	}
+}
+
 type ExecuteInstruction struct {
 	// InstallAguments contains the usual terraform command args for re-use here
 	InstallArguments `yaml:",inline"`
 
 	// Command allows an override of the actual terraform command
 	Command string `yaml:"command,omitempty"`
+
+	// Flags represents a mapping of a flag to flag value(s) specific to the command
+	Flags builder.Flags `yaml:"flags,omitempty"`
 }
 
 // Execute will reapply manifests using kubectl
@@ -100,6 +126,8 @@ func (m *Mixin) Execute(opts ExecuteCommandOptions) error {
 		command = step.Command
 	}
 	cmd := m.NewCommand("terraform", command)
+
+	cmd.Args = append(cmd.Args, step.Flags.ToSlice(step.GetDashes())...)
 
 	cmd.Stdout = m.Out
 	cmd.Stderr = m.Err

@@ -7,6 +7,7 @@ import (
 	"strings"
 	"testing"
 
+	"github.com/deislabs/porter/pkg/exec/builder"
 	"github.com/deislabs/porter/pkg/test"
 	"github.com/stretchr/testify/require"
 
@@ -46,6 +47,36 @@ func TestMixin_ExecuteStep(t *testing.T) {
 					ExecuteStep{
 						ExecuteInstruction: ExecuteInstruction{
 							Command: "version",
+							InstallArguments: InstallArguments{
+								Step: Step{
+									Description: "My Custom Terraform Action",
+								},
+							},
+						},
+					},
+				},
+			},
+		},
+		{
+			expectedCommand: "terraform plan -destroy -out path -var 'foo=bar' -var 'baz=boo'",
+			executeAction: ExecuteAction{
+				Steps: []ExecuteStep{
+					ExecuteStep{
+						ExecuteInstruction: ExecuteInstruction{
+							Command: "plan",
+							Flags: builder.Flags{
+								{
+									Name:   "out",
+									Values: []string{"path"},
+								},
+								{
+									Name: "destroy",
+								},
+								{
+									Name:   "var",
+									Values: []string{"'foo=bar'", "'baz=boo'"},
+								},
+							},
 							InstallArguments: InstallArguments{
 								Step: Step{
 									Description: "My Custom Terraform Action",

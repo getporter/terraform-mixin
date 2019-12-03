@@ -2,6 +2,22 @@
 
 
 [[projects]]
+  digest = "1:06ba0f52b4fee64f54be7583d668feb330cebbbf6eb537287878b3e188ec5640"
+  name = "github.com/PaesslerAG/gval"
+  packages = ["."]
+  pruneopts = "NUT"
+  revision = "0ce847fc5e6163ee05ae770a441ba497fc77dcaa"
+  version = "v1.0.1"
+
+[[projects]]
+  digest = "1:a4bb1187c0770b3f32a9987ecd3cb306998e17dae391d371457621f17651068e"
+  name = "github.com/PaesslerAG/jsonpath"
+  packages = ["."]
+  pruneopts = "NUT"
+  revision = "c18d0f043db32b5d4295e14c6518fa9160e45d15"
+  version = "0.1.1"
+
+[[projects]]
   digest = "1:ffe9824d294da03b391f44e1ae8281281b4afc1bdaa9588c9097785e3af10cec"
   name = "github.com/davecgh/go-spew"
   packages = ["spew"]
@@ -10,18 +26,19 @@
   version = "v1.1.1"
 
 [[projects]]
-  digest = "1:5dbeee38ba124d233693f4d3b0e74fbb6df785bbff42c22bc1b44fb1c338885f"
+  digest = "1:c54d409ca84f6c69053941ee8306d9a9c1518938139558adc1e3ad69054b0c3b"
   name = "github.com/deislabs/porter"
   packages = [
     "pkg/context",
+    "pkg/exec/builder",
     "pkg/mixin",
     "pkg/porter/version",
     "pkg/printer",
     "pkg/test",
   ]
   pruneopts = "NUT"
-  revision = "72dd5df11c28ceb3a0599674556ff728df333118"
-  version = "v0.14.1-beta.2"
+  revision = "bd404082eb41bc2fd836c15f70497c40ae120309"
+  version = "v0.20.0-beta.1"
 
 [[projects]]
   digest = "1:81466b4218bf6adddac2572a30ac733a9255919bc2f470b4827a317bd4ee1756"
@@ -319,6 +336,7 @@
   analyzer-version = 1
   input-imports = [
     "github.com/deislabs/porter/pkg/context",
+    "github.com/deislabs/porter/pkg/exec/builder",
     "github.com/deislabs/porter/pkg/mixin",
     "github.com/deislabs/porter/pkg/porter/version",
     "github.com/deislabs/porter/pkg/printer",
