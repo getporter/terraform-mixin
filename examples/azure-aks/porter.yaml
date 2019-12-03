@@ -3,7 +3,7 @@ mixins:
 
 name: porter-aks
 version: 0.1.0
-invocationImage: deislabs/porter-aks:latest
+tag: deislabs/porter-aks:latest
 
 credentials:
   - name: subscription_id
@@ -34,38 +34,32 @@ parameters:
   - name: location
     type: string
     default: "East US"
-    destination:
-      env: TF_VAR_location
+    env: TF_VAR_location
 
   - name: kubernetes_version
     type: string
     default: "1.12.7"
-    destination:
-      env: TF_VAR_kubernetes_version
+    env: TF_VAR_kubernetes_version
 
   - name: agent_count
     type: integer
     default: 1
-    destination:
-      env: TF_VAR_agent_count
+    env: TF_VAR_agent_count
 
   - name: dns_prefix
     type: string
     default: "porteraks"
-    destination:
-      env: TF_VAR_dns_prefix
+    env: TF_VAR_dns_prefix
 
   - name: cluster_name
     type: string
     default: "porteraks"
-    destination:
-      env: TF_VAR_cluster_name
+    env: TF_VAR_cluster_name
 
   - name: resource_group_name
     type: string
     default: "porteraks"
-    destination:
-      env: TF_VAR_resource_group_name
+    env: TF_VAR_resource_group_name
 
 customActions:
   show:

@@ -3,8 +3,7 @@ mixins:
 
 name: basic-tf-example
 version: 0.1.0
-invocationImage: basic-tf-example:latest
-tag: deislabs/basic-tf-example-bundle:v0.1.0
+tag: deislabs/basic-tf-example:v0.1.0
 
 outputs:
   - name: a
