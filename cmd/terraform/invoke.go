@@ -3,7 +3,7 @@ package main
 import (
 	"github.com/spf13/cobra"
 
-	"github.com/deislabs/porter-terraform/pkg/terraform"
+	"get.porter.sh/mixin/terraform/pkg/terraform"
 )
 
 func buildInvokeCommand(mixin *terraform.Mixin) *cobra.Command {

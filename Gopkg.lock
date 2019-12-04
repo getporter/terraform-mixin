@@ -27,7 +27,7 @@
 
 [[projects]]
   digest = "1:c54d409ca84f6c69053941ee8306d9a9c1518938139558adc1e3ad69054b0c3b"
-  name = "github.com/deislabs/porter"
+  name = "get.porter.sh/porter"
   packages = [
     "pkg/context",
     "pkg/exec/builder",
@@ -335,12 +335,12 @@
   analyzer-name = "dep"
   analyzer-version = 1
   input-imports = [
-    "github.com/deislabs/porter/pkg/context",
-    "github.com/deislabs/porter/pkg/exec/builder",
-    "github.com/deislabs/porter/pkg/mixin",
-    "github.com/deislabs/porter/pkg/porter/version",
-    "github.com/deislabs/porter/pkg/printer",
-    "github.com/deislabs/porter/pkg/test",
+    "get.porter.sh/porter/pkg/context",
+    "get.porter.sh/porter/pkg/exec/builder",
+    "get.porter.sh/porter/pkg/mixin",
+    "get.porter.sh/porter/pkg/porter/version",
+    "get.porter.sh/porter/pkg/printer",
+    "get.porter.sh/porter/pkg/test",
     "github.com/ghodss/yaml",
     "github.com/gobuffalo/packr/v2",
     "github.com/pkg/errors",

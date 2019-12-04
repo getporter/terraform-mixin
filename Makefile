@@ -1,5 +1,5 @@
 MIXIN = terraform
-PKG = github.com/deislabs/porter-$(MIXIN)
+PKG = get.porter.sh/mixin/$(MIXIN)
 SHELL = bash
 
 PORTER_HOME ?= $(HOME)/.porter

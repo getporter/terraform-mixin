@@ -1,5 +1,5 @@
 [[constraint]]
-  name = "github.com/deislabs/porter"
+  name = "get.porter.sh/porter"
   version = "v0.20.0-beta.1"
 
 [prune]

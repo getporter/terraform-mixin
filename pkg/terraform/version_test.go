@@ -6,9 +6,9 @@ import (
 
 	"github.com/stretchr/testify/require"
 
-	"github.com/deislabs/porter-terraform/pkg"
-	"github.com/deislabs/porter/pkg/porter/version"
-	"github.com/deislabs/porter/pkg/printer"
+	"get.porter.sh/mixin/terraform/pkg"
+	"get.porter.sh/porter/pkg/porter/version"
+	"get.porter.sh/porter/pkg/printer"
 )
 
 func TestPrintVersion(t *testing.T) {
