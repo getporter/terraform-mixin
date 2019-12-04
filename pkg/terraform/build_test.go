@@ -13,7 +13,7 @@ func TestMixin_Build(t *testing.T) {
 	err := m.Build()
 	require.NoError(t, err)
 
-	wantOutput := `ENV TERRAFORM_VERSION=0.11.11
+	wantOutput := `ENV TERRAFORM_VERSION=0.12.17
 RUN apt-get update && apt-get install -y wget unzip && \
  wget https://releases.hashicorp.com/terraform/${TERRAFORM_VERSION}/terraform_${TERRAFORM_VERSION}_linux_amd64.zip && \
  unzip terraform_${TERRAFORM_VERSION}_linux_amd64.zip -d /usr/bin
