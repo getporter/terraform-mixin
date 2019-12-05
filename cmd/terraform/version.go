@@ -1,8 +1,8 @@
 package main
 
 import (
-	"github.com/deislabs/porter-terraform/pkg/terraform"
-	"github.com/deislabs/porter/pkg/porter/version"
+	"get.porter.sh/mixin/terraform/pkg/terraform"
+	"get.porter.sh/porter/pkg/porter/version"
 	"github.com/spf13/cobra"
 )
 

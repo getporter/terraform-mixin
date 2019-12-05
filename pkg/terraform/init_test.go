@@ -4,7 +4,7 @@ import (
 	"os"
 	"testing"
 
-	"github.com/deislabs/porter/pkg/test"
+	"get.porter.sh/porter/pkg/test"
 	"github.com/stretchr/testify/require"
 )
 
@@ -27,7 +27,7 @@ func TestMixin_InitBackend(t *testing.T) {
 	h := NewTestMixin(t)
 
 	backendConfig := map[string]string{
-		"drink": "dubonnet",
+		"drink":  "dubonnet",
 		"donuts": "definitely",
 	}
 

@@ -7,8 +7,8 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/deislabs/porter/pkg/exec/builder"
-	"github.com/deislabs/porter/pkg/test"
+	"get.porter.sh/porter/pkg/exec/builder"
+	"get.porter.sh/porter/pkg/test"
 	"github.com/stretchr/testify/require"
 
 	yaml "gopkg.in/yaml.v2"
