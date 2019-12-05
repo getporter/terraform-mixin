@@ -1,6 +1,6 @@
 [[constraint]]
   name = "get.porter.sh/porter"
-  version = "v0.20.0-beta.1"
+  version = "v0.22.0-beta.1"
 
 [prune]
   non-go = true

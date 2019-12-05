@@ -2,6 +2,21 @@
 
 
 [[projects]]
+  digest = "1:e99fd43007977ad482b09d20828c8c225685f82b9f2aef5a74d8a49bac6ca57a"
+  name = "get.porter.sh/porter"
+  packages = [
+    "pkg/context",
+    "pkg/exec/builder",
+    "pkg/mixin",
+    "pkg/porter/version",
+    "pkg/printer",
+    "pkg/test",
+  ]
+  pruneopts = "NUT"
+  revision = "8f3e429db9a2842ddca2570b1eb559564331a6e0"
+  version = "v0.22.0-beta.1"
+
+[[projects]]
   digest = "1:06ba0f52b4fee64f54be7583d668feb330cebbbf6eb537287878b3e188ec5640"
   name = "github.com/PaesslerAG/gval"
   packages = ["."]
@@ -24,21 +39,6 @@
   pruneopts = "NUT"
   revision = "8991bc29aa16c548c550c7ff78260e27b9ab7c73"
   version = "v1.1.1"
-
-[[projects]]
-  digest = "1:c54d409ca84f6c69053941ee8306d9a9c1518938139558adc1e3ad69054b0c3b"
-  name = "get.porter.sh/porter"
-  packages = [
-    "pkg/context",
-    "pkg/exec/builder",
-    "pkg/mixin",
-    "pkg/porter/version",
-    "pkg/printer",
-    "pkg/test",
-  ]
-  pruneopts = "NUT"
-  revision = "bd404082eb41bc2fd836c15f70497c40ae120309"
-  version = "v0.20.0-beta.1"
 
 [[projects]]
   digest = "1:81466b4218bf6adddac2572a30ac733a9255919bc2f470b4827a317bd4ee1756"
