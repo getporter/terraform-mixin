@@ -4,8 +4,7 @@ const { events, Job, Group } = require("brigadier");
 // Globals
 // **********************************************
 
-const projectName = "porter-terraform";
-const projectOrg = "deislabs";
+const projectName = "terraform";
 
 // **********************************************
 // Event Handlers
@@ -100,7 +99,7 @@ class GoJob extends Job {
     super(name);
 
     const gopath = "/go";
-    const localPath = gopath + `/src/github.com/${projectOrg}/${projectName}`;
+    const localPath = gopath + `/src/get.porter.sh/mixin/${projectName}`;
 
     // Here using the large-but-useful deis/go-dev image as we have a need for deps
     // already pre-installed in this image, e.g. helm, az, docker, etc.
