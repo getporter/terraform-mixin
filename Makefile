@@ -81,7 +81,7 @@ publish: bin/porter$(FILE_EXT)
 	az storage blob upload -c porter -n atom.xml -f bin/atom.xml
 
 bin/porter$(FILE_EXT):
-	curl -fsSLo bin/porter$(FILE_EXT) https://cdn.deislabs.io/porter/canary/porter-$(CLIENT_PLATFORM)-$(CLIENT_ARCH)$(FILE_EXT)
+	curl -fsSLo bin/porter$(FILE_EXT) https://cdn.porter.sh/canary/porter-$(CLIENT_PLATFORM)-$(CLIENT_ARCH)$(FILE_EXT)
 	chmod +x bin/porter$(FILE_EXT)
 
 install:
