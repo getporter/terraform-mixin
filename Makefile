@@ -2,6 +2,8 @@ MIXIN = terraform
 PKG = get.porter.sh/mixin/$(MIXIN)
 SHELL = bash
 
+GO = GO111MODULE=on go
+
 PORTER_HOME ?= $(HOME)/.porter
 
 COMMIT ?= $(shell git rev-parse --short HEAD)
@@ -9,7 +11,7 @@ VERSION ?= $(shell git describe --tags 2> /dev/null || echo v0)
 PERMALINK ?= $(shell git describe --tags --exact-match &> /dev/null && echo latest || echo canary)
 
 LDFLAGS = -w -X $(PKG)/pkg.Version=$(VERSION) -X $(PKG)/pkg.Commit=$(COMMIT)
-XBUILD = CGO_ENABLED=0 go build -a -tags netgo -ldflags '$(LDFLAGS)'
+XBUILD = CGO_ENABLED=0 $(GO) build -a -tags netgo -ldflags '$(LDFLAGS)'
 BINDIR = bin/mixins/$(MIXIN)
 
 CLIENT_PLATFORM ?= $(shell go env GOOS)
@@ -34,19 +36,19 @@ build: build-client build-runtime
 
 build-runtime: generate
 	mkdir -p $(BINDIR)
-	GOARCH=$(RUNTIME_ARCH) GOOS=$(RUNTIME_PLATFORM) go build -ldflags '$(LDFLAGS)' -o $(BINDIR)/$(MIXIN)-runtime$(FILE_EXT) ./cmd/$(MIXIN)
+	GOARCH=$(RUNTIME_ARCH) GOOS=$(RUNTIME_PLATFORM) $(GO) build -ldflags '$(LDFLAGS)' -o $(BINDIR)/$(MIXIN)-runtime$(FILE_EXT) ./cmd/$(MIXIN)
 
 build-client: generate
 	mkdir -p $(BINDIR)
-	go build -ldflags '$(LDFLAGS)' -o $(BINDIR)/$(MIXIN)$(FILE_EXT) ./cmd/$(MIXIN)
+	$(GO) build -ldflags '$(LDFLAGS)' -o $(BINDIR)/$(MIXIN)$(FILE_EXT) ./cmd/$(MIXIN)
 
 generate: packr2
-	go generate ./...
+	$(GO) generate ./...
 
 HAS_PACKR2 := $(shell command -v packr2)
 packr2:
 ifndef HAS_PACKR2
-	go get -u github.com/gobuffalo/packr/v2/packr2
+	$(GO) get -u github.com/gobuffalo/packr/v2/packr2
 endif
 
 xbuild-all:
@@ -63,7 +65,7 @@ $(BINDIR)/$(VERSION)/$(MIXIN)-$(CLIENT_PLATFORM)-$(CLIENT_ARCH)$(FILE_EXT):
 test: test-unit
 
 test-unit: build
-	go test ./...
+	$(GO) test ./...
 
 publish: bin/porter$(FILE_EXT)
 	# AZURE_STORAGE_CONNECTION_STRING will be used for auth in the following commands
