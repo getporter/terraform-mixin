@@ -51,11 +51,12 @@ ifndef HAS_PACKR2
 	$(GO) get -u github.com/gobuffalo/packr/v2/packr2
 endif
 
-xbuild-all:
+xbuild-all: generate
 	$(foreach OS, $(SUPPORTED_PLATFORMS), \
 		$(foreach ARCH, $(SUPPORTED_ARCHES), \
 				$(MAKE) $(MAKE_OPTS) CLIENT_PLATFORM=$(OS) CLIENT_ARCH=$(ARCH) MIXIN=$(MIXIN) xbuild; \
 		))
+	$(MAKE) clean-packr
 
 xbuild: $(BINDIR)/$(VERSION)/$(MIXIN)-$(CLIENT_PLATFORM)-$(CLIENT_ARCH)$(FILE_EXT)
 $(BINDIR)/$(VERSION)/$(MIXIN)-$(CLIENT_PLATFORM)-$(CLIENT_ARCH)$(FILE_EXT):
