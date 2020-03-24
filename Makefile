@@ -51,21 +51,27 @@ ifndef HAS_PACKR2
 	$(GO) get -u github.com/gobuffalo/packr/v2/packr2
 endif
 
-xbuild-all:
+xbuild-all: generate
 	$(foreach OS, $(SUPPORTED_PLATFORMS), \
 		$(foreach ARCH, $(SUPPORTED_ARCHES), \
 				$(MAKE) $(MAKE_OPTS) CLIENT_PLATFORM=$(OS) CLIENT_ARCH=$(ARCH) MIXIN=$(MIXIN) xbuild; \
 		))
+	$(MAKE) clean-packr
 
 xbuild: $(BINDIR)/$(VERSION)/$(MIXIN)-$(CLIENT_PLATFORM)-$(CLIENT_ARCH)$(FILE_EXT)
 $(BINDIR)/$(VERSION)/$(MIXIN)-$(CLIENT_PLATFORM)-$(CLIENT_ARCH)$(FILE_EXT):
 	mkdir -p $(dir $@)
 	GOOS=$(CLIENT_PLATFORM) GOARCH=$(CLIENT_ARCH) $(XBUILD) -o $@ ./cmd/$(MIXIN)
 
-test: test-unit
+test: test-unit test-integration
 
 test-unit: build
-	$(GO) test ./...
+	$(GO) test ./pkg/...
+
+test-integration: xbuild
+	# Test against the cross-built client binary that we will publish
+	cp $(BINDIR)/$(VERSION)/$(MIXIN)-$(CLIENT_PLATFORM)-$(CLIENT_ARCH)$(FILE_EXT) $(BINDIR)/$(MIXIN)$(FILE_EXT)
+	$(GO) test -tags=integration ./tests/...
 
 publish: bin/porter$(FILE_EXT)
 	# AZURE_STORAGE_CONNECTION_STRING will be used for auth in the following commands
@@ -91,5 +97,8 @@ install:
 	install $(BINDIR)/$(MIXIN)$(FILE_EXT) $(PORTER_HOME)/mixins/$(MIXIN)/$(MIXIN)$(FILE_EXT)
 	install $(BINDIR)/$(MIXIN)-runtime$(FILE_EXT) $(PORTER_HOME)/mixins/$(MIXIN)/$(MIXIN)-runtime$(FILE_EXT)
 
-clean:
+clean: clean-packr
 	-rm -fr bin/
+
+clean-packr: packr2
+	cd pkg/$(MIXIN) && packr2 clean

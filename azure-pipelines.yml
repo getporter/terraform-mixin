@@ -30,7 +30,7 @@ steps:
   displayName: 'Set up the Go workspace'
 
 - script: |
-    make build test
+    make build test-unit
   workingDirectory: '$(modulePath)'
   displayName: 'Unit Test'
 
@@ -38,6 +38,11 @@ steps:
     make xbuild-all
   workingDirectory: '$(modulePath)'
   displayName: 'Cross Compile'
+
+- script: |
+    make test-integration
+  workingDirectory: '$(modulePath)'
+  displayName: 'Integration Test'
 
 - script: |
     AZURE_STORAGE_CONNECTION_STRING=$(AZURE_STORAGE_CONNECTION_STRING) make publish
