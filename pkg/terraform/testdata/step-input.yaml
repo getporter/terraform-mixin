@@ -1,0 +1,14 @@
+custom:
+- terraform:
+    description: "Custom Action"
+    arguments:
+      - "custom"
+    flags:
+      input: false
+      logLevel: TRACE
+      backendConfig:
+        - "key=my.tfstate"
+      vars:
+        - "myvar=foo"
+    outputs:
+      - name: myoutput

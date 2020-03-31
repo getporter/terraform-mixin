@@ -7,13 +7,13 @@ import (
 )
 
 func buildInvokeCommand(mixin *terraform.Mixin) *cobra.Command {
-	opts := terraform.ExecuteCommandOptions{}
+	opts := terraform.InvokeOptions{}
 
 	cmd := &cobra.Command{
 		Use:   "invoke",
 		Short: "Execute the invoke functionality of this mixin",
 		RunE: func(cmd *cobra.Command, args []string) error {
-			return mixin.Execute(opts)
+			return mixin.Invoke(opts)
 		},
 	}
 	flags := cmd.Flags()

@@ -85,11 +85,12 @@ plan:
           - "c={{bundle.parameters.c}}"
 
 # Note: this can't be 'version:' as this would conflict with top-level field
-# Hence the need for the 'command:' override
+# Hence the need for the 'arguments:' override
 printVersion:
   - terraform:
       description: "Invoke 'terraform version'"
-      command: "version"
+      arguments: 
+        - "version"
 
 uninstall:
   - terraform:

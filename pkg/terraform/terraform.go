@@ -54,7 +54,7 @@ func (m *Mixin) getOutput(outputName string) ([]byte, error) {
 	return out, nil
 }
 
-func (m *Mixin) handleOutputs(outputs []terraformOutput) error {
+func (m *Mixin) handleOutputs(outputs []Output) error {
 	for _, output := range outputs {
 		bytes, err := m.getOutput(output.Name)
 		if err != nil {
