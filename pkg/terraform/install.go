@@ -2,7 +2,6 @@ package terraform
 
 import (
 	"fmt"
-	"os"
 
 	"get.porter.sh/porter/pkg/exec/builder"
 )
@@ -15,20 +14,9 @@ func (m *Mixin) Install() error {
 	}
 	step := action.Steps[0]
 
-	if step.LogLevel != "" {
-		os.Setenv("TF_LOG", step.LogLevel)
-	}
-
-	// First, change to specified working dir
-	if err := os.Chdir(m.WorkingDir); err != nil {
-		return fmt.Errorf("could not change directory to specified working dir: %s", err)
-	}
-
-	// Initialize Terraform
-	fmt.Println("Initializing Terraform...")
-	err = m.Init(step.BackendConfig)
+	err = m.commandPreRun(&step)
 	if err != nil {
-		return fmt.Errorf("could not init terraform, %s", err)
+		return err
 	}
 
 	// Update step fields that exec/builder works with

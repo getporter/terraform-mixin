@@ -6,6 +6,7 @@ import (
 	"bufio"
 	"fmt"
 	"io/ioutil"
+	"os"
 	"strings"
 
 	"get.porter.sh/porter/pkg/context" // We are not using go-yaml because of serialization problems with jsonschema, don't use this library elsewhere
@@ -65,6 +66,26 @@ func (m *Mixin) handleOutputs(outputs []Output) error {
 		if err != nil {
 			return errors.Wrapf(err, "unable to write output '%s'", output.Name)
 		}
+	}
+	return nil
+}
+
+// commandPreRun runs setup tasks applicable for every action
+func (m *Mixin) commandPreRun(step *Step) error {
+	if step.LogLevel != "" {
+		os.Setenv("TF_LOG", step.LogLevel)
+	}
+
+	// First, change to specified working dir
+	if err := os.Chdir(m.WorkingDir); err != nil {
+		return fmt.Errorf("could not change directory to specified working dir: %s", err)
+	}
+
+	// Initialize Terraform
+	fmt.Println("Initializing Terraform...")
+	err := m.Init(step.BackendConfig)
+	if err != nil {
+		return fmt.Errorf("could not init terraform, %s", err)
 	}
 	return nil
 }
