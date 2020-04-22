@@ -14,39 +14,7 @@
     "invokeStep": {
       "type": "object",
       "properties": {
-        "terraform": {
-          "type": "object",
-          "properties": {
-            "autoApprove": {
-              "type": "boolean"
-            },
-            "backendConfig": {
-              "type": "object"
-            },
-            "command": {
-              "type": "string"
-            },
-            "description": {
-              "$ref": "#/definitions/stepDescription"
-            },
-            "input": {
-              "type": "boolean"
-            },
-            "logLevel": {
-              "type": "string"
-            },
-            "outputs": {
-              "$ref": "#/definitions/outputs"
-            },
-            "vars": {
-              "type": "object"
-            }
-          },
-          "additionalProperties": false,
-          "required": [
-            "description"
-          ]
-        }
+        "terraform": {"$ref": "#/definitions/terraform"}
       },
       "additionalProperties": false,
       "required": [
@@ -56,6 +24,12 @@
     "terraform": {
       "type": "object",
       "properties": {
+        "arguments": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
         "autoApprove": {
           "type": "boolean"
         },
@@ -64,6 +38,12 @@
         },
         "description": {
           "$ref": "#/definitions/stepDescription"
+        },
+        "flags": {
+          "type": "object",
+          "additionalProperties": {
+            "type": ["null","boolean","number","string"]
+          }
         },
         "input": {
           "type": "boolean"

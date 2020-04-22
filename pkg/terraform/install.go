@@ -2,97 +2,41 @@ package terraform
 
 import (
 	"fmt"
-	"os"
-	"strings"
 
-	"gopkg.in/yaml.v2"
+	"get.porter.sh/porter/pkg/exec/builder"
 )
-
-type InstallAction struct {
-	Steps []InstallStep `yaml:"install"`
-}
-
-// InstallStep represents the structure of an Install action
-type InstallStep struct {
-	InstallArguments `yaml:"terraform"`
-}
-
-// InstallArguments are the arguments available for the Install action
-type InstallArguments struct {
-	Step `yaml:",inline"`
-
-	// AutoApprove will be deprecated in a later release, it is no longer used, --auto-approve=true is always passed to terraform
-	AutoApprove   bool              `yaml:"autoApprove"`
-
-	Vars          map[string]string `yaml:"vars"`
-	LogLevel      string            `yaml:"logLevel"`
-	Input         bool              `yaml:"input"`
-	BackendConfig map[string]string `yaml:"backendConfig"`
-}
 
 // Install runs a terraform apply
 func (m *Mixin) Install() error {
-	payload, err := m.getPayloadData()
+	action, err := m.loadAction()
 	if err != nil {
 		return err
-	}
-
-	var action InstallAction
-	err = yaml.Unmarshal(payload, &action)
-	if err != nil {
-		return err
-	}
-	if len(action.Steps) != 1 {
-		return fmt.Errorf("expected a single step, but got %d", len(action.Steps))
 	}
 	step := action.Steps[0]
 
-	if step.LogLevel != "" {
-		os.Setenv("TF_LOG", step.LogLevel)
-	}
-
-	// First, change to specified working dir
-	if err := os.Chdir(m.WorkingDir); err != nil {
-		return fmt.Errorf("could not change directory to specified working dir: %s", err)
-	}
-
-	// Initialize Terraform
-	fmt.Println("Initializing Terraform...")
-	err = m.Init(step.BackendConfig)
-	if err != nil {
-		return fmt.Errorf("could not init terraform, %s", err)
-	}
-
-	// Run Terraform apply
-	cmd := m.NewCommand("terraform", "apply")
-
-	// Always run in non-interactive mode
-	cmd.Args = append(cmd.Args, "-auto-approve")
-
-	if !step.Input {
-		cmd.Args = append(cmd.Args, "-input=false")
-	}
-
-	for _, k := range sortKeys(step.Vars) {
-		cmd.Args = append(cmd.Args, "-var", fmt.Sprintf("%s=%s", k, step.Vars[k]))
-	}
-
-	cmd.Stdout = m.Out
-	cmd.Stderr = m.Err
-
-	prettyCmd := fmt.Sprintf("%s %s", cmd.Path, strings.Join(cmd.Args, " "))
-	fmt.Fprintln(m.Out, prettyCmd)
-
-	err = cmd.Start()
-	if err != nil {
-		return fmt.Errorf("could not execute command, %s: %s", prettyCmd, err)
-	}
-
-	err = cmd.Wait()
+	err = m.commandPreRun(&step)
 	if err != nil {
 		return err
 	}
 
-	m.handleOutputs(step.Outputs)
-	return nil
+	// Update step fields that exec/builder works with
+	step.Arguments = []string{"apply"}
+	// Always run in non-interactive mode
+	step.Flags = append(step.Flags, builder.NewFlag("auto-approve"))
+
+	if !step.Input {
+		step.Flags = append(step.Flags, builder.NewFlag("input=false"))
+	}
+
+	for _, k := range sortKeys(step.Vars) {
+		step.Flags = append(step.Flags, builder.NewFlag("var", fmt.Sprintf("%s=%s", k, step.Vars[k])))
+	}
+
+	action.Steps[0] = step
+	_, err = builder.ExecuteSingleStepAction(m.Context, action)
+	if err != nil {
+		return err
+	}
+
+	return m.handleOutputs(step.Outputs)
 }

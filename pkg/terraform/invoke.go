@@ -6,8 +6,12 @@ import (
 	"get.porter.sh/porter/pkg/exec/builder"
 )
 
-// Uninstall runs a terraform destroy
-func (m *Mixin) Uninstall() error {
+type InvokeOptions struct {
+	Action string
+}
+
+// Invoke runs a custom terraform action
+func (m *Mixin) Invoke(opts InvokeOptions) error {
 	action, err := m.loadAction()
 	if err != nil {
 		return err
@@ -20,9 +24,11 @@ func (m *Mixin) Uninstall() error {
 	}
 
 	// Update step fields that exec/builder works with
-	step.Arguments = []string{"destroy"}
-	// Always run in non-interactive mode
-	step.Flags = append(step.Flags, builder.NewFlag("auto-approve"))
+	commands := []string{opts.Action}
+	if len(step.Arguments) > 0 {
+		commands = step.GetArguments()
+	}
+	step.Arguments = commands
 
 	for _, k := range sortKeys(step.Vars) {
 		step.Flags = append(step.Flags, builder.NewFlag("var", fmt.Sprintf("%s=%s", k, step.Vars[k])))

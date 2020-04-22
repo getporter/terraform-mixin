@@ -13,8 +13,8 @@ import (
 	yaml "gopkg.in/yaml.v2"
 )
 
-func TestMixin_UnmarshalUninstallStep(t *testing.T) {
-	b, err := ioutil.ReadFile("testdata/uninstall-input.yaml")
+func TestMixin_UnmarshalInvokeStep(t *testing.T) {
+	b, err := ioutil.ReadFile("testdata/invoke-input.yaml")
 	require.NoError(t, err)
 
 	var action Action
@@ -23,18 +23,18 @@ func TestMixin_UnmarshalUninstallStep(t *testing.T) {
 	require.Len(t, action.Steps, 1)
 	step := action.Steps[0]
 
-	assert.Equal(t, "Uninstall MySQL", step.Description)
+	assert.Equal(t, "Custom Action", step.Description)
 }
 
-func TestMixin_Uninstall(t *testing.T) {
+func TestMixin_Invoke(t *testing.T) {
 	defer os.Unsetenv(test.ExpectedCommandEnv)
 	expectedCommand := strings.Join([]string{
 		"terraform init -backend=true -backend-config=key=my.tfstate -reconfigure",
-		"terraform destroy -auto-approve -var myvar=foo",
+		"terraform custom -var myvar=foo",
 	}, "\n")
 	os.Setenv(test.ExpectedCommandEnv, expectedCommand)
 
-	b, err := ioutil.ReadFile("testdata/uninstall-input.yaml")
+	b, err := ioutil.ReadFile("testdata/invoke-input.yaml")
 	require.NoError(t, err)
 
 	h := NewTestMixin(t)
@@ -44,7 +44,8 @@ func TestMixin_Uninstall(t *testing.T) {
 	h.WorkingDir, err = os.Getwd()
 	require.NoError(t, err)
 
-	err = h.Uninstall()
+	opts := InvokeOptions{}
+	err = h.Invoke(opts)
 	require.NoError(t, err)
 
 	wd, err := os.Getwd()

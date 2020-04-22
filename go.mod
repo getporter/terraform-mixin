@@ -3,7 +3,7 @@ module get.porter.sh/mixin/terraform
 go 1.13
 
 require (
-	get.porter.sh/porter v0.22.1-beta.1
+	get.porter.sh/porter v0.25.0-beta.1
 	github.com/ghodss/yaml v1.0.0
 	github.com/gobuffalo/packr/v2 v2.7.1
 	github.com/pkg/errors v0.8.1
