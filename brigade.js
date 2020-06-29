@@ -22,10 +22,10 @@ events.on("exec", (e, p) => {
   ]);
 });
 
-// Although a GH App will trigger 'check_suite:requested' on a push to master event,
+// Although a GH App will trigger 'check_suite:requested' on a push to main event,
 // it will not for a tag push, hence the need for this handler
 events.on("push", (e, p) => {
-  if (e.revision.ref.includes("refs/heads/master") || e.revision.ref.startsWith("refs/tags/")) {
+  if (e.revision.ref.includes("refs/heads/main") || e.revision.ref.startsWith("refs/tags/")) {
     publish(e, p).run();
   }
 });
