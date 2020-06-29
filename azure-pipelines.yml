@@ -12,40 +12,31 @@ trigger:
 pool:
   vmImage: 'Ubuntu 16.04'
 
-variables:
-  GOBIN:  '$(GOPATH)/bin' # Go binaries path
-  GOROOT: '/usr/local/go1.13' # Go installation path
-  GOPATH: '$(system.defaultWorkingDirectory)/gopath' # Go workspace path
-  modulePath: '$(GOPATH)/src/get.porter.sh/mixin/terraform' # Path to the module's code
-
 steps:
+- task: GoTool@0
+  inputs:
+    version: '1.13.10'
+  displayName: 'Install Go'
+
 - script: |
-    mkdir -p '$(GOBIN)'
-    mkdir -p '$(GOPATH)/pkg'
-    mkdir -p '$(modulePath)'
-    shopt -s extglob
-    mv !(gopath) '$(modulePath)'
-    echo '##vso[task.prependpath]$(GOBIN)'
-    echo '##vso[task.prependpath]$(GOROOT)/bin'
-  displayName: 'Set up the Go workspace'
+    set -xeuo pipefail
+    mkdir -p /home/vsts/go/bin/
+    echo "##vso[task.prependpath]/home/vsts/go/bin/"
+  displayName: 'Configure Go'
 
 - script: |
     make build test-unit
-  workingDirectory: '$(modulePath)'
   displayName: 'Unit Test'
 
 - script: |
     make xbuild-all
-  workingDirectory: '$(modulePath)'
   displayName: 'Cross Compile'
 
 - script: |
     make test-integration
-  workingDirectory: '$(modulePath)'
   displayName: 'Integration Test'
 
 - script: |
     AZURE_STORAGE_CONNECTION_STRING=$(AZURE_STORAGE_CONNECTION_STRING) make publish
-  workingDirectory: '$(modulePath)'
   displayName: 'Publish'
   condition: and(succeeded(), ne(variables['Build.Reason'], 'PullRequest'))
