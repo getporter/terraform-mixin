@@ -73,6 +73,12 @@ test-integration: xbuild
 	cp $(BINDIR)/$(VERSION)/$(MIXIN)-$(CLIENT_PLATFORM)-$(CLIENT_ARCH)$(FILE_EXT) $(BINDIR)/$(MIXIN)$(FILE_EXT)
 	$(GO) test -tags=integration ./tests/...
 
+test-cli: clean-last-testrun bin/porter$(FILE_EXT) bin/porter-runtime build install init-porter-home-for-ci
+	./scripts/test/test-cli.sh
+
+init-porter-home-for-ci:
+	cp -R build/testdata/bundles $(PORTER_HOME)
+
 publish: bin/porter$(FILE_EXT)
 	# AZURE_STORAGE_CONNECTION_STRING will be used for auth in the following commands
 	if [[ "$(PERMALINK)" == "latest" ]]; then \
@@ -92,13 +98,20 @@ bin/porter$(FILE_EXT):
 	curl -fsSLo bin/porter$(FILE_EXT) https://cdn.porter.sh/canary/porter-$(CLIENT_PLATFORM)-$(CLIENT_ARCH)$(FILE_EXT)
 	chmod +x bin/porter$(FILE_EXT)
 
+bin/porter-runtime:
+	curl -fsSLo bin/porter-runtime https://cdn.porter.sh/canary/porter-linux-amd64
+	chmod +x bin/porter-runtime
+
 install:
 	mkdir -p $(PORTER_HOME)/mixins/$(MIXIN)
 	install $(BINDIR)/$(MIXIN)$(FILE_EXT) $(PORTER_HOME)/mixins/$(MIXIN)/$(MIXIN)$(FILE_EXT)
 	install $(BINDIR)/$(MIXIN)-runtime$(FILE_EXT) $(PORTER_HOME)/mixins/$(MIXIN)/$(MIXIN)-runtime$(FILE_EXT)
 
-clean: clean-packr
+clean: clean-packr clean-last-testrun
 	-rm -fr bin/
 
 clean-packr: packr2
 	cd pkg/$(MIXIN) && packr2 clean
+
+clean-last-testrun:
+	-rm -fr cnab/ porter.yaml Dockerfile bundle.json
