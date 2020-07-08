@@ -37,6 +37,10 @@ steps:
   displayName: 'Integration Test'
 
 - script: |
+    make test-cli
+  displayName: 'CLI Test'
+
+- script: |
     AZURE_STORAGE_CONNECTION_STRING=$(AZURE_STORAGE_CONNECTION_STRING) make publish
   displayName: 'Publish'
   condition: and(succeeded(), ne(variables['Build.Reason'], 'PullRequest'))
