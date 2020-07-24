@@ -1,0 +1,5 @@
+config:
+    clientVersion: 0.13.0-rc1
+    install:
+        - terraform:
+            description: "noop"
