@@ -10,6 +10,14 @@ This will get the terraform mixin and install it from source.
 1. `cd $(go env GOPATH)/src/get.porter.sh/mixin/terraform`
 1. `make build install`
 
+## Mixin Configuration
+
+Terraform client configuration
+
+```yaml
+- terraform:
+    clientVersion: 0.12.17
+```
 
 ## Examples
 
