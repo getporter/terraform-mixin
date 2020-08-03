@@ -2,6 +2,14 @@
 
 This is a terraform mixin for [Porter](https://github.com/deislabs/porter).
 
+## Install via Porter
+
+This will install the latest mixin release via the Porter CLI.
+
+```console
+porter mixin install terraform --feed-url https://cdn.porter.sh/mixins/atom.xml
+```
+
 ## Build from source
 
 This will get the terraform mixin and install it from source.
@@ -12,12 +20,43 @@ This will get the terraform mixin and install it from source.
 
 ## Mixin Configuration
 
-Terraform client configuration
+The Terraform client version can be specified via the `clientVersion` configuration when declaring this mixin.
 
 ```yaml
 - terraform:
     clientVersion: 0.12.17
 ```
+
+## Terraform state
+
+### Let Porter do the heavy lifting
+
+The simplest way to use this mixin with Porter is to let Porter track the Terraform [state](https://www.terraform.io/docs/state/index.html) as actions are executed.  This can be done via a parameter of type `file` that has a source of a corresponding output (of the same `file` type).  Each time the bundle is executed, the output will capture the updated state file and inject it into the next action via its parameter correlate.
+
+Here is an example setup:
+
+```yaml
+parameters:
+  - name: tfstate
+    type: file
+    # This designates the path within the installer to place the parameter value
+    path: /cnab/app/terraform/terraform.tfstate
+    # Here we tell Porter that the value for this parameter should come from the 'tfstate' output
+    source:
+      output: tfstate
+
+outputs:
+  - name: tfstate
+    type: file
+    # This designates the path within the installer to read the output from
+    path: /cnab/app/terraform/terraform.tfstate
+```
+
+The specified path inside the installer (`/cnab/app/terraform/terraform.tfstate`) should be where Terraform will be looking to read/write its state.  For a full example bundle using this approach, see the [basic-tf-example](examples/basic-tf-example).
+
+### Remote Backends
+
+Alternatively, state can be managed by a remote backend.  When doing so, each action step needs to supply the remote backend config via `backendConfig`.  In the step examples below, the configuration has key/value pairs according to the [Azurerm](https://www.terraform.io/docs/backends/types/azurerm.html) backend.
 
 ## Examples
 
@@ -97,7 +136,7 @@ uninstall:
 
 See further examples in the [Examples](examples) directory
 
-## Outputs
+## Step Outputs
 
 As seen above, outputs can be declared for a step.  All that is needed is the name of the output.
 
