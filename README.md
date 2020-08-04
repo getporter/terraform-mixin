@@ -6,7 +6,7 @@ This is a terraform mixin for [Porter](https://github.com/deislabs/porter).
 
 This will install the latest mixin release via the Porter CLI.
 
-```console
+```
 porter mixin install terraform --feed-url https://cdn.porter.sh/mixins/atom.xml
 ```
 
