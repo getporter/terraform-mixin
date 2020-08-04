@@ -43,6 +43,7 @@ build-client: generate
 	$(GO) build -ldflags '$(LDFLAGS)' -o $(BINDIR)/$(MIXIN)$(FILE_EXT) ./cmd/$(MIXIN)
 
 generate: packr2
+	$(GO) mod tidy
 	$(GO) generate ./...
 
 HAS_PACKR2 := $(shell command -v packr2)
