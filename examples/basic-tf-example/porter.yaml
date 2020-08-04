@@ -1,73 +1,46 @@
 mixins:
-  - terraform
+  - terraform:
+      clientVersion: 0.12.29
 
 name: basic-tf-example
 version: 0.1.0
-tag: deislabs/basic-tf-example:v0.1.0
+tag: getporterci/basic-tf-example
 
 parameters:
-  - name: a
+  - name: tfstate
+    type: file
+    path: /cnab/app/terraform/terraform.tfstate
+    source:
+      output: tfstate
+  - name: myvar
     type: string
-    default: a
-  - name: b
-    type: string
-    default: b
-  - name: c
-    type: string
-    default: c
+    default: "porter rocks!"
 
 outputs:
-  - name: a
+  - name: tfstate
+    type: file
+    path: /cnab/app/terraform/terraform.tfstate
+  - name: myvar
     type: string
     applyTo:
       - install
       - upgrade
-  - name: b
-    type: string
-    applyTo:
-      - upgrade
-  - name: c
-    type: string
-    applyTo:
-      - install
-
-customActions:
-  plan:
-    description: "Invoke 'terraform plan'"
-    modifies: false
-    stateless: true
-  show:
-    description: "Invoke 'terraform show'"
-    modifies: false
-    stateless: true
-  printVersion:
-    description: "Invoke 'terraform version'"
-    modifies: false
-    stateless: true
 
 install:
   - terraform:
       description: "Install Terraform assets"
       vars:
-        a: "{{bundle.parameters.a}}"
-        b: "{{bundle.parameters.b}}"
-        c: "{{bundle.parameters.c}}"
+        myvar: "{{bundle.parameters.myvar}}"
       outputs:
-        - name: a
-        - name: b
-        - name: c
+        - name: myvar
 
 upgrade:
   - terraform:
       description: "Upgrade Terraform assets"
       vars:
-        a: "{{bundle.parameters.a}}"
-        b: "{{bundle.parameters.b}}"
-        c: "{{bundle.parameters.c}}"
+        myvar: "{{bundle.parameters.myvar}}"
       outputs:
-        - name: a
-        - name: b
-        - name: c
+        - name: myvar
 
 show:
   - terraform:
@@ -80,9 +53,7 @@ plan:
         no-color:
         out: "/dev/null"
         var:
-          - "a={{bundle.parameters.a}}"
-          - "b={{bundle.parameters.b}}"
-          - "c={{bundle.parameters.c}}"
+          - "myvar={{bundle.parameters.myvar}}"
 
 # Note: this can't be 'version:' as this would conflict with top-level field
 # Hence the need for the 'arguments:' override
