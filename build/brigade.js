@@ -1,10 +1,11 @@
 const { events, Job, Group } = require("brigadier");
+const { Check } = require("@brigadecore/brigade-utils");
 
 // **********************************************
 // Globals
 // **********************************************
 
-const projectName = "terraform";
+const projectName = "porter-terraform";
 
 // **********************************************
 // Event Handlers
@@ -13,6 +14,8 @@ const projectName = "terraform";
 events.on("check_suite:requested", runSuite);
 events.on("check_suite:rerequested", runSuite);
 events.on("check_run:rerequested", runSuite);
+events.on("issue_comment:created", (e, p) => Check.handleIssueComment(e, p, runSuite));
+events.on("issue_comment:edited", (e, p) => Check.handleIssueComment(e, p, runSuite));
 
 events.on("exec", (e, p) => {
   Group.runAll([
@@ -84,9 +87,25 @@ function publish(e, p) {
 
 // Here we add GitHub Check Runs, which will run in parallel and report their results independently to GitHub
 function runSuite(e, p) {
-  checkRun(e, p, build, "Build").catch(e  => {console.error(e.toString())});
-  checkRun(e, p, xbuild, "Cross-Platform Build").catch(e  => {console.error(e.toString())});
-  checkRun(e, p, test, "Test").catch(e  => {console.error(e.toString())});
+  // Important: To prevent Promise.all() from failing fast, we catch and
+  // return all errors. This ensures Promise.all() always resolves. We then
+  // iterate over all resolved values looking for errors. If we find one, we
+  // throw it so the whole build will fail.
+  //
+  // Ref: https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Promise/all#Promise.all_fail-fast_behaviour
+  //
+  // Note: as provided language string is used in job naming, it must consist
+  // of lowercase letters and hyphens only (per Brigade/K8s restrictions)
+  return Promise.all([
+    runTests(e, p, build).catch((err) => { return err }),
+    runTests(e, p, xbuild).catch((err) => { return err }),
+    runTests(e, p, test).catch((err) => { return err }),
+  ])
+    .then((values) => {
+      values.forEach((value) => {
+        if (value instanceof Error) throw value;
+      });
+    });
 }
 
 // **********************************************
@@ -119,85 +138,36 @@ class GoJob extends Job {
   }
 }
 
-// checkRun is a GitHub Check Run that is ran as part of a Checks Suite,
-// running the provided runFunc corresponding to the provided description 
-function checkRun(e, p, runFunc, description) {
-  console.log(`Check requested: ${description}`);
+// runCheck is the default function invoked on a check_run:* event
+//
+// It determines which check is being requested (from the payload body)
+// and runs this particular check, or else throws an error if the check
+// is not found
+function runCheck(e, p) {
+  payload = JSON.parse(e.payload);
 
-  // Create Notification object (which is just a Job to update GH using the Checks API)
-  note = new Notification(description.toLowerCase().replace(/[^a-z]/g, ''), e, p);
-  note.conclusion = "";
-  note.title = `Run ${description}`;
-  note.summary = `Running ${description} for ${e.revision.commit}`;
-  note.text = `Ensuring ${description} complete(s) successfully`
+  // Extract the check name
+  name = payload.body.check_run.name;
 
-  // Send notification, then run, then send pass/fail notification
-  return notificationWrap(runFunc(e, p), note);
-}
-
-// A GitHub Check Suite notification
-class Notification {
-  constructor(name, e, p) {
-    this.proj = p;
-    this.payload = e.payload;
-    this.name = name;
-    this.externalID = e.buildID;
-    this.detailsURL = `https://brigadecore.github.io/kashti/builds/${ e.buildID }`;
-    this.title = "running check";
-    this.text = "";
-    this.summary = "";
-
-    // count allows us to send the notification multiple times, with a distinct pod name
-    // each time.
-    this.count = 0;
-
-    // One of: "success", "failure", "neutral", "cancelled", or "timed_out".
-    this.conclusion = "neutral";
-  }
-
-  // Send a new notification, and return a Promise<result>.
-  run() {
-    this.count++
-    var j = new Job(`${ this.name }-${ this.count }`, "deis/brigade-github-check-run:latest");
-    j.env = {
-      CHECK_CONCLUSION: this.conclusion,
-      CHECK_NAME: this.name,
-      CHECK_TITLE: this.title,
-      CHECK_PAYLOAD: this.payload,
-      CHECK_SUMMARY: this.summary,
-      CHECK_TEXT: this.text,
-      CHECK_DETAILS_URL: this.detailsURL,
-      CHECK_EXTERNAL_ID: this.externalID
-    }
-    return j.run();
+  // Determine which check to run
+  switch (name) {
+    case `${projectName}-build`:
+      return runTests(e, p, build);
+    case `${projectName}-xbuild`:
+      return runTests(e, p, xbuild);
+    case `${projectName}-test`:
+      return runTests(e, p, test);
+    default:
+      throw new Error(`No check found with name: ${name}`);
   }
 }
 
-// notificationWrap is a helper to wrap a job execution between two notifications.
-async function notificationWrap(job, note, conclusion) {
-  if (conclusion == null) {
-    conclusion = "success"
-  }
-  await note.run();
-  try {
-    let res = await job.run()
-    const logs = await job.logs();
+// runTests is a Check Run that is run as part of a Checks Suite
+function runTests(e, p, jobFunc) {
+  console.log("Check requested");
 
-    note.conclusion = conclusion;
-    note.summary = `Task "${ job.name }" passed`;
-    note.text = note.text = `Task Complete: ${conclusion}`;
-    return await note.run();
-  } catch (e) {
-    const logs = await job.logs();
-    note.conclusion = "failure";
-    note.summary = `Task "${ job.name }" failed for ${ e.buildID }`;
-    note.text = "Task failed with error: " + e.toString();
-    try {
-      return await note.run();
-    } catch (e2) {
-      console.error("failed to send notification: " + e2.toString());
-      console.error("original error: " + e.toString());
-      return e2;
-    }
-  }
+  var check = new Check(e, p, jobFunc(),
+    `https://brigadecore.github.io/kashti/builds/${e.buildID}`);
+  return check.run();
 }
+
