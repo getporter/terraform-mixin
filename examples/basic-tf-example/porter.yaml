@@ -12,6 +12,12 @@ parameters:
     path: /cnab/app/terraform/terraform.tfstate
     source:
       output: tfstate
+    applyTo:
+      - upgrade
+      - uninstall
+      - show
+      - plan
+      - printVersion
   - name: myvar
     type: string
     default: "porter rocks!"
@@ -53,7 +59,7 @@ plan:
         no-color:
         out: "/dev/null"
         var:
-          - "myvar={{bundle.parameters.myvar}}"
+          - "'myvar={{bundle.parameters.myvar}}'"
 
 # Note: this can't be 'version:' as this would conflict with top-level field
 # Hence the need for the 'arguments:' override
