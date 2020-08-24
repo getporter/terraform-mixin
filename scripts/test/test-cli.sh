@@ -10,6 +10,21 @@ mkdir -p ${TEST_DIR}
 pushd ${TEST_DIR}
 trap popd EXIT
 
+function verify-output() {
+  # Verify the output matches the expected value
+  if [[ "$(${PORTER_HOME}/porter installation output show $1)" != "$2" ]]; then
+    echo "Output '$1' value: '${output}' does not match expected"
+    return 1
+  fi
+
+  # Verify the output has no extra newline (mixin should trim newline added by terraform cli)
+  if [[ "$(${PORTER_HOME}/porter installation output show $1 | wc -l)" > 1 ]]; then
+    echo "Output '$1' has an extra newline character"
+    return 1
+  fi
+}
+
+
 # Copy terraform assets
 cp -r ${REPO_DIR}/build/testdata/bundles/terraform/terraform .
 
@@ -20,18 +35,14 @@ ${PORTER_HOME}/porter build
 
 ${PORTER_HOME}/porter install --debug --param file_contents='foo!'
 
-echo "Verifying installation output(s) via 'porter installation outputs list' after install"
-list_outputs=$(${PORTER_HOME}/porter installation outputs list)
-echo "${list_outputs}"
-echo "${list_outputs}" | grep -q "file_contents"
-echo "${list_outputs}" | grep -q "foo!"
+echo "Verifying installation output after install"
+verify-output "file_contents" 'foo!'
 
 ${PORTER_HOME}/porter invoke --action=plan --debug
 
 ${PORTER_HOME}/porter upgrade --debug --param file_contents='bar!'
 
-echo "Verifying installation output(s) via 'porter installation output show' after upgrade"
-${PORTER_HOME}/porter installation output show file_contents | grep -q "bar!"
+echo "Verifying installation output after upgrade"
+verify-output "file_contents" 'bar!'
 
 ${PORTER_HOME}/porter uninstall --debug
-

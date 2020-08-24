@@ -4,6 +4,7 @@ package terraform
 
 import (
 	"bufio"
+	"bytes"
 	"fmt"
 	"io/ioutil"
 	"os"
@@ -50,7 +51,11 @@ func (m *Mixin) getOutput(outputName string) ([]byte, error) {
 	cmd := m.NewCommand("terraform", "output", outputName)
 	cmd.Stderr = m.Err
 
+	// Terraform appears to auto-append a newline character when printing outputs
+	// Trim this character before returning the output
 	out, err := cmd.Output()
+	out = bytes.TrimRight(out, "\n")
+
 	if err != nil {
 		prettyCmd := fmt.Sprintf("%s %s", cmd.Path, strings.Join(cmd.Args, " "))
 		return nil, errors.Wrap(err, fmt.Sprintf("couldn't run command %s", prettyCmd))
