@@ -30,8 +30,18 @@ ${PORTER_HOME}/porter invoke --action=plan --debug
 
 ${PORTER_HOME}/porter upgrade --debug --param file_contents='bar!'
 
-echo "Verifying installation output(s) via 'porter installation output show' after upgrade"
-${PORTER_HOME}/porter installation output show file_contents | grep -q "bar!"
+echo "Verifying installation output via 'porter installation output show' after upgrade"
+# Verify the output matches the expected value
+if [[ "$(${PORTER_HOME}/porter installation output show file_contents)" != "bar!" ]]; then
+  echo "Output value: '${output}' does not match expected"
+  exit 1
+fi
+
+# Verify the output has no extra newline (mixin should trim newline added by terraform cli)
+if [[ "$(${PORTER_HOME}/porter installation output show file_contents | wc -l)" > 1 ]]; then
+  echo "Output has an extra newline character"
+  exit 1
+fi
 
 ${PORTER_HOME}/porter uninstall --debug
 
