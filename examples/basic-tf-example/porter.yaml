@@ -12,12 +12,6 @@ parameters:
     path: /cnab/app/terraform/terraform.tfstate
     source:
       output: tfstate
-    applyTo:
-      - upgrade
-      - uninstall
-      - show
-      - plan
-      - printVersion
   - name: myvar
     type: string
     default: "porter rocks!"
