@@ -1,6 +1,6 @@
 # terraform Mixin for Porter
 
-This is a terraform mixin for [Porter](https://github.com/deislabs/porter).
+This is a terraform mixin for [Porter](https://github.com/getporter/porter).
 
 ## Install via Porter
 
