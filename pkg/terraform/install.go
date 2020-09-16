@@ -29,7 +29,7 @@ func (m *Mixin) Install() error {
 	}
 
 	for _, k := range sortKeys(step.Vars) {
-		step.Flags = append(step.Flags, builder.NewFlag("var", fmt.Sprintf("%s=%s", k, step.Vars[k])))
+		step.Flags = append(step.Flags, builder.NewFlag("var", fmt.Sprintf("'%s=%s'", k, step.Vars[k])))
 	}
 
 	action.Steps[0] = step

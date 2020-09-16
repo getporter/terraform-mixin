@@ -53,7 +53,7 @@ plan:
         no-color:
         out: "/dev/null"
         var:
-          - "myvar={{bundle.parameters.myvar}}"
+          - "'myvar={{bundle.parameters.myvar}}'"
 
 # Note: this can't be 'version:' as this would conflict with top-level field
 # Hence the need for the 'arguments:' override
