@@ -2,6 +2,10 @@
 
 This is a terraform mixin for [Porter](https://github.com/deislabs/porter).
 
+[![Build Status](https://dev.azure.com/getporter/porter/_apis/build/status/terraform-mixin?branchName=main)](https://dev.azure.com/getporter/porter/_build/latest?definitionId=10&branchName=main)
+
+<img src="https://porter.sh/images/mixins/terraform.svg" align="right" width="150px"/>
+
 ## Install via Porter
 
 This will install the latest mixin release via the Porter CLI.
