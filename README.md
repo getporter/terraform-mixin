@@ -1,6 +1,6 @@
 # terraform Mixin for Porter
 
-This is a terraform mixin for [Porter](https://github.com/deislabs/porter).
+This is a terraform mixin for [Porter](https://github.com/getporter/porter).
 
 [![Build Status](https://dev.azure.com/getporter/porter/_apis/build/status/terraform-mixin?branchName=main)](https://dev.azure.com/getporter/porter/_build/latest?definitionId=10&branchName=main)
 

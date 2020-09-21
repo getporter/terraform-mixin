@@ -2,9 +2,9 @@ mixins:
   - exec
   - terraform
 
-name: porter-terraform-keyvault
+name: terraform-keyvault
 version: 0.1.0
-tag: deislabs/porter-terraform-keyvault:latest
+tag: getporter/terraform-keyvault
 
 credentials:
   - name: subscription_id

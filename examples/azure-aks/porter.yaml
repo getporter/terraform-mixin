@@ -1,9 +1,9 @@
 mixins:
   - terraform
 
-name: porter-aks
+name: terraform-aks
 version: 0.1.0
-tag: deislabs/porter-aks:latest
+tag: getporter/terraform-aks
 
 credentials:
   - name: subscription_id
