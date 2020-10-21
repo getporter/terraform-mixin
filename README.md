@@ -16,12 +16,13 @@ porter mixin install terraform --feed-url https://cdn.porter.sh/mixins/atom.xml
 
 ## Build from source
 
-This will get the terraform mixin and install it from source.
-
+Following commands build the terraform mixin.
 1. `go get -u get.porter.sh/mixin/terraform`
 1. `cd $(go env GOPATH)/src/get.porter.sh/mixin/terraform`
 1. `make build`
-1. `make install`
+
+Then, to install the resulting mixin into PORTER_HOME, execute
+`make install`
 
 ## Mixin Configuration
 
