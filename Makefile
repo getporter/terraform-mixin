@@ -105,9 +105,9 @@ bin/porter-runtime:
 	chmod +x bin/porter-runtime
 
 install:
-	mkdir -p $(PORTER_HOME)/mixins/$(MIXIN)
+	mkdir -p $(PORTER_HOME)/mixins/$(MIXIN)/runtimes
 	install $(BINDIR)/$(MIXIN)$(FILE_EXT) $(PORTER_HOME)/mixins/$(MIXIN)/$(MIXIN)$(FILE_EXT)
-	install $(BINDIR)/$(MIXIN)-runtime$(FILE_EXT) $(PORTER_HOME)/mixins/$(MIXIN)/$(MIXIN)-runtime$(FILE_EXT)
+	install $(BINDIR)/$(MIXIN)-runtime$(FILE_EXT) $(PORTER_HOME)/mixins/$(MIXIN)/runtimes/$(MIXIN)-runtime$(FILE_EXT)
 
 clean: clean-packr clean-last-testrun
 	-rm -fr bin/
