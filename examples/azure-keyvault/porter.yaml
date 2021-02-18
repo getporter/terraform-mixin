@@ -4,7 +4,7 @@ mixins:
 
 name: terraform-keyvault
 version: 0.1.0
-tag: getporter/terraform-keyvault
+registry: getporter
 
 credentials:
   - name: subscription_id

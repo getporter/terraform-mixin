@@ -12,7 +12,8 @@ trap popd EXIT
 
 function verify-output() {
   # Verify the output matches the expected value
-  if [[ "$(${PORTER_HOME}/porter installation output show $1)" != "$2" ]]; then
+  output=`${PORTER_HOME}/porter installation output show $1`
+  if [[ "${output}" != "$2" ]]; then
     echo "Output '$1' value: '${output}' does not match expected"
     return 1
   fi
