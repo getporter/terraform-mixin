@@ -35,8 +35,8 @@ REGISTRY ?= $(USER)
 build: build-client build-runtime
 
 build-runtime: generate
-	mkdir -p $(BINDIR)
-	GOARCH=$(RUNTIME_ARCH) GOOS=$(RUNTIME_PLATFORM) $(GO) build -ldflags '$(LDFLAGS)' -o $(BINDIR)/$(MIXIN)-runtime$(FILE_EXT) ./cmd/$(MIXIN)
+	mkdir -p $(BINDIR)/runtimes
+	GOARCH=$(RUNTIME_ARCH) GOOS=$(RUNTIME_PLATFORM) $(GO) build -ldflags '$(LDFLAGS)' -o $(BINDIR)/runtimes/$(MIXIN)-runtime$(FILE_EXT) ./cmd/$(MIXIN)
 
 build-client: generate
 	mkdir -p $(BINDIR)
@@ -74,7 +74,7 @@ test-integration: xbuild
 	cp $(BINDIR)/$(VERSION)/$(MIXIN)-$(CLIENT_PLATFORM)-$(CLIENT_ARCH)$(FILE_EXT) $(BINDIR)/$(MIXIN)$(FILE_EXT)
 	$(GO) test -tags=integration ./tests/...
 
-test-cli: clean-last-testrun bin/porter$(FILE_EXT) bin/porter-runtime build install init-porter-home-for-ci
+test-cli: clean-last-testrun bin/porter$(FILE_EXT) bin/runtimes/porter-runtime build install init-porter-home-for-ci
 	./scripts/test/test-cli.sh
 
 init-porter-home-for-ci:
@@ -100,14 +100,15 @@ bin/porter$(FILE_EXT):
 	curl -fsSLo bin/porter$(FILE_EXT) https://cdn.porter.sh/canary/porter-$(CLIENT_PLATFORM)-$(CLIENT_ARCH)$(FILE_EXT)
 	chmod +x bin/porter$(FILE_EXT)
 
-bin/porter-runtime:
-	curl -fsSLo bin/porter-runtime https://cdn.porter.sh/canary/porter-linux-amd64
-	chmod +x bin/porter-runtime
+bin/runtimes/porter-runtime:
+	mkdir -p bin/runtimes
+	curl -fsSLo bin/runtimes/porter-runtime https://cdn.porter.sh/canary/porter-linux-amd64
+	chmod +x bin/runtimes/porter-runtime
 
 install:
-	mkdir -p $(PORTER_HOME)/mixins/$(MIXIN)
+	mkdir -p $(PORTER_HOME)/mixins/$(MIXIN)/runtimes
 	install $(BINDIR)/$(MIXIN)$(FILE_EXT) $(PORTER_HOME)/mixins/$(MIXIN)/$(MIXIN)$(FILE_EXT)
-	install $(BINDIR)/$(MIXIN)-runtime$(FILE_EXT) $(PORTER_HOME)/mixins/$(MIXIN)/$(MIXIN)-runtime$(FILE_EXT)
+	install $(BINDIR)/runtimes/$(MIXIN)-runtime$(FILE_EXT) $(PORTER_HOME)/mixins/$(MIXIN)/runtimes/$(MIXIN)-runtime$(FILE_EXT)
 
 clean: clean-packr clean-last-testrun
 	-rm -fr bin/

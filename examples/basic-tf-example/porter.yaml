@@ -4,7 +4,7 @@ mixins:
 
 name: basic-tf-example
 version: 0.1.0
-tag: getporterci/basic-tf-example
+registry: getporterci
 
 parameters:
   - name: tfstate

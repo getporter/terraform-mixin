@@ -3,7 +3,7 @@ mixins:
 
 name: terraform-aks
 version: 0.1.0
-tag: getporter/terraform-aks
+registry: getporter
 
 credentials:
   - name: subscription_id

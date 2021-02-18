@@ -3,7 +3,7 @@ mixins:
 
 name: terraform
 version: 0.1.0
-tag: getporterci/terraform:v0.1.0
+registry: getporterci
 
 parameters:
   - name: file_contents
