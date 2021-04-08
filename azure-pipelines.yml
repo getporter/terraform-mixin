@@ -7,7 +7,7 @@ trigger:
   branches:
     include:
       - refs/heads/main
-      - refs/tags/*
+      - refs/tags/v*
 
 pool:
   vmImage: 'Ubuntu 16.04'
@@ -41,6 +41,8 @@ steps:
   displayName: 'CLI Test'
 
 - script: |
-    AZURE_STORAGE_CONNECTION_STRING=$(AZURE_STORAGE_CONNECTION_STRING) make publish
+    make publish
+  env:
+    GITHUB_TOKEN: $(GITHUB_TOKEN)
   displayName: 'Publish'
   condition: and(succeeded(), ne(variables['Build.Reason'], 'PullRequest'))

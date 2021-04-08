@@ -86,9 +86,7 @@ func (m *Mixin) commandPreRun(step *Step) error {
 	}
 
 	// First, change to specified working dir
-	if err := os.Chdir(m.WorkingDir); err != nil {
-		return fmt.Errorf("could not change directory to specified working dir: %s", err)
-	}
+	m.Chdir(m.WorkingDir)
 
 	// Initialize Terraform
 	fmt.Println("Initializing Terraform...")
