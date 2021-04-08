@@ -81,19 +81,7 @@ init-porter-home-for-ci:
 	cp -R build/testdata/bundles $(PORTER_HOME)
 
 publish: bin/porter$(FILE_EXT)
-	# AZURE_STORAGE_CONNECTION_STRING will be used for auth in the following commands
-	if [[ "$(PERMALINK)" == "latest" ]]; then \
-		az storage blob upload-batch -d porter/mixins/$(MIXIN)/$(VERSION) -s $(BINDIR)/$(VERSION); \
-		az storage blob upload-batch -d porter/mixins/$(MIXIN)/$(PERMALINK) -s $(BINDIR)/$(VERSION); \
-	else \
-		mv $(BINDIR)/$(VERSION) $(BINDIR)/$(PERMALINK); \
-		az storage blob upload-batch -d porter/mixins/$(MIXIN)/$(PERMALINK) -s $(BINDIR)/$(PERMALINK); \
-	fi
-
-	# Generate the mixin feed
-	az storage blob download -c porter -n atom.xml -f bin/atom.xml
-	bin/porter mixins feed generate -d bin/mixins -f bin/atom.xml -t build/atom-template.xml
-	az storage blob upload -c porter -n atom.xml -f bin/atom.xml
+	go run mage.go Publish $(MIXIN) $(VERSION) $(PERMALINK)
 
 bin/porter$(FILE_EXT):
 	mkdir -p $(BINDIR)
