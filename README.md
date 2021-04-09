@@ -26,11 +26,12 @@ Then, to install the resulting mixin into PORTER_HOME, execute
 
 ## Mixin Configuration
 
-The Terraform client version can be specified via the `clientVersion` configuration when declaring this mixin.
+When declaring this mixin, the Terraform client version and the working directory can be specified using the `clientVersion` and `workingDirectory` configuration properties:
 
 ```yaml
 - terraform:
     clientVersion: 0.12.17
+    workingDirectory: /cnab/app/terraform
 ```
 
 ## Terraform state

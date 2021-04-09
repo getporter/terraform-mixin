@@ -1,0 +1,5 @@
+config:
+    workingDirectory: /cnab/app/custom
+    install:
+        - terraform:
+            description: "noop"

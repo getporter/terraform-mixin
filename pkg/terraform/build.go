@@ -8,11 +8,12 @@ import (
 )
 
 const dockerfileLines = `ENV TERRAFORM_VERSION=%s
+ENV TERRAFORM_WORKING_DIRECTORY=%s
 RUN apt-get update && apt-get install -y wget unzip && \
  wget https://releases.hashicorp.com/terraform/${TERRAFORM_VERSION}/terraform_${TERRAFORM_VERSION}_linux_amd64.zip && \
  unzip terraform_${TERRAFORM_VERSION}_linux_amd64.zip -d /usr/bin
 COPY . $BUNDLE_DIR
-RUN cd %s && terraform init -backend=false
+RUN cd ${TERRAFORM_WORKING_DIRECTORY} && terraform init -backend=false
 `
 
 // BuildInput represents stdin passed to the mixin for the build command.
@@ -24,8 +25,10 @@ type BuildInput struct {
 // mixins:
 // - terraform:
 //	  version: 0.12.17
+//    workingDir: terraform
 type MixinConfig struct {
-	ClientVersion string `yaml:"clientVersion,omitempty"`
+	ClientVersion    string `yaml:"clientVersion,omitempty"`
+	WorkingDirectory string `yaml:"workingDir,omitempty"`
 }
 
 func (m *Mixin) Build() error {
@@ -40,6 +43,10 @@ func (m *Mixin) Build() error {
 
 	if input.Config.ClientVersion != "" {
 		m.TerraformVersion = input.Config.ClientVersion
+	}
+
+	if input.Config.WorkingDirectory != "" {
+		m.WorkingDir = input.Config.WorkingDirectory
 	}
 
 	fmt.Fprintf(m.Out, dockerfileLines, m.TerraformVersion, m.WorkingDir)
