@@ -109,6 +109,7 @@ type TerraformFields struct {
 	AutoApprove bool `yaml:"autoApprove,omitempty"`
 
 	Vars          map[string]string `yaml:"vars,omitempty"`
+	CreateVarFile bool              `yaml:"createVarFile,omitempty"`
 	LogLevel      string            `yaml:"logLevel,omitempty"`
 	Input         bool              `yaml:"input,omitempty"`
 	BackendConfig map[string]string `yaml:"backendConfig,omitempty"`

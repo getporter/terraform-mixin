@@ -64,6 +64,63 @@ The specified path inside the installer (`/cnab/app/terraform/terraform.tfstate`
 
 Alternatively, state can be managed by a remote backend.  When doing so, each action step needs to supply the remote backend config via `backendConfig`.  In the step examples below, the configuration has key/value pairs according to the [Azurerm](https://www.terraform.io/docs/backends/types/azurerm.html) backend.
 
+
+## Terraform variables file
+
+If you have required variables with no default or are overwriting default values, they should be persisted for terraform apply and destroy. Enabling
+`createVarFile` during install along with a `vars` block will create a
+[`terraform.tfvars.json`](https://www.terraform.io/docs/language/values/variables.html#variable-definitions-tfvars-files)
+during install.  Adding file parameter and output will persist it for upgrade
+and uninstall.
+
+The parameters for the terraform are only required at install and persisted
+for subsequent steps.
+
+Here is an example setup:
+
+```yaml
+parameters:
+  - name: tfvars
+    type: file
+    # This designates the path within the installer to place the parameter value
+    path: /cnab/app/terraform/terraform.tfvars.json
+    # Here we tell Porter that the value for this parameter should come from the 'tfvars' output
+    source:
+      output: tfvars
+  - name: foo
+    type: string
+    applyTo:
+      - install 
+  - name: baz
+    type: string
+    default: blaz
+    applyTo:
+      - install 
+
+outputs:
+  - name: tfvars
+    type: file
+    # This designates the path within the installer to read the output from
+    path: /cnab/app/terraform/terraform.tfvars.json
+    
+install:
+  - terraform:
+      description: "Install Azure Key Vault"
+      input: false
+      createVarFile: true
+      vars:
+        foo: bar
+        baz: biz
+      outputs:
+      - name: vault_uri
+```
+
+
+```
+
+
+
+
 ## Examples
 
 ### Install

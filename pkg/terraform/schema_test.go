@@ -34,6 +34,7 @@ func TestMixin_ValidatePayload(t *testing.T) {
 		error string
 	}{
 		{"install", "testdata/install-input.yaml", true, ""},
+		{"install.save-var-file", "testdata/install-input-save-vars.yaml", true, ""},
 		{"invoke", "testdata/invoke-input.yaml", true, ""},
 		{"upgrade", "testdata/upgrade-input.yaml", true, ""},
 		{"uninstall", "testdata/uninstall-input.yaml", true, ""},
