@@ -66,7 +66,7 @@
         "vars": {
           "type": "object"
         },
-        "createVarFile": {
+        "disableVarFile": {
           "type": "boolean"
         }
       },
@@ -79,7 +79,51 @@
       "type": "object",
       "properties": {
         "terraform": {
-          "$ref": "#/definitions/terraform"
+          "type": "object",
+          "properties": {
+            "arguments": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "autoApprove": {
+              "type": "boolean"
+            },
+            "backendConfig": {
+              "type": "object"
+            },
+            "description": {
+              "$ref": "#/definitions/stepDescription"
+            },
+            "flags": {
+              "type": "object",
+              "additionalProperties": {
+                "type": [
+                  "null",
+                  "boolean",
+                  "number",
+                  "string"
+                ]
+              }
+            },
+            "input": {
+              "type": "boolean"
+            },
+            "logLevel": {
+              "type": "string"
+            },
+            "outputs": {
+              "$ref": "#/definitions/outputs"
+            },
+            "vars": {
+              "type": "object"
+            }
+          },
+          "additionalProperties": false,
+          "required": [
+            "description"
+          ]
         }
       },
       "required": [

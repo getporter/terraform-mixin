@@ -67,16 +67,17 @@ Alternatively, state can be managed by a remote backend.  When doing so, each ac
 
 ## Terraform variables file
 
-If you have required variables with no default or are overwriting default values, they should be persisted for terraform apply and destroy. Enabling
-`createVarFile` during install along with a `vars` block will create a
+By default the mixin will create a default 
 [`terraform.tfvars.json`](https://www.terraform.io/docs/language/values/variables.html#variable-definitions-tfvars-files)
-during install.  Adding file parameter and output will persist it for upgrade
-and uninstall.
+file from the `vars` block during during the install step.
 
-The parameters for the terraform are only required at install and persisted
-for subsequent steps.
+To use this file, a `tfvars` file parameter and output must be added to persist it for subsequent steps.
 
-Here is an example setup:
+
+
+This can be disabled by setting `disableVarFile` to `true` during install.
+
+Here is an example setup using the tfvar file:
 
 ```yaml
 parameters:
@@ -107,19 +108,57 @@ install:
   - terraform:
       description: "Install Azure Key Vault"
       input: false
-      createVarFile: true
       vars:
         foo: bar
         baz: biz
       outputs:
       - name: vault_uri
+upgrade: # No var block required
+  - terraform:
+      description: "Install Azure Key Vault"
+      input: false
+      outputs:
+      - name: vault_uri
+uninstall: # No var block required
+  - terraform:
+      description: "Install Azure Key Vault"
+      input: false
+      outputs:
+      - name: vault_uri
 ```
 
+and with var file disabled
 
+```yaml
+parameters:
+  - name: foo
+    type: string
+    applyTo:
+      - install 
+  - name: baz
+    type: string
+    default: blaz
+    applyTo:
+      - install 
+
+install:
+  - terraform:
+      description: "Install Azure Key Vault"
+      input: false
+      disableVarFile: true
+      vars:
+        foo: bar
+        baz: biz
+      outputs:
+      - name: vault_uri
+uninstall: # Var block required
+  - terraform:
+      description: "Install Azure Key Vault"
+      input: false
+      vars:
+        foo: bar
+        baz: biz
 ```
-
-
-
 
 ## Examples
 

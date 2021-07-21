@@ -32,7 +32,7 @@ func TestMixin_UnmarshalInstallStep(t *testing.T) {
 	assert.Equal(t, "Install MySQL", step.Description)
 	assert.Equal(t, "TRACE", step.LogLevel)
 	assert.Equal(t, false, step.Input)
-	assert.Equal(t, false, step.CreateVarFile)
+	assert.Equal(t, false, step.DisableVarFile)
 }
 
 func TestMixin_Install(t *testing.T) {
@@ -61,10 +61,13 @@ func TestMixin_Install(t *testing.T) {
 	wd := h.Getwd()
 	require.NoError(t, err)
 	assert.Equal(t, wd, h.WorkingDir)
+	fc, err := h.FileSystem.ReadFile(path.Join(wd, "terraform.tfvars.json"))
+	require.NoError(t, err)
+	assert.Equal(t, fc, []byte("{\"myvar\":\"foo\"}"))
 }
 
 func TestMixin_UnmarshalInstallSaveVarStep(t *testing.T) {
-	b, err := ioutil.ReadFile("testdata/install-input-save-vars.yaml")
+	b, err := ioutil.ReadFile("testdata/install-input-disable-save-vars.yaml")
 	require.NoError(t, err)
 
 	var action Action
@@ -76,18 +79,18 @@ func TestMixin_UnmarshalInstallSaveVarStep(t *testing.T) {
 	assert.Equal(t, "Install MySQL", step.Description)
 	assert.Equal(t, "TRACE", step.LogLevel)
 	assert.Equal(t, false, step.Input)
-	assert.Equal(t, true, step.CreateVarFile)
+	assert.Equal(t, true, step.DisableVarFile)
 }
 
-func TestMixin_InstallSaveVars(t *testing.T) {
+func TestMixin_InstallDisableSaveVars(t *testing.T) {
 	defer os.Unsetenv(test.ExpectedCommandEnv)
 	expectedCommand := strings.Join([]string{
 		"terraform init -backend=true -backend-config=key=my.tfstate -reconfigure",
-		"terraform apply -auto-approve -input=false",
+		"terraform apply -auto-approve -input=false -var myvar=foo",
 	}, "\n")
 	os.Setenv(test.ExpectedCommandEnv, expectedCommand)
 
-	b, err := ioutil.ReadFile("testdata/install-input-save-vars.yaml")
+	b, err := ioutil.ReadFile("testdata/install-input-disable-save-vars.yaml")
 	require.NoError(t, err)
 
 	h := NewTestMixin(t)
@@ -104,7 +107,6 @@ func TestMixin_InstallSaveVars(t *testing.T) {
 
 	wd := h.Getwd()
 	assert.Equal(t, wd, h.WorkingDir)
-	fc, err := h.FileSystem.ReadFile(path.Join(wd, "terraform.tfvars.json"))
-	require.NoError(t, err)
-	assert.Equal(t, fc, []byte("{\"myvar\":\"foo\"}"))
+	_, err = h.FileSystem.Stat(path.Join(wd, "terraform.tfvars.json"))
+	require.Error(t, err)
 }

@@ -1,9 +1,8 @@
-install:
+uninstall:
   - terraform:
-      description: "Install MySQL"
-      input: false
+      description: "Uninstall MySQL"
       logLevel: TRACE
-      createVarFile: true
+      disableVarFile: true
       backendConfig:
         key: "my.tfstate"
       vars:

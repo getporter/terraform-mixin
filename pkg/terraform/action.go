@@ -108,11 +108,11 @@ type TerraformFields struct {
 	// AutoApprove will be deprecated in a later release, it is no longer used, --auto-approve=true is always passed to terraform
 	AutoApprove bool `yaml:"autoApprove,omitempty"`
 
-	Vars          map[string]string `yaml:"vars,omitempty"`
-	CreateVarFile bool              `yaml:"createVarFile,omitempty"`
-	LogLevel      string            `yaml:"logLevel,omitempty"`
-	Input         bool              `yaml:"input,omitempty"`
-	BackendConfig map[string]string `yaml:"backendConfig,omitempty"`
+	Vars           map[string]string `yaml:"vars,omitempty"`
+	DisableVarFile bool              `yaml:"disableVarFile,omitempty"`
+	LogLevel       string            `yaml:"logLevel,omitempty"`
+	Input          bool              `yaml:"input,omitempty"`
+	BackendConfig  map[string]string `yaml:"backendConfig,omitempty"`
 }
 
 type Output struct {

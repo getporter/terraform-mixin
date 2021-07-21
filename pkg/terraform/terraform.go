@@ -20,8 +20,7 @@ const DefaultWorkingDir = "/cnab/app/terraform"
 
 const defaultTerraformVersion = "0.12.17"
 
-// DefaultTerraformVarFilename is the default name for terrafrom tfvars json file
-const DefaultTerraformVarFilename = "terraform.tfvars.json"
+
 
 // terraform is the logic behind the terraform mixin
 type Mixin struct {

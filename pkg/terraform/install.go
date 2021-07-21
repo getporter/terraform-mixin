@@ -8,6 +8,9 @@ import (
 	"get.porter.sh/porter/pkg/exec/builder"
 )
 
+// DefaultTerraformVarFilename is the default name for terrafrom tfvars json file
+const DefaultTerraformVarFilename = "terraform.tfvars.json"
+
 // Install runs a terraform apply
 func (m *Mixin) Install() error {
 	action, err := m.loadAction()
@@ -30,8 +33,9 @@ func (m *Mixin) Install() error {
 		step.Flags = append(step.Flags, builder.NewFlag("input=false"))
 	}
 
-	if step.CreateVarFile {
-		vf, err := m.FileSystem.Fs.Create(path.Join(m.WorkingDir, m.TerraformVarsFilename))
+	// Only create a tf var file for install
+	if !step.DisableVarFile && action.Name == "install" {
+		vf, err := m.FileSystem.Create(path.Join(m.WorkingDir, m.TerraformVarsFilename))
 		if err != nil {
 			return err
 		}
@@ -44,11 +48,12 @@ func (m *Mixin) Install() error {
 		if err != nil {
 			return err
 		}
-		fmt.Printf("TF var file created:\n%s\n", string(vbs))
-	} else {
-		for _, k := range sortKeys(step.Vars) {
-			step.Flags = append(step.Flags, builder.NewFlag("var", fmt.Sprintf("'%s=%s'", k, step.Vars[k])))
+		if m.Debug {
+			fmt.Printf("TF var file created:\n%s\n", string(vbs))
 		}
+	}
+	for _, k := range sortKeys(step.Vars) {
+		step.Flags = append(step.Flags, builder.NewFlag("var", fmt.Sprintf("'%s=%s'", k, step.Vars[k])))
 	}
 
 	action.Steps[0] = step
