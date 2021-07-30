@@ -8,8 +8,8 @@ import (
 	"get.porter.sh/porter/pkg/exec/builder"
 )
 
-// DefaultTerraformVarFilename is the default name for terrafrom tfvars json file
-const DefaultTerraformVarFilename = "terraform.tfvars.json"
+// defaultTerraformVarFilename is the default name for terrafrom tfvars json file
+const defaultTerraformVarsFilename = "terraform.tfvars.json"
 
 // Install runs a terraform apply
 func (m *Mixin) Install() error {
@@ -35,7 +35,7 @@ func (m *Mixin) Install() error {
 
 	// Only create a tf var file for install
 	if !step.DisableVarFile && action.Name == "install" {
-		vf, err := m.FileSystem.Create(path.Join(m.WorkingDir, m.TerraformVarsFilename))
+		vf, err := m.FileSystem.Create(path.Join(m.WorkingDir, defaultTerraformVarsFilename))
 		if err != nil {
 			return err
 		}
@@ -49,7 +49,7 @@ func (m *Mixin) Install() error {
 			return err
 		}
 		if m.Debug {
-			fmt.Printf("TF var file created:\n%s\n", string(vbs))
+			fmt.Fprintf(m.Err, "DEBUG: TF var file created:\n%s\n", string(vbs))
 		}
 	}
 	for _, k := range sortKeys(step.Vars) {
