@@ -64,6 +64,102 @@ The specified path inside the installer (`/cnab/app/terraform/terraform.tfstate`
 
 Alternatively, state can be managed by a remote backend.  When doing so, each action step needs to supply the remote backend config via `backendConfig`.  In the step examples below, the configuration has key/value pairs according to the [Azurerm](https://www.terraform.io/docs/backends/types/azurerm.html) backend.
 
+
+## Terraform variables file
+
+By default the mixin will create a default 
+[`terraform.tfvars.json`](https://www.terraform.io/docs/language/values/variables.html#variable-definitions-tfvars-files)
+file from the `vars` block during during the install step.
+
+To use this file, a `tfvars` file parameter and output must be added to persist it for subsequent steps.
+
+
+
+This can be disabled by setting `disableVarFile` to `true` during install.
+
+Here is an example setup using the tfvar file:
+
+```yaml
+parameters:
+  - name: tfvars
+    type: file
+    # This designates the path within the installer to place the parameter value
+    path: /cnab/app/terraform/terraform.tfvars.json
+    # Here we tell Porter that the value for this parameter should come from the 'tfvars' output
+    source:
+      output: tfvars
+  - name: foo
+    type: string
+    applyTo:
+      - install 
+  - name: baz
+    type: string
+    default: blaz
+    applyTo:
+      - install 
+
+outputs:
+  - name: tfvars
+    type: file
+    # This designates the path within the installer to read the output from
+    path: /cnab/app/terraform/terraform.tfvars.json
+    
+install:
+  - terraform:
+      description: "Install Azure Key Vault"
+      input: false
+      vars:
+        foo: bar
+        baz: biz
+      outputs:
+      - name: vault_uri
+upgrade: # No var block required
+  - terraform:
+      description: "Install Azure Key Vault"
+      input: false
+      outputs:
+      - name: vault_uri
+uninstall: # No var block required
+  - terraform:
+      description: "Install Azure Key Vault"
+      input: false
+      outputs:
+      - name: vault_uri
+```
+
+and with var file disabled
+
+```yaml
+parameters:
+  - name: foo
+    type: string
+    applyTo:
+      - install 
+  - name: baz
+    type: string
+    default: blaz
+    applyTo:
+      - install 
+
+install:
+  - terraform:
+      description: "Install Azure Key Vault"
+      input: false
+      disableVarFile: true
+      vars:
+        foo: bar
+        baz: biz
+      outputs:
+      - name: vault_uri
+uninstall: # Var block required
+  - terraform:
+      description: "Install Azure Key Vault"
+      input: false
+      vars:
+        foo: bar
+        baz: biz
+```
+
 ## Examples
 
 ### Install

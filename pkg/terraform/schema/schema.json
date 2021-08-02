@@ -4,7 +4,9 @@
     "installStep": {
       "type": "object",
       "properties": {
-        "terraform": {"$ref": "#/definitions/terraform"}
+        "terraform": {
+          "$ref": "#/definitions/terraform"
+        }
       },
       "required": [
         "terraform"
@@ -14,7 +16,9 @@
     "invokeStep": {
       "type": "object",
       "properties": {
-        "terraform": {"$ref": "#/definitions/terraform"}
+        "terraform": {
+          "$ref": "#/definitions/terraform"
+        }
       },
       "additionalProperties": false,
       "required": [
@@ -42,7 +46,12 @@
         "flags": {
           "type": "object",
           "additionalProperties": {
-            "type": ["null","boolean","number","string"]
+            "type": [
+              "null",
+              "boolean",
+              "number",
+              "string"
+            ]
           }
         },
         "input": {
@@ -56,6 +65,9 @@
         },
         "vars": {
           "type": "object"
+        },
+        "disableVarFile": {
+          "type": "boolean"
         }
       },
       "additionalProperties": false,
@@ -66,7 +78,53 @@
     "upgradeStep": {
       "type": "object",
       "properties": {
-        "terraform": {"$ref": "#/definitions/terraform"}
+        "terraform": {
+          "type": "object",
+          "properties": {
+            "arguments": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "autoApprove": {
+              "type": "boolean"
+            },
+            "backendConfig": {
+              "type": "object"
+            },
+            "description": {
+              "$ref": "#/definitions/stepDescription"
+            },
+            "flags": {
+              "type": "object",
+              "additionalProperties": {
+                "type": [
+                  "null",
+                  "boolean",
+                  "number",
+                  "string"
+                ]
+              }
+            },
+            "input": {
+              "type": "boolean"
+            },
+            "logLevel": {
+              "type": "string"
+            },
+            "outputs": {
+              "$ref": "#/definitions/outputs"
+            },
+            "vars": {
+              "type": "object"
+            }
+          },
+          "additionalProperties": false,
+          "required": [
+            "description"
+          ]
+        }
       },
       "required": [
         "terraform"
@@ -123,7 +181,9 @@
           }
         },
         "additionalProperties": false,
-        "required": ["name"]
+        "required": [
+          "name"
+        ]
       }
     }
   },

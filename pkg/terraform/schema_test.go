@@ -34,12 +34,15 @@ func TestMixin_ValidatePayload(t *testing.T) {
 		error string
 	}{
 		{"install", "testdata/install-input.yaml", true, ""},
+		{"install.disable-save-var-file", "testdata/install-input-disable-save-vars.yaml", true, ""},
 		{"invoke", "testdata/invoke-input.yaml", true, ""},
 		{"upgrade", "testdata/upgrade-input.yaml", true, ""},
 		{"uninstall", "testdata/uninstall-input.yaml", true, ""},
 		{"install.missing-desc", "testdata/bad-install-input.missing-desc.yaml", false, "install.0.terraform: Invalid type. Expected: object, given: null"},
 		{"install.desc-empty", "testdata/bad-install-input.desc-empty.yaml", false, "install.0.terraform.description: String length must be greater than or equal to 1"},
+		{"upgrade.disable-var-file", "testdata/bad-upgrade-disable-save-var.yaml", false, "upgrade.0.terraform: Additional property disableVarFile is not allowed"},
 		{"uninstall.input-not-valid", "testdata/bad-uninstall-input.input-not-valid.yaml", false, "uninstall.0.terraform: Additional property input is not allowed"},
+		{"uninstall.disable-var-file", "testdata/bad-uninstall-disable-save-var.yaml", false, "uninstall.0.terraform: Additional property disableVarFile is not allowed"},
 	}
 
 	for _, tc := range testcases {
