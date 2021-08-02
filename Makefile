@@ -7,8 +7,8 @@ GO = GO111MODULE=on go
 PORTER_HOME ?= $(HOME)/.porter
 
 COMMIT ?= $(shell git rev-parse --short HEAD)
-VERSION ?= $(shell git describe --tags 2> /dev/null || echo v0)
-PERMALINK ?= $(shell git describe --tags --exact-match &> /dev/null && echo latest || echo canary)
+VERSION ?= $(shell git describe --tags --match=v* 2> /dev/null || echo v0)
+PERMALINK ?= $(shell git describe --tags --match=v* --exact-match &> /dev/null && echo latest || echo canary)
 
 LDFLAGS = -w -X $(PKG)/pkg.Version=$(VERSION) -X $(PKG)/pkg.Commit=$(COMMIT)
 XBUILD = CGO_ENABLED=0 $(GO) build -a -tags netgo -ldflags '$(LDFLAGS)'
