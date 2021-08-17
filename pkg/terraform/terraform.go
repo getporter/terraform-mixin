@@ -18,7 +18,7 @@ import (
 // DefaultWorkingDir is the default working directory for Terraform
 const DefaultWorkingDir = "/cnab/app/terraform"
 
-const defaultTerraformVersion = "0.12.17"
+const defaultTerraformVersion = "1.0.4"
 
 // terraform is the logic behind the terraform mixin
 type Mixin struct {
