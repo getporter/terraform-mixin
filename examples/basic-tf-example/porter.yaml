@@ -1,6 +1,6 @@
 mixins:
   - terraform:
-      clientVersion: 0.12.29
+      clientVersion: 1.0.0
 
 name: basic-tf-example
 version: 0.1.0
