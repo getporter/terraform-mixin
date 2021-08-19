@@ -1,6 +1,7 @@
 package terraform
 
 import (
+	"bytes"
 	"encoding/json"
 	"fmt"
 	"path"
@@ -40,14 +41,23 @@ func (m *Mixin) Install() error {
 			return err
 		}
 		defer vf.Close()
+
 		vbs, err := json.Marshal(step.Vars)
 		if err != nil {
 			return err
 		}
+
+		// If vbs is "null", as would be the case if step.Vars is empty,
+		// set vbs to an empty JSON object so that terraform doesn't error out.
+		if bytes.Equal(vbs, []byte("null")) {
+			vbs = []byte("{}")
+		}
+
 		_, err = vf.Write(vbs)
 		if err != nil {
 			return err
 		}
+
 		if m.Debug {
 			fmt.Fprintf(m.Err, "DEBUG: TF var file created:\n%s\n", string(vbs))
 		}
