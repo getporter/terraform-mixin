@@ -18,7 +18,7 @@ import (
 // DefaultWorkingDir is the default working directory for Terraform
 const DefaultWorkingDir = "/cnab/app/terraform"
 
-const defaultTerraformVersion = "0.12.17"
+const defaultTerraformVersion = "1.0.4"
 
 // terraform is the logic behind the terraform mixin
 type Mixin struct {
@@ -48,7 +48,7 @@ func (m *Mixin) getPayloadData() ([]byte, error) {
 }
 
 func (m *Mixin) getOutput(outputName string) ([]byte, error) {
-	cmd := m.NewCommand("terraform", "output", outputName)
+	cmd := m.NewCommand("terraform", "output", "-raw", outputName)
 	cmd.Stderr = m.Err
 
 	// Terraform appears to auto-append a newline character when printing outputs

@@ -30,7 +30,7 @@ The Terraform client version can be specified via the `clientVersion` configurat
 
 ```yaml
 - terraform:
-    clientVersion: 0.12.17
+    clientVersion: 1.0.3
 ```
 
 ## Terraform state
