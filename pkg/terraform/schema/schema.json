@@ -51,9 +51,6 @@
             ]
           }
         },
-        "input": {
-          "type": "boolean"
-        },
         "logLevel": {
           "type": "string"
         },
@@ -100,9 +97,6 @@
                   "string"
                 ]
               }
-            },
-            "input": {
-              "type": "boolean"
             },
             "logLevel": {
               "type": "string"

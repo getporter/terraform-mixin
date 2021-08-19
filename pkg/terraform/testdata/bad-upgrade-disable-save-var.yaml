@@ -1,7 +1,6 @@
 upgrade:
   - terraform:
       description: "Upgrade MySQL"
-      input: false
       logLevel: TRACE
       disableVarFile: true
       backendConfig:

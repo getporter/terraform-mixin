@@ -3,7 +3,6 @@ custom:
     description: "Custom Action"
     arguments:
       - "custom"
-    input: false
     logLevel: TRACE
     backendConfig:
       key: my.tfstate

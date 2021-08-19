@@ -31,7 +31,6 @@ func TestMixin_UnmarshalInstallStep(t *testing.T) {
 
 	assert.Equal(t, "Install MySQL", step.Description)
 	assert.Equal(t, "TRACE", step.LogLevel)
-	assert.Equal(t, false, step.Input)
 	assert.Equal(t, false, step.DisableVarFile)
 }
 
@@ -39,7 +38,7 @@ func TestMixin_Install(t *testing.T) {
 	defer os.Unsetenv(test.ExpectedCommandEnv)
 	expectedCommand := strings.Join([]string{
 		"terraform init -backend=true -backend-config=key=my.tfstate -reconfigure",
-		"terraform apply -auto-approve -input=false -var myvar=foo",
+		"terraform apply -auto-approve -var myvar=foo",
 	}, "\n")
 	os.Setenv(test.ExpectedCommandEnv, expectedCommand)
 
@@ -78,7 +77,6 @@ func TestMixin_UnmarshalInstallSaveVarStep(t *testing.T) {
 
 	assert.Equal(t, "Install MySQL", step.Description)
 	assert.Equal(t, "TRACE", step.LogLevel)
-	assert.Equal(t, false, step.Input)
 	assert.Equal(t, true, step.DisableVarFile)
 }
 
@@ -86,7 +84,7 @@ func TestMixin_InstallDisableSaveVars(t *testing.T) {
 	defer os.Unsetenv(test.ExpectedCommandEnv)
 	expectedCommand := strings.Join([]string{
 		"terraform init -backend=true -backend-config=key=my.tfstate -reconfigure",
-		"terraform apply -auto-approve -input=false -var myvar=foo",
+		"terraform apply -auto-approve -var myvar=foo",
 	}, "\n")
 	os.Setenv(test.ExpectedCommandEnv, expectedCommand)
 

@@ -105,7 +105,6 @@ outputs:
 install:
   - terraform:
       description: "Install Azure Key Vault"
-      input: false
       vars:
         foo: bar
         baz: biz
@@ -114,13 +113,11 @@ install:
 upgrade: # No var block required
   - terraform:
       description: "Install Azure Key Vault"
-      input: false
       outputs:
       - name: vault_uri
 uninstall: # No var block required
   - terraform:
       description: "Install Azure Key Vault"
-      input: false
       outputs:
       - name: vault_uri
 ```
@@ -142,7 +139,6 @@ parameters:
 install:
   - terraform:
       description: "Install Azure Key Vault"
-      input: false
       disableVarFile: true
       vars:
         foo: bar
@@ -152,7 +148,6 @@ install:
 uninstall: # Var block required
   - terraform:
       description: "Install Azure Key Vault"
-      input: false
       vars:
         foo: bar
         baz: biz
@@ -166,7 +161,6 @@ uninstall: # Var block required
 install:
   - terraform:
       description: "Install Azure Key Vault"
-      input: false
       backendConfig:
         key: "mybundle.tfstate"
         storage_account_name: "mystorageacct"
@@ -182,7 +176,6 @@ install:
 upgrade:
   - terraform:
       description: "Upgrade Azure Key Vault"
-      input: false
       backendConfig:
         key: "mybundle.tfstate"
         storage_account_name: "mystorageacct"

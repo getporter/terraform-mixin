@@ -108,7 +108,6 @@ type TerraformFields struct {
 	Vars           map[string]string `yaml:"vars,omitempty"`
 	DisableVarFile bool              `yaml:"disableVarFile,omitempty"`
 	LogLevel       string            `yaml:"logLevel,omitempty"`
-	Input          bool              `yaml:"input,omitempty"`
 	BackendConfig  map[string]string `yaml:"backendConfig,omitempty"`
 }
 
