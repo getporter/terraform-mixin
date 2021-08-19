@@ -15,26 +15,34 @@ import (
 	"github.com/pkg/errors"
 )
 
-// DefaultWorkingDir is the default working directory for Terraform
-const DefaultWorkingDir = "/cnab/app/terraform"
+const (
+	// DefaultWorkingDir is the default working directory for Terraform.
+	DefaultWorkingDir = "terraform"
 
-const defaultTerraformVersion = "1.0.4"
+	// DefaultClientVersion is the default version of the terraform cli.
+	DefaultClientVersion = "1.0.4"
+
+	// DefaultInitFile is the default file used to initialize terraform providers during build.
+	DefaultInitFile = ""
+)
 
 // terraform is the logic behind the terraform mixin
 type Mixin struct {
 	*context.Context
-	schema           *packr.Box
-	WorkingDir       string
-	TerraformVersion string
+	schema *packr.Box
+	config MixinConfig
 }
 
 // New terraform mixin client, initialized with useful defaults.
 func New() *Mixin {
 	return &Mixin{
-		Context:          context.New(),
-		schema:           packr.New("schema", "./schema"),
-		WorkingDir:       DefaultWorkingDir,
-		TerraformVersion: defaultTerraformVersion,
+		Context: context.New(),
+		schema:  packr.New("schema", "./schema"),
+		config: MixinConfig{
+			WorkingDir:    DefaultWorkingDir,
+			ClientVersion: DefaultClientVersion,
+			InitFile:      DefaultInitFile,
+		},
 	}
 }
 
@@ -86,7 +94,10 @@ func (m *Mixin) commandPreRun(step *Step) error {
 	}
 
 	// First, change to specified working dir
-	m.Chdir(m.WorkingDir)
+	m.Chdir(m.config.WorkingDir)
+	if m.Debug {
+		fmt.Fprintln(m.Err, "Terraform working directory is", m.Getwd())
+	}
 
 	// Initialize Terraform
 	fmt.Println("Initializing Terraform...")

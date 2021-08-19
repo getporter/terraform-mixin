@@ -41,7 +41,7 @@ func TestMixin_Uninstall(t *testing.T) {
 	h.In = bytes.NewReader(b)
 
 	// Set up working dir as current dir
-	h.WorkingDir = h.Getwd()
+	h.config.WorkingDir = h.Getwd()
 	require.NoError(t, err)
 
 	err = h.Uninstall()
@@ -49,5 +49,5 @@ func TestMixin_Uninstall(t *testing.T) {
 
 	wd := h.Getwd()
 	require.NoError(t, err)
-	assert.Equal(t, wd, h.WorkingDir)
+	assert.Equal(t, wd, h.config.WorkingDir)
 }

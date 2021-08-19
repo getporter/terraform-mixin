@@ -1,6 +1,7 @@
 mixins:
   - exec
-  - terraform
+  - terraform:
+      initFile: providers.tf
 
 name: terraform-keyvault
 version: 0.1.0

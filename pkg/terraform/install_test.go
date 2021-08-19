@@ -49,7 +49,7 @@ func TestMixin_Install(t *testing.T) {
 	h.In = bytes.NewReader(b)
 
 	// Set up working dir as current dir
-	h.WorkingDir = h.Getwd()
+	h.config.WorkingDir = h.Getwd()
 	require.NoError(t, err)
 
 	err = h.Install()
@@ -59,7 +59,7 @@ func TestMixin_Install(t *testing.T) {
 
 	wd := h.Getwd()
 	require.NoError(t, err)
-	assert.Equal(t, wd, h.WorkingDir)
+	assert.Equal(t, wd, h.config.WorkingDir)
 	fc, err := h.FileSystem.ReadFile(path.Join(wd, "terraform.tfvars.json"))
 	require.NoError(t, err)
 	assert.Equal(t, fc, []byte("{\"myvar\":\"foo\"}"))
@@ -95,7 +95,7 @@ func TestMixin_InstallDisableSaveVars(t *testing.T) {
 	h.In = bytes.NewReader(b)
 
 	// Set up working dir as current dir
-	h.WorkingDir = h.Getwd()
+	h.config.WorkingDir = h.Getwd()
 	require.NoError(t, err)
 
 	err = h.Install()
@@ -104,7 +104,7 @@ func TestMixin_InstallDisableSaveVars(t *testing.T) {
 	assert.Equal(t, "TRACE", os.Getenv("TF_LOG"))
 
 	wd := h.Getwd()
-	assert.Equal(t, wd, h.WorkingDir)
+	assert.Equal(t, wd, h.config.WorkingDir)
 	_, err = h.FileSystem.Stat(path.Join(wd, "terraform.tfvars.json"))
 	require.Error(t, err)
 }
@@ -124,7 +124,7 @@ func TestMixin_InstallNoVarsBlock(t *testing.T) {
 	h.In = bytes.NewReader(b)
 
 	// Set up working dir as current dir
-	h.WorkingDir = h.Getwd()
+	h.config.WorkingDir = h.Getwd()
 	require.NoError(t, err)
 
 	err = h.Install()
@@ -133,7 +133,7 @@ func TestMixin_InstallNoVarsBlock(t *testing.T) {
 	assert.Equal(t, "TRACE", os.Getenv("TF_LOG"))
 
 	wd := h.Getwd()
-	assert.Equal(t, wd, h.WorkingDir)
+	assert.Equal(t, wd, h.config.WorkingDir)
 	fc, err := h.FileSystem.ReadFile(path.Join(wd, "terraform.tfvars.json"))
 	require.NoError(t, err)
 	assert.Equal(t, fc, []byte("{}"))
