@@ -1,7 +1,6 @@
 package terraform
 
 import (
-	"bytes"
 	"encoding/json"
 	"fmt"
 	"path"
@@ -47,9 +46,9 @@ func (m *Mixin) Install() error {
 			return err
 		}
 
-		// If vbs is "null", as would be the case if step.Vars is empty,
-		// set vbs to an empty JSON object so that terraform doesn't error out.
-		if bytes.Equal(vbs, []byte("null")) {
+		// If the vars block is empty, set vbs to an empty JSON object
+		// to prevent terraform from erroring out
+		if len(step.Vars) == 0 {
 			vbs = []byte("{}")
 		}
 
