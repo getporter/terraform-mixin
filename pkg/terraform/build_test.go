@@ -13,7 +13,8 @@ import (
 const buildOutputTemplate = `ENV TERRAFORM_VERSION=%s
 RUN apt-get update && apt-get install -y wget unzip && \
  wget https://releases.hashicorp.com/terraform/${TERRAFORM_VERSION}/terraform_${TERRAFORM_VERSION}_linux_amd64.zip && \
- unzip terraform_${TERRAFORM_VERSION}_linux_amd64.zip -d /usr/bin
+ unzip terraform_${TERRAFORM_VERSION}_linux_amd64.zip -d /usr/bin && \
+ rm terraform_${TERRAFORM_VERSION}_linux_amd64.zip
 COPY . $BUNDLE_DIR
 RUN cd /cnab/app/terraform && terraform init -backend=false
 `
