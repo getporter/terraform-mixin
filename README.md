@@ -73,8 +73,6 @@ file from the `vars` block during during the install step.
 
 To use this file, a `tfvars` file parameter and output must be added to persist it for subsequent steps.
 
-
-
 This can be disabled by setting `disableVarFile` to `true` during install.
 
 Here is an example setup using the tfvar file:

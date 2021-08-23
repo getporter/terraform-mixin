@@ -40,14 +40,23 @@ func (m *Mixin) Install() error {
 			return err
 		}
 		defer vf.Close()
+
 		vbs, err := json.Marshal(step.Vars)
 		if err != nil {
 			return err
 		}
+
+		// If the vars block is empty, set vbs to an empty JSON object
+		// to prevent terraform from erroring out
+		if len(step.Vars) == 0 {
+			vbs = []byte("{}")
+		}
+
 		_, err = vf.Write(vbs)
 		if err != nil {
 			return err
 		}
+
 		if m.Debug {
 			fmt.Fprintf(m.Err, "DEBUG: TF var file created:\n%s\n", string(vbs))
 		}

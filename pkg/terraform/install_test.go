@@ -110,3 +110,33 @@ func TestMixin_InstallDisableSaveVars(t *testing.T) {
 	_, err = h.FileSystem.Stat(path.Join(wd, "terraform.tfvars.json"))
 	require.Error(t, err)
 }
+
+func TestMixin_InstallNoVarsBlock(t *testing.T) {
+	defer os.Unsetenv(test.ExpectedCommandEnv)
+	expectedCommand := strings.Join([]string{
+		"terraform init -backend=true -backend-config=key=my.tfstate -reconfigure",
+		"terraform apply -auto-approve -input=false",
+	}, "\n")
+	os.Setenv(test.ExpectedCommandEnv, expectedCommand)
+
+	b, err := ioutil.ReadFile("testdata/install-input-no-vars-block.yaml")
+	require.NoError(t, err)
+
+	h := NewTestMixin(t)
+	h.In = bytes.NewReader(b)
+
+	// Set up working dir as current dir
+	h.WorkingDir = h.Getwd()
+	require.NoError(t, err)
+
+	err = h.Install()
+	require.NoError(t, err)
+
+	assert.Equal(t, "TRACE", os.Getenv("TF_LOG"))
+
+	wd := h.Getwd()
+	assert.Equal(t, wd, h.WorkingDir)
+	fc, err := h.FileSystem.ReadFile(path.Join(wd, "terraform.tfvars.json"))
+	require.NoError(t, err)
+	assert.Equal(t, fc, []byte("{}"))
+}
