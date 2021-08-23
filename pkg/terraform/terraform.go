@@ -8,10 +8,12 @@ import (
 	"fmt"
 	"io/ioutil"
 	"os"
+	"path/filepath"
 	"strings"
 
 	"get.porter.sh/porter/pkg/context" // We are not using go-yaml because of serialization problems with jsonschema, don't use this library elsewhere
 	"github.com/gobuffalo/packr/v2"
+	"github.com/hashicorp/go-multierror"
 	"github.com/pkg/errors"
 )
 
@@ -73,18 +75,33 @@ func (m *Mixin) getOutput(outputName string) ([]byte, error) {
 }
 
 func (m *Mixin) handleOutputs(outputs []Output) error {
+	var bigErr *multierror.Error
+
 	for _, output := range outputs {
 		bytes, err := m.getOutput(output.Name)
 		if err != nil {
-			return err
+			bigErr = multierror.Append(bigErr, err)
+			continue
 		}
 
 		err = m.Context.WriteMixinOutputToFile(output.Name, bytes)
 		if err != nil {
-			return errors.Wrapf(err, "unable to write output '%s'", output.Name)
+			bigErr = multierror.Append(bigErr, errors.Wrapf(err, "unable to persist output '%s'", output.Name))
+		}
+
+		if output.DestinationFile != "" {
+			err = m.Context.FileSystem.MkdirAll(filepath.Dir(output.DestinationFile), 0700)
+			if err != nil {
+				bigErr = multierror.Append(bigErr, errors.Wrapf(err, "unable to create destination directory for output '%s'", output.Name))
+			}
+
+			err = m.Context.FileSystem.WriteFile(output.DestinationFile, bytes, 0700)
+			if err != nil {
+				bigErr = multierror.Append(bigErr, errors.Wrapf(err, "unable to copy output '%s' to '%s'", output.Name, output.DestinationFile))
+			}
 		}
 	}
-	return nil
+	return bigErr.ErrorOrNil()
 }
 
 // commandPreRun runs setup tasks applicable for every action

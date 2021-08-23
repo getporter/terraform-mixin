@@ -11,7 +11,7 @@ This is a terraform mixin for [Porter](https://github.com/getporter/porter).
 This will install the latest mixin release via the Porter CLI.
 
 ```
-porter mixin install terraform --feed-url https://cdn.porter.sh/mixins/atom.xml
+porter mixin install terraform
 ```
 
 ## Build from source
@@ -247,7 +247,20 @@ See further examples in the [Examples](examples) directory
 As seen above, outputs can be declared for a step.  All that is needed is the name of the output.
 
 For each output listed, `terraform output <output name>` is invoked to fetch the output value
-from the state file for use by Porter.
+from the state file for use by Porter. Outputs can be saved to the filesystem so that subsequent
+steps can use the file by specifying the `destinationFile` field. This is particularly useful
+when your terraform module creates a Kubernetes cluster. In the example below, the module
+creates a cluster, and then writes the kubeconfig to /root/.kube/config so that the rest of the
+bundle can immediately use the cluster.
+
+```yaml
+install:
+  - terraform:
+      description: "Create a Kubernetes cluster"
+      outputs:
+      - name: kubeconfig
+        destinationFile: /root/.kube/config
+```
 
 See the Porter [Outputs documentation](https://porter.sh/wiring/#outputs) on how to wire up
 outputs for use in a bundle.
