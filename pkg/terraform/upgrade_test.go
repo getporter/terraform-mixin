@@ -30,7 +30,7 @@ func TestMixin_Upgrade(t *testing.T) {
 	defer os.Unsetenv(test.ExpectedCommandEnv)
 	expectedCommand := strings.Join([]string{
 		"terraform init -backend=true -backend-config=key=my.tfstate -reconfigure",
-		"terraform apply -auto-approve -var myvar=foo",
+		"terraform apply -auto-approve -input=false -var myvar=foo",
 	}, "\n")
 	os.Setenv(test.ExpectedCommandEnv, expectedCommand)
 

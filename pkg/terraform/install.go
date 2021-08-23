@@ -28,6 +28,7 @@ func (m *Mixin) Install() error {
 	step.Arguments = []string{"apply"}
 	// Always run in non-interactive mode
 	step.Flags = append(step.Flags, builder.NewFlag("auto-approve"))
+	step.Flags = append(step.Flags, builder.NewFlag("input=false"))
 
 	// Only create a tf var file for install
 	if !step.DisableVarFile && action.Name == "install" {
