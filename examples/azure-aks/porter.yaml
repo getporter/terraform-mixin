@@ -69,7 +69,6 @@ customActions:
 install:
   - terraform:
       description: "Install Azure Kubernetes Service"
-      input: false
       backendConfig:
         key: "{{ bundle.name }}.tfstate"
         storage_account_name: "{{ bundle.credentials.backend_storage_account }}"
@@ -79,7 +78,6 @@ install:
 upgrade:
   - terraform:
       description: "Upgrade Azure Kubernetes Service"
-      input: false
       backendConfig:
         key: "{{ bundle.name }}.tfstate"
         storage_account_name: "{{ bundle.credentials.backend_storage_account }}"

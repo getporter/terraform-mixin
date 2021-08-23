@@ -4,7 +4,6 @@ custom:
     arguments:
       - "custom"
     flags:
-      input: false
       logLevel: TRACE
       backendConfig:
         - "key=my.tfstate"

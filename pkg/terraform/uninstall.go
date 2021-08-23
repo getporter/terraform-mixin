@@ -23,6 +23,7 @@ func (m *Mixin) Uninstall() error {
 	step.Arguments = []string{"destroy"}
 	// Always run in non-interactive mode
 	step.Flags = append(step.Flags, builder.NewFlag("auto-approve"))
+	step.Flags = append(step.Flags, builder.NewFlag("input=false"))
 
 	for _, k := range sortKeys(step.Vars) {
 		step.Flags = append(step.Flags, builder.NewFlag("var", fmt.Sprintf("'%s=%s'", k, step.Vars[k])))

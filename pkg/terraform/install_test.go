@@ -31,7 +31,6 @@ func TestMixin_UnmarshalInstallStep(t *testing.T) {
 
 	assert.Equal(t, "Install MySQL", step.Description)
 	assert.Equal(t, "TRACE", step.LogLevel)
-	assert.Equal(t, false, step.Input)
 	assert.Equal(t, false, step.DisableVarFile)
 }
 
@@ -78,7 +77,6 @@ func TestMixin_UnmarshalInstallSaveVarStep(t *testing.T) {
 
 	assert.Equal(t, "Install MySQL", step.Description)
 	assert.Equal(t, "TRACE", step.LogLevel)
-	assert.Equal(t, false, step.Input)
 	assert.Equal(t, true, step.DisableVarFile)
 }
 

@@ -30,9 +30,8 @@ func TestMixin_UnmarshalStep(t *testing.T) {
 	assert.Equal(t, "custom", step.Arguments[0])
 
 	sort.Sort(step.Flags)
-	require.Len(t, step.Flags, 4)
+	require.Len(t, step.Flags, 3)
 	assert.Equal(t, builder.NewFlag("backendConfig", "key=my.tfstate"), step.Flags[0])
-	assert.Equal(t, builder.NewFlag("input", "false"), step.Flags[1])
-	assert.Equal(t, builder.NewFlag("logLevel", "TRACE"), step.Flags[2])
-	assert.Equal(t, builder.NewFlag("vars", "myvar=foo"), step.Flags[3])
+	assert.Equal(t, builder.NewFlag("logLevel", "TRACE"), step.Flags[1])
+	assert.Equal(t, builder.NewFlag("vars", "myvar=foo"), step.Flags[2])
 }

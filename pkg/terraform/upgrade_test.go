@@ -24,7 +24,6 @@ func TestMixin_UnmarshalUpgradeStep(t *testing.T) {
 	step := action.Steps[0]
 
 	assert.Equal(t, "Upgrade MySQL", step.Description)
-	assert.Equal(t, false, step.Input)
 }
 
 func TestMixin_Upgrade(t *testing.T) {
