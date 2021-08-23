@@ -34,9 +34,6 @@
             "type": "string"
           }
         },
-        "autoApprove": {
-          "type": "boolean"
-        },
         "backendConfig": {
           "type": "object"
         },
@@ -87,9 +84,6 @@
                 "type": "string"
               }
             },
-            "autoApprove": {
-              "type": "boolean"
-            },
             "backendConfig": {
               "type": "object"
             },
@@ -137,9 +131,6 @@
         "terraform": {
           "type": "object",
           "properties": {
-            "autoApprove": {
-              "type": "boolean"
-            },
             "backendConfig": {
               "type": "object"
             },
