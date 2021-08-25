@@ -1,5 +1,6 @@
 mixins:
-  - terraform
+  - terraform:
+      initFile: providers.tf
 
 name: terraform-aks
 version: 0.1.0

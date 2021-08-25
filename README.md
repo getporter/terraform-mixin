@@ -26,12 +26,25 @@ Then, to install the resulting mixin into PORTER_HOME, execute
 
 ## Mixin Configuration
 
-The Terraform client version can be specified via the `clientVersion` configuration when declaring this mixin.
-
 ```yaml
+mixins:
 - terraform:
     clientVersion: 1.0.3
+    workingDir: myinfra
+    initFile: providers.tf
 ```
+
+### clientVersion
+The Terraform client version can be specified via the `clientVersion` configuration when declaring this mixin.
+
+### workingDir
+The `workingDir` configuration setting is the relative path to your terraform files. Defaults to "terraform".
+
+### initFile
+Terraform providers are installed into the bundle during porter build. 
+We recommend that you put your provider declarations into a single file, e.g. "terraform/providers.tf".
+Then use `initFile` to specify the relative path to this file within workingDir.
+This will dramatically improve Docker image layer caching and performance when building, publishing and installing the bundle.
 
 ## Terraform state
 

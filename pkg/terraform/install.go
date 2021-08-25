@@ -3,7 +3,6 @@ package terraform
 import (
 	"encoding/json"
 	"fmt"
-	"path"
 
 	"get.porter.sh/porter/pkg/exec/builder"
 )
@@ -32,7 +31,7 @@ func (m *Mixin) Install() error {
 
 	// Only create a tf var file for install
 	if !step.DisableVarFile && action.Name == "install" {
-		vf, err := m.FileSystem.Create(path.Join(m.WorkingDir, defaultTerraformVarsFilename))
+		vf, err := m.FileSystem.Create(defaultTerraformVarsFilename)
 		if err != nil {
 			return err
 		}

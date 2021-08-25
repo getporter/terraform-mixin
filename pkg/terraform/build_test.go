@@ -2,22 +2,12 @@ package terraform
 
 import (
 	"bytes"
-	"fmt"
 	"io/ioutil"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )
-
-const buildOutputTemplate = `ENV TERRAFORM_VERSION=%s
-RUN apt-get update && apt-get install -y wget unzip && \
- wget https://releases.hashicorp.com/terraform/${TERRAFORM_VERSION}/terraform_${TERRAFORM_VERSION}_linux_amd64.zip && \
- unzip terraform_${TERRAFORM_VERSION}_linux_amd64.zip -d /usr/bin && \
- rm terraform_${TERRAFORM_VERSION}_linux_amd64.zip
-COPY . $BUNDLE_DIR
-RUN cd /cnab/app/terraform && terraform init -backend=false
-`
 
 func TestMixin_Build(t *testing.T) {
 	t.Run("build with the default Terraform version", func(t *testing.T) {
@@ -26,10 +16,9 @@ func TestMixin_Build(t *testing.T) {
 		err := m.Build()
 		require.NoError(t, err)
 
-		wantOutput := fmt.Sprintf(buildOutputTemplate, "1.0.4")
-
 		gotOutput := m.TestContext.GetOutput()
-		assert.Equal(t, wantOutput, gotOutput)
+		assert.Contains(t, gotOutput, "https://releases.hashicorp.com/terraform/1.0.4/terraform_1.0.4_linux_amd64.zip")
+		assert.NotContains(t, "{{.", gotOutput, "Not all of the template values were consumed")
 	})
 
 	t.Run("build with custom Terrafrom version", func(t *testing.T) {
@@ -41,9 +30,8 @@ func TestMixin_Build(t *testing.T) {
 		err = m.Build()
 		require.NoError(t, err)
 
-		wantOutput := fmt.Sprintf(buildOutputTemplate, "0.13.0-rc1")
-
 		gotOutput := m.TestContext.GetOutput()
-		assert.Equal(t, wantOutput, gotOutput)
+		assert.Contains(t, gotOutput, "https://releases.hashicorp.com/terraform/0.13.0-rc1/terraform_0.13.0-rc1_linux_amd64.zip")
+		assert.NotContains(t, "{{.", gotOutput, "Not all of the template values were consumed")
 	})
 }
