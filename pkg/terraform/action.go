@@ -113,6 +113,8 @@ type TerraformFields struct {
 
 type Output struct {
 	Name string `yaml:"name"`
+	// Write the output to the specified file
+	DestinationFile string `yaml:"destinationFile,omitempty"`
 }
 
 func (o Output) GetName() string {
