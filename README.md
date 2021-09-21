@@ -52,7 +52,7 @@ This will dramatically improve Docker image layer caching and performance when b
 
 The simplest way to use this mixin with Porter is to let Porter track the Terraform [state](https://www.terraform.io/docs/state/index.html) as actions are executed.  This can be done via a parameter of type `file` that has a source of a corresponding output (of the same `file` type).  Each time the bundle is executed, the output will capture the updated state file and inject it into the next action via its parameter correlate.
 
-Here is an example setup:
+Here is an example setup that works with Porter v0.38:
 
 ```yaml
 parameters:
@@ -70,6 +70,18 @@ outputs:
     # This designates the path within the installer to read the output from
     path: /cnab/app/terraform/terraform.tfstate
 ```
+
+If you are working with the Porter v1 prerelease, use the new state section:
+
+```yaml
+state:
+  - name: tfstate
+    path: terraform/terraform.tfstate
+  - name: tfvars
+    path: terraform/terraform.tfvars.json
+```
+
+The [TabbyCats Tracker bundle](https://github.com/carolynvs/tabbycat-demo) is a good example of how to use the terraform mixin with the Porter v1 prerelease.
 
 The specified path inside the installer (`/cnab/app/terraform/terraform.tfstate`) should be where Terraform will be looking to read/write its state.  For a full example bundle using this approach, see the [basic-tf-example](examples/basic-tf-example).
 
