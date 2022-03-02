@@ -69,6 +69,10 @@ func (s Step) GetCommand() string {
 	return "terraform"
 }
 
+func (s Step) GetWorkingDir() string {
+	return "."
+}
+
 func (s Step) GetArguments() []string {
 	return s.Arguments
 }
