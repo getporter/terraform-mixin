@@ -1,25 +1,13 @@
 package terraform
 
 import (
+	_ "embed"
 	"fmt"
 )
 
-func (m *Mixin) PrintSchema() error {
-	schema, err := m.GetSchema()
-	if err != nil {
-		return err
-	}
+//go:embed schema/schema.json
+var schema string
 
+func (m *Mixin) PrintSchema() {
 	fmt.Fprintf(m.Out, schema)
-
-	return nil
-}
-
-func (m *Mixin) GetSchema() (string, error) {
-	b, err := m.schema.Find("schema.json")
-	if err != nil {
-		return "", err
-	}
-
-	return string(b), nil
 }

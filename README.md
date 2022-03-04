@@ -1,6 +1,6 @@
-# terraform Mixin for Porter
+# Terraform Mixin for Porter
 
-This is a terraform mixin for [Porter](https://github.com/getporter/porter).
+This is a Terraform mixin for [Porter](https://porter.sh).
 
 [![Build Status](https://dev.azure.com/getporter/porter/_apis/build/status/terraform-mixin?branchName=main)](https://dev.azure.com/getporter/porter/_build/latest?definitionId=10&branchName=main)
 
@@ -17,12 +17,16 @@ porter mixin install terraform
 ## Build from source
 
 Following commands build the terraform mixin.
-1. `go get -u get.porter.sh/mixin/terraform`
-1. `cd $(go env GOPATH)/src/get.porter.sh/mixin/terraform`
-1. `make build`
+```bash
+git clone https://github.com/getporter/terraform-mixin.git
+cd terraform-mixin
+# Learn about Mage in our CONTRIBUTING.md
+go run mage.go EnsureMage
+mage build
+```
 
 Then, to install the resulting mixin into PORTER_HOME, execute
-`make install`
+`mage install`
 
 ## Mixin Configuration
 

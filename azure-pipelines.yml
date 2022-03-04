@@ -1,48 +1,29 @@
-# Go
-# Build your Go project.
-# Add steps that test, save build artifacts, deploy, and more:
-# https://docs.microsoft.com/azure/devops/pipelines/languages/go
-
 trigger:
   branches:
-    include:
+    include: # Only run builds for the main branch, and tagged releases such as v0.1.0
       - refs/heads/main
       - refs/tags/v*
 
 pool:
-  vmImage: 'Ubuntu 16.04'
+  vmImage: 'ubuntu-latest'
 
 steps:
-- task: GoTool@0
-  inputs:
-    version: '1.13.10'
-  displayName: 'Install Go'
+  - task: GoTool@0
+    inputs:
+      version: '1.17.6'
+    displayName: 'Install Go'
 
-- script: |
-    set -xeuo pipefail
-    mkdir -p /home/vsts/go/bin/
-    echo "##vso[task.prependpath]/home/vsts/go/bin/"
-  displayName: 'Configure Go'
+  - script: go run mage.go ConfigureAgent
+    displayName: "Configure Agent"
 
-- script: |
-    make build test-unit
-  displayName: 'Unit Test'
+  - script: mage Test
+    displayName: 'Test'
 
-- script: |
-    make xbuild-all
-  displayName: 'Cross Compile'
+  - script: mage XBuildAll
+    displayName: 'Cross Compile'
 
-- script: |
-    make test-integration
-  displayName: 'Integration Test'
-
-- script: |
-    make test-cli
-  displayName: 'CLI Test'
-
-- script: |
-    make publish
-  env:
-    GITHUB_TOKEN: $(GITHUB_TOKEN)
-  displayName: 'Publish'
-  condition: and(succeeded(), ne(variables['Build.Reason'], 'PullRequest'))
+  - script: mage Publish
+    env:
+      GITHUB_TOKEN: $(GITHUB_TOKEN)
+    displayName: 'Publish'
+    condition: and(succeeded(), ne(variables['Build.Reason'], 'PullRequest'))

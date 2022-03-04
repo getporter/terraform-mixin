@@ -1,5 +1,3 @@
-//go:generate packr2
-
 package terraform
 
 import (
@@ -11,8 +9,7 @@ import (
 	"path/filepath"
 	"strings"
 
-	"get.porter.sh/porter/pkg/context" // We are not using go-yaml because of serialization problems with jsonschema, don't use this library elsewhere
-	"github.com/gobuffalo/packr/v2"
+	"get.porter.sh/porter/pkg/context"
 	"github.com/hashicorp/go-multierror"
 	"github.com/pkg/errors"
 )
@@ -28,10 +25,9 @@ const (
 	DefaultInitFile = ""
 )
 
-// terraform is the logic behind the terraform mixin
+// Mixin is the logic behind the terraform mixin
 type Mixin struct {
 	*context.Context
-	schema *packr.Box
 	config MixinConfig
 }
 
@@ -39,7 +35,6 @@ type Mixin struct {
 func New() *Mixin {
 	return &Mixin{
 		Context: context.New(),
-		schema:  packr.New("schema", "./schema"),
 		config: MixinConfig{
 			WorkingDir:    DefaultWorkingDir,
 			ClientVersion: DefaultClientVersion,

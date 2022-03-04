@@ -15,15 +15,11 @@ import (
 func TestMixin_PrintSchema(t *testing.T) {
 	m := NewTestMixin(t)
 
-	err := m.PrintSchema()
-	require.NoError(t, err)
+	m.PrintSchema()
 
 	gotSchema := m.TestContext.GetOutput()
 
-	wantSchema, err := ioutil.ReadFile("schema/schema.json")
-	require.NoError(t, err)
-
-	assert.Equal(t, string(wantSchema), gotSchema)
+	assert.Equal(t, schema, gotSchema)
 }
 
 func TestMixin_ValidatePayload(t *testing.T) {
@@ -71,10 +67,6 @@ func (m *Mixin) validatePayload(b []byte) error {
 	manifestLoader := gojsonschema.NewGoLoader(s)
 
 	// Load the step schema
-	schema, err := m.GetSchema()
-	if err != nil {
-		return err
-	}
 	schemaLoader := gojsonschema.NewStringLoader(schema)
 
 	validator, err := gojsonschema.NewSchema(schemaLoader)
