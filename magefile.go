@@ -7,9 +7,9 @@ import (
 	"get.porter.sh/porter/mage/mixins"
 	"github.com/carolynvs/magex/shx"
 
+	porter "get.porter.sh/magefiles/porter"
 	// Import common targets that all mixins should expose to the user
 	// mage:import
-	porter "get.porter.sh/magefiles/porter"
 	_ "get.porter.sh/porter/mage"
 )
 
@@ -42,6 +42,7 @@ func TestUnit() {
 
 func Test() {
 	magefile.Test()
+	Build()
 	TestIntegration()
 }
 
