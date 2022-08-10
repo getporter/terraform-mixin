@@ -33,17 +33,24 @@ cp -r ${REPO_DIR}/build/testdata/bundles/terraform/terraform .
 cp ${REPO_DIR}/build/testdata/bundles/terraform/porter.yaml .
 
 ${PORTER_HOME}/porter build
-#terraform plan --var file_contents="foo!" --var map_var='{"foo": "bar"}' --var array_var='["foo", "bar"]'
-${PORTER_HOME}/porter install --verbosity=debug --param file_contents='foo!' --param map_var='{"foo": "bar"}' --param array_var='["hello", "world"]'
+${PORTER_HOME}/porter install --verbosity=debug --param file_contents='foo!' --param map_var='{"foo": "bar"}' --param array_var='["hello", "world"]' --param boolean_var=true --param number_var=1
 
 echo "Verifying installation output after install"
 verify-output "file_contents" 'foo!'
+verify-output "map_var" '{"foo":"bar"}'
+verify-output "array_var" '["hello","world"]'
+verify-output "boolean_var" 'true'
+verify-output "number_var" '1'
 
 ${PORTER_HOME}/porter invoke --verbosity=debug --action=plan --debug
 
-${PORTER_HOME}/porter upgrade --verbosity=debug --param file_contents='bar!' --param map_var='{"foo": "bar"}' --param array_var='["goodbye", "world"]'
+${PORTER_HOME}/porter upgrade --verbosity=debug --param file_contents='bar!' --param map_var='{"bar": "baz"}' --param array_var='["goodbye", "world"]' --param boolean_var=false --param number_var=2
 
 echo "Verifying installation output after upgrade"
 verify-output "file_contents" 'bar!'
+verify-output "map_var" '{"bar":"baz"}'
+verify-output "array_var" '["goodbye","world"]'
+verify-output "boolean_var" 'false'
+verify-output "number_var" '2'
 
 ${PORTER_HOME}/porter uninstall --debug

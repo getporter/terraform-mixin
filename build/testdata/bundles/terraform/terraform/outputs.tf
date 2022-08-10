@@ -10,3 +10,11 @@ output "map_var" {
 output "array_var" {
   value = var.array_var
 }
+
+output "boolean_var" {
+  value = var.boolean_var
+}
+
+output "number_var" {
+  value = var.number_var
+}

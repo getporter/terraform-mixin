@@ -22,11 +22,16 @@ parameters:
     applyTo:
       - install
       - upgrade
-  # - name: bool_var
-  #   type: bool
-  #   applyTo:
-  #     - install
-  #     - upgrade
+  - name: boolean_var
+    type: boolean
+    applyTo:
+      - install
+      - upgrade
+  - name: number_var
+    type: number
+    applyTo:
+      - install
+      - upgrade
 
 install:
   - terraform:
@@ -35,10 +40,14 @@ install:
         file_contents: ${bundle.parameters.file_contents}
         map_var: ${bundle.parameters.map_var}
         array_var: ${bundle.parameters.array_var}
+        boolean_var: ${bundle.parameters.boolean_var}
+        number_var: ${bundle.parameters.number_var}
       outputs:
         - name: file_contents
         - name: map_var
         - name: array_var
+        - name: boolean_var
+        - name: number_var
 
 upgrade:
   - terraform:
@@ -47,10 +56,14 @@ upgrade:
         file_contents: ${bundle.parameters.file_contents}
         map_var: ${bundle.parameters.map_var}
         array_var: ${bundle.parameters.array_var}
+        boolean_var: ${bundle.parameters.boolean_var}
+        number_var: ${bundle.parameters.number_var}
       outputs:
         - name: file_contents
         - name: map_var
         - name: array_var
+        - name: boolean_var
+        - name: number_var
 
 plan:
   - terraform:
@@ -73,6 +86,16 @@ outputs:
       - upgrade
   - name: array_var
     type: array
+    applyTo:
+      - install
+      - upgrade
+  - name: boolean_var
+    type: boolean
+    applyTo:
+      - install
+      - upgrade
+  - name: number_var
+    type: number
     applyTo:
       - install
       - upgrade

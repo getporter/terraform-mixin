@@ -7,10 +7,10 @@ import (
 )
 
 func TestSortKeys(t *testing.T) {
-	m := map[string]string{
+	m := map[string]interface{}{
 		"delicious": "true",
-		"apples": "green",
-		"are": "needed",
+		"apples":    "green",
+		"are":       "needed",
 	}
 
 	expected := []string{

@@ -1,8 +1,6 @@
 package terraform
 
 import (
-	"fmt"
-
 	"get.porter.sh/porter/pkg/exec/builder"
 	yaml "gopkg.in/yaml.v2"
 )
@@ -34,7 +32,6 @@ func (a Action) MakeSteps() interface{} {
 // - terraform: ...
 // and puts the steps into the Action.Steps field
 func (a *Action) UnmarshalYAML(unmarshal func(interface{}) error) error {
-	fmt.Println("hello")
 	results, err := builder.UnmarshalAction(unmarshal, a)
 	if err != nil {
 		return err

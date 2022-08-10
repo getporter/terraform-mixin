@@ -26,7 +26,7 @@ func TestMixin_InitBackend(t *testing.T) {
 
 	h := NewTestMixin(t)
 
-	backendConfig := map[string]string{
+	backendConfig := map[string]interface{}{
 		"drink":  "dubonnet",
 		"donuts": "definitely",
 	}

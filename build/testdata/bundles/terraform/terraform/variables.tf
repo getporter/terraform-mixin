@@ -13,3 +13,15 @@ variable "array_var" {
   type        = list(any)
   default     = ["mylist"]
 }
+
+variable "boolean_var" {
+  description = "Boolean Variable"
+  type        = bool
+  default     = false
+}
+
+variable "number_var" {
+  description = "Number Variable"
+  type        = number
+  default     = 0
+}

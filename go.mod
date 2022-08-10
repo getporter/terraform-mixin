@@ -14,6 +14,7 @@ replace (
 require (
 	get.porter.sh/magefiles v0.3.1
 	get.porter.sh/porter v1.0.0-alpha.11
+	github.com/carolynvs/magex v0.8.0
 	github.com/ghodss/yaml v1.0.0
 	github.com/hashicorp/go-multierror v1.1.1
 	github.com/pkg/errors v0.9.1
@@ -34,7 +35,6 @@ require (
 	github.com/andybalholm/brotli v1.0.0 // indirect
 	github.com/andybalholm/cascadia v1.0.0 // indirect
 	github.com/carolynvs/aferox v0.3.0 // indirect
-	github.com/carolynvs/magex v0.8.0 // indirect
 	github.com/cbroglie/mustache v1.0.1 // indirect
 	github.com/cenkalti/backoff/v4 v4.1.1 // indirect
 	github.com/cnabio/cnab-go v0.22.1-0.20220219202519-002f3523865a // indirect

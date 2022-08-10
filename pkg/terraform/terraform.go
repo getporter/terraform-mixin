@@ -60,6 +60,10 @@ func (m *Mixin) getOutput(outputName string) ([]byte, error) {
 	// Trim this character before returning the output
 	out, err := cmd.Output()
 	out = bytes.TrimRight(out, "\n")
+	// Terraform quotes simple object types when using -json format argument
+	// No object type should be quoted at the top-level so trim those quotes if they exist
+	out = bytes.TrimLeft(out, "\"")
+	out = bytes.TrimRight(out, "\"")
 
 	if err != nil {
 		prettyCmd := fmt.Sprintf("%s %s", cmd.Path, strings.Join(cmd.Args, " "))
