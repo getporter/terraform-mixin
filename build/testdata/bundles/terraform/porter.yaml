@@ -4,6 +4,7 @@ mixins:
 name: terraform
 version: 0.1.0
 registry: getporterci
+schemaVersion: 1.0.0
 
 parameters:
   - name: file_contents
@@ -11,22 +12,45 @@ parameters:
     applyTo:
       - install
       - upgrade
+  - name: map_var
+    type: object
+    applyTo:
+      - install
+      - upgrade
+  - name: array_var
+    type: array
+    applyTo:
+      - install
+      - upgrade
+  # - name: bool_var
+  #   type: bool
+  #   applyTo:
+  #     - install
+  #     - upgrade
 
 install:
   - terraform:
       description: "Install Terraform assets"
       vars:
-        file_contents: "{{bundle.parameters.file_contents}}"
+        file_contents: ${bundle.parameters.file_contents}
+        map_var: ${bundle.parameters.map_var}
+        array_var: ${bundle.parameters.array_var}
       outputs:
         - name: file_contents
+        - name: map_var
+        - name: array_var
 
 upgrade:
   - terraform:
       description: "Upgrade Terraform assets"
       vars:
-        file_contents: "{{ bundle.parameters.file_contents }}"
+        file_contents: ${bundle.parameters.file_contents}
+        map_var: ${bundle.parameters.map_var}
+        array_var: ${bundle.parameters.array_var}
       outputs:
         - name: file_contents
+        - name: map_var
+        - name: array_var
 
 plan:
   - terraform:
@@ -42,3 +66,19 @@ outputs:
     applyTo:
       - install
       - upgrade
+  - name: map_var
+    type: object
+    applyTo:
+      - install
+      - upgrade
+  - name: array_var
+    type: array
+    applyTo:
+      - install
+      - upgrade
+
+state:
+  - name: tfstate
+    path: terraform/terraform.tfstate
+  - name: tfvars
+    path: terraform/terraform.tfvars.json

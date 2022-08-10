@@ -33,15 +33,15 @@ cp -r ${REPO_DIR}/build/testdata/bundles/terraform/terraform .
 cp ${REPO_DIR}/build/testdata/bundles/terraform/porter.yaml .
 
 ${PORTER_HOME}/porter build
-
-${PORTER_HOME}/porter install --debug --param file_contents='foo!'
+#terraform plan --var file_contents="foo!" --var map_var='{"foo": "bar"}' --var array_var='["foo", "bar"]'
+${PORTER_HOME}/porter install --verbosity=debug --param file_contents='foo!' --param map_var='{"foo": "bar"}' --param array_var='["hello", "world"]'
 
 echo "Verifying installation output after install"
 verify-output "file_contents" 'foo!'
 
-${PORTER_HOME}/porter invoke --action=plan --debug
+${PORTER_HOME}/porter invoke --verbosity=debug --action=plan --debug
 
-${PORTER_HOME}/porter upgrade --debug --param file_contents='bar!'
+${PORTER_HOME}/porter upgrade --verbosity=debug --param file_contents='bar!' --param map_var='{"foo": "bar"}' --param array_var='["goodbye", "world"]'
 
 echo "Verifying installation output after upgrade"
 verify-output "file_contents" 'bar!'

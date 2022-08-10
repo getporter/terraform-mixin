@@ -53,7 +53,7 @@ func (m *Mixin) getPayloadData() ([]byte, error) {
 }
 
 func (m *Mixin) getOutput(outputName string) ([]byte, error) {
-	cmd := m.NewCommand("terraform", "output", "-raw", outputName)
+	cmd := m.NewCommand("terraform", "output", "-json", outputName)
 	cmd.Stderr = m.Err
 
 	// Terraform appears to auto-append a newline character when printing outputs

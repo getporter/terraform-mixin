@@ -8,13 +8,15 @@ import (
 
 	// Import common targets that all mixins should expose to the user
 	// mage:import
+	porter "get.porter.sh/magefiles/porter"
 	_ "get.porter.sh/porter/mage"
 )
 
 const (
-	mixinName    = "terraform"
-	mixinPackage = "get.porter.sh/mixin/terraform"
-	mixinBin     = "bin/mixins/" + mixinName
+	mixinName     = "terraform"
+	mixinPackage  = "get.porter.sh/mixin/terraform"
+	mixinBin      = "bin/mixins/" + mixinName
+	porterVersion = "v1.0.0-beta.2"
 )
 
 var magefile = mixins.NewMagefile(mixinPackage, mixinName, mixinBin)
@@ -22,6 +24,7 @@ var magefile = mixins.NewMagefile(mixinPackage, mixinName, mixinBin)
 // Build the mixin
 func Build() {
 	magefile.Build()
+	EnsureLocalPorter()
 }
 
 // Cross-compile the mixin before a release
@@ -51,4 +54,10 @@ func Install() {
 // Remove generated build files
 func Clean() {
 	magefile.Clean()
+}
+
+// Install porter locally
+func EnsureLocalPorter() {
+	porter.UseBinForPorterHome()
+	porter.EnsurePorterAt(porterVersion)
 }

@@ -1,6 +1,8 @@
 package terraform
 
 import (
+	"fmt"
+
 	"get.porter.sh/porter/pkg/exec/builder"
 	yaml "gopkg.in/yaml.v2"
 )
@@ -32,6 +34,7 @@ func (a Action) MakeSteps() interface{} {
 // - terraform: ...
 // and puts the steps into the Action.Steps field
 func (a *Action) UnmarshalYAML(unmarshal func(interface{}) error) error {
+	fmt.Println("hello")
 	results, err := builder.UnmarshalAction(unmarshal, a)
 	if err != nil {
 		return err
@@ -109,10 +112,10 @@ type Instruction struct {
 
 // TerraformFields represent fields specific to Terraform
 type TerraformFields struct {
-	Vars           map[string]string `yaml:"vars,omitempty"`
-	DisableVarFile bool              `yaml:"disableVarFile,omitempty"`
-	LogLevel       string            `yaml:"logLevel,omitempty"`
-	BackendConfig  map[string]string `yaml:"backendConfig,omitempty"`
+	Vars           map[string]interface{} `yaml:"vars,omitempty"`
+	DisableVarFile bool                   `yaml:"disableVarFile,omitempty"`
+	LogLevel       string                 `yaml:"logLevel,omitempty"`
+	BackendConfig  map[string]interface{} `yaml:"backendConfig,omitempty"`
 }
 
 type Output struct {
