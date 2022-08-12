@@ -23,7 +23,7 @@ func NewTestMixin(t *testing.T) *TestMixin {
 	}
 }
 
-func sortKeys(m map[string]string) []string {
+func sortKeys(m map[string]interface{}) []string {
 	keys := make([]string, 0, len(m))
 	for k := range m {
 		keys = append(keys, k)

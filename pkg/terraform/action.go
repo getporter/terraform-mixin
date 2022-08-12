@@ -109,10 +109,10 @@ type Instruction struct {
 
 // TerraformFields represent fields specific to Terraform
 type TerraformFields struct {
-	Vars           map[string]string `yaml:"vars,omitempty"`
-	DisableVarFile bool              `yaml:"disableVarFile,omitempty"`
-	LogLevel       string            `yaml:"logLevel,omitempty"`
-	BackendConfig  map[string]string `yaml:"backendConfig,omitempty"`
+	Vars           map[string]interface{} `yaml:"vars,omitempty"`
+	DisableVarFile bool                   `yaml:"disableVarFile,omitempty"`
+	LogLevel       string                 `yaml:"logLevel,omitempty"`
+	BackendConfig  map[string]interface{} `yaml:"backendConfig,omitempty"`
 }
 
 type Output struct {

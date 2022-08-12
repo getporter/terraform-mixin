@@ -5,6 +5,7 @@ import (
 	"fmt"
 
 	"get.porter.sh/porter/pkg/exec/builder"
+	"github.com/tidwall/gjson"
 )
 
 // defaultTerraformVarFilename is the default name for terrafrom tfvars json file
@@ -29,6 +30,10 @@ func (m *Mixin) Install() error {
 	step.Flags = append(step.Flags, builder.NewFlag("auto-approve"))
 	step.Flags = append(step.Flags, builder.NewFlag("input=false"))
 
+	vbs, err := json.Marshal(step.Vars)
+	if err != nil {
+		return err
+	}
 	// Only create a tf var file for install
 	if !step.DisableVarFile && action.Name == "install" {
 		vf, err := m.FileSystem.Create(defaultTerraformVarsFilename)
@@ -36,11 +41,6 @@ func (m *Mixin) Install() error {
 			return err
 		}
 		defer vf.Close()
-
-		vbs, err := json.Marshal(step.Vars)
-		if err != nil {
-			return err
-		}
 
 		// If the vars block is empty, set vbs to an empty JSON object
 		// to prevent terraform from erroring out
@@ -57,10 +57,13 @@ func (m *Mixin) Install() error {
 			fmt.Fprintf(m.Err, "DEBUG: TF var file created:\n%s\n", string(vbs))
 		}
 	}
-	for _, k := range sortKeys(step.Vars) {
-		step.Flags = append(step.Flags, builder.NewFlag("var", fmt.Sprintf("'%s=%s'", k, step.Vars[k])))
+	if len(step.Vars) != 0 {
+		result := gjson.Parse(string(vbs))
+		result.ForEach(func(key, value gjson.Result) bool {
+			step.Flags = append(step.Flags, builder.NewFlag("var", fmt.Sprintf("'%s=%s'", key.String(), value.String())))
+			return true
+		})
 	}
-
 	action.Steps[0] = step
 	_, err = builder.ExecuteSingleStepAction(m.Context, action)
 	if err != nil {

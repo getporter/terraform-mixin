@@ -6,7 +6,7 @@ import (
 )
 
 // Init runs terraform init with the provided backendConfig, if supplied
-func (m *Mixin) Init(backendConfig map[string]string) error {
+func (m *Mixin) Init(backendConfig map[string]interface{}) error {
 	cmd := m.NewCommand("terraform", "init")
 
 	if len(backendConfig) > 0 {
