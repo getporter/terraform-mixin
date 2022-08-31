@@ -49,6 +49,7 @@ Terraform providers are installed into the bundle during porter build.
 We recommend that you put your provider declarations into a single file, e.g. "terraform/providers.tf".
 Then use `initFile` to specify the relative path to this file within workingDir.
 This will dramatically improve Docker image layer caching and performance when building, publishing and installing the bundle.
+> Note: this approach isn't suitable when using terraform modules as those need to be "initilized" as well but aren't specified in the `initFile`. You shouldn't specifiy an `initFile` in this situation.
 
 ## Terraform state
 
