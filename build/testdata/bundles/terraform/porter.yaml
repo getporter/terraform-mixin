@@ -48,6 +48,7 @@ install:
         - name: array_var
         - name: boolean_var
         - name: number_var
+        - name: json_encode_html
 
 upgrade:
   - terraform:
@@ -64,6 +65,7 @@ upgrade:
         - name: array_var
         - name: boolean_var
         - name: number_var
+        - name: json_encode_html
 
 plan:
   - terraform:
@@ -96,6 +98,11 @@ outputs:
       - upgrade
   - name: number_var
     type: number
+    applyTo:
+      - install
+      - upgrade
+  - name: json_encode_html
+    type: string
     applyTo:
       - install
       - upgrade

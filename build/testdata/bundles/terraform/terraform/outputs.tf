@@ -18,3 +18,7 @@ output "boolean_var" {
 output "number_var" {
   value = var.number_var
 }
+
+output "json_encode_html" {
+  value = "hello&world"
+}

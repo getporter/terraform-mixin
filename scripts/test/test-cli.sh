@@ -33,7 +33,7 @@ cp -r ${REPO_DIR}/build/testdata/bundles/terraform/terraform .
 cp ${REPO_DIR}/build/testdata/bundles/terraform/porter.yaml .
 
 ${PORTER_HOME}/porter build
-${PORTER_HOME}/porter install --verbosity=debug --param file_contents='foo!' --param map_var='{"foo": "bar"}' --param array_var='["hello", "world"]' --param boolean_var=true --param number_var=1
+${PORTER_HOME}/porter install --verbosity=debug --param file_contents='foo!' --param map_var='{"foo": "bar"}' --param array_var='["hello", "world"]' --param boolean_var=true --param number_var=1 --force
 
 echo "Verifying installation output after install"
 verify-output "file_contents" 'foo!'
@@ -41,6 +41,7 @@ verify-output "map_var" '{"foo":"bar"}'
 verify-output "array_var" '["hello","world"]'
 verify-output "boolean_var" 'true'
 verify-output "number_var" '1'
+verify-output "json_encode_html" "hello&world"
 
 ${PORTER_HOME}/porter invoke --verbosity=debug --action=plan --debug
 
@@ -52,5 +53,6 @@ verify-output "map_var" '{"bar":"baz"}'
 verify-output "array_var" '["goodbye","world"]'
 verify-output "boolean_var" 'false'
 verify-output "number_var" '2'
+verify-output "json_encode_html" "hello&world"
 
 ${PORTER_HOME}/porter uninstall --debug

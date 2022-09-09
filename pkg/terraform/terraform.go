@@ -3,6 +3,7 @@ package terraform
 import (
 	"bufio"
 	"bytes"
+	"encoding/json"
 	"fmt"
 	"io/ioutil"
 	"os"
@@ -59,17 +60,20 @@ func (m *Mixin) getOutput(outputName string) ([]byte, error) {
 	// Terraform appears to auto-append a newline character when printing outputs
 	// Trim this character before returning the output
 	out, err := cmd.Output()
-	out = bytes.TrimRight(out, "\n")
-	// Terraform quotes simple object types when using -json format argument
-	// No object type should be quoted at the top-level so trim those quotes if they exist
-	out = bytes.TrimLeft(out, "\"")
-	out = bytes.TrimRight(out, "\"")
-
 	if err != nil {
 		prettyCmd := fmt.Sprintf("%s %s", cmd.Path, strings.Join(cmd.Args, " "))
 		return nil, errors.Wrap(err, fmt.Sprintf("couldn't run command %s", prettyCmd))
 	}
+	out = bytes.TrimRight(out, "\n")
 
+	// For any JSON string result we'll return the content of the string without
+	// any quoting or escaping.
+	var outString string
+	if err = json.Unmarshal(out, &outString); err == nil {
+		return []byte(outString), nil
+	}
+
+	// For all other JSON types we'll return the raw JSON syntax directly.
 	return out, nil
 }
 
