@@ -54,6 +54,10 @@ func (m *Mixin) getPayloadData() ([]byte, error) {
 }
 
 func (m *Mixin) getOutput(outputName string) ([]byte, error) {
+	// Using -json instead of -raw because terraform only allows for string, bool,
+	// and number output types when using -raw. This means that the outputs will
+	// need to be unencoded to raw string because -json does json compliant html
+	// special character encoding.
 	cmd := m.NewCommand("terraform", "output", "-json", outputName)
 	cmd.Stderr = m.Err
 

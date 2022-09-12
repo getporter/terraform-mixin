@@ -41,7 +41,7 @@ verify-output "map_var" '{"foo":"bar"}'
 verify-output "array_var" '["hello","world"]'
 verify-output "boolean_var" 'true'
 verify-output "number_var" '1'
-verify-output "json_encode_html" "hello&world"
+verify-output "json_encode_html" "hello&world?@test#$><"
 
 ${PORTER_HOME}/porter invoke --verbosity=debug --action=plan --debug
 
@@ -53,6 +53,6 @@ verify-output "map_var" '{"bar":"baz"}'
 verify-output "array_var" '["goodbye","world"]'
 verify-output "boolean_var" 'false'
 verify-output "number_var" '2'
-verify-output "json_encode_html" "hello&world"
+verify-output "json_encode_html" "hello&world?@test#$><"
 
 ${PORTER_HOME}/porter uninstall --debug

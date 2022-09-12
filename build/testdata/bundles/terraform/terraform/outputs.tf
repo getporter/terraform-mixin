@@ -20,5 +20,5 @@ output "number_var" {
 }
 
 output "json_encode_html" {
-  value = "hello&world"
+  value = "hello&world?@test#$><"
 }
