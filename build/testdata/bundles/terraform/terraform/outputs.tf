@@ -19,6 +19,10 @@ output "number_var" {
   value = var.number_var
 }
 
+output "json_encoded_html_string_var" {
+   value = var.json_encoded_html_string_var
+ }
+
 output "complex_object_var" {
   value = var.complex_object_var
 }

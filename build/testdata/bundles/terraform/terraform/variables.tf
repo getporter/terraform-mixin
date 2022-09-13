@@ -25,6 +25,13 @@ variable "number_var" {
   type        = number
   default     = 0
 }
+
+variable "json_encoded_html_string_var" {
+  description = "String variable with html characters that should not be escaped"
+  type = string
+  default = "hello&world"
+}
+
 variable "complex_object_var" {
   description = "Object variable"
   type        = object({
