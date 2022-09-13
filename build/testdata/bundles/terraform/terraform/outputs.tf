@@ -19,6 +19,6 @@ output "number_var" {
   value = var.number_var
 }
 
-output "json_encode_html" {
-  value = "hello&world?@test#$><"
+output "complex_object_var" {
+  value = var.complex_object_var
 }

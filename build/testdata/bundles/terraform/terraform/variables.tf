@@ -3,7 +3,7 @@ variable "file_contents" {
   default     = "bar"
 }
 variable "map_var" {
-  description = "Object variable"
+  description = "Map variable"
   type        = map(string)
   default     = { foo = "bar" }
 }
@@ -24,4 +24,13 @@ variable "number_var" {
   description = "Number Variable"
   type        = number
   default     = 0
+}
+variable "complex_object_var" {
+  description = "Object variable"
+  type        = object({
+    top_value = string
+    nested_object = object({
+      internal_value = string
+    })
+  })
 }

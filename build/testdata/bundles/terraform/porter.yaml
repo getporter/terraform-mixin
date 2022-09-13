@@ -32,6 +32,11 @@ parameters:
     applyTo:
       - install
       - upgrade
+  - name: complex_object_var
+    type: object
+    applyTo:
+      - install
+      - upgrade
 
 install:
   - terraform:
@@ -42,13 +47,14 @@ install:
         array_var: ${bundle.parameters.array_var}
         boolean_var: ${bundle.parameters.boolean_var}
         number_var: ${bundle.parameters.number_var}
+        complex_object_var: ${bundle.parameters.complex_object_var}
       outputs:
         - name: file_contents
         - name: map_var
         - name: array_var
         - name: boolean_var
         - name: number_var
-        - name: json_encode_html
+        - name: complex_object_var
 
 upgrade:
   - terraform:
@@ -59,13 +65,14 @@ upgrade:
         array_var: ${bundle.parameters.array_var}
         boolean_var: ${bundle.parameters.boolean_var}
         number_var: ${bundle.parameters.number_var}
+        complex_object_var: ${bundle.parameters.complex_object_var}
       outputs:
         - name: file_contents
         - name: map_var
         - name: array_var
         - name: boolean_var
         - name: number_var
-        - name: json_encode_html
+        - name: complex_object_var
 
 plan:
   - terraform:
@@ -101,8 +108,8 @@ outputs:
     applyTo:
       - install
       - upgrade
-  - name: json_encode_html
-    type: string
+  - name: complex_object_var
+    type: object
     applyTo:
       - install
       - upgrade

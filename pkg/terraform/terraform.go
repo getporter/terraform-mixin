@@ -68,17 +68,35 @@ func (m *Mixin) getOutput(outputName string) ([]byte, error) {
 		prettyCmd := fmt.Sprintf("%s %s", cmd.Path, strings.Join(cmd.Args, " "))
 		return nil, errors.Wrap(err, fmt.Sprintf("couldn't run command %s", prettyCmd))
 	}
-	out = bytes.TrimRight(out, "\n")
 
-	// For any JSON string result we'll return the content of the string without
-	// any quoting or escaping.
+	// Implement a custom JSON encoder that doesn't do HTML escaping. This allows
+	// for recrusive decoding of complex JSON objects using the unmarshal and then
+	// re-encoding it but skipping the html escaping. This allows for complex types
+	// like maps to be represented as a byte slice without having go types be
+	// part of that byte slice, eg: without the re-encoding, a JSON byte slice with
+	// '{"foo": "bar"}' would become map[foo:bar].
+	var outDat interface{}
+	err = json.Unmarshal(out, &outDat)
+	if err != nil {
+		return []byte{}, err
+	}
+	buffer := &bytes.Buffer{}
+	encoder := json.NewEncoder(buffer)
+	encoder.SetEscapeHTML(false)
+	err = encoder.Encode(outDat)
+	if err != nil {
+		return []byte{}, err
+	}
+	outJSON := bytes.TrimRight(buffer.Bytes(), "\n")
+	// If the output data is of type string then do one last unmarshal to json
+	// string so that the outer quotes are stripped, otherwise return the raw
+	// json syntax directly.
 	var outString string
-	if err = json.Unmarshal(out, &outString); err == nil {
+	if err = json.Unmarshal(outJSON, &outString); err == nil {
 		return []byte(outString), nil
 	}
-
 	// For all other JSON types we'll return the raw JSON syntax directly.
-	return out, nil
+	return outJSON, nil
 }
 
 func (m *Mixin) handleOutputs(outputs []Output) error {
