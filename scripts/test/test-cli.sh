@@ -33,24 +33,43 @@ cp -r ${REPO_DIR}/build/testdata/bundles/terraform/terraform .
 cp ${REPO_DIR}/build/testdata/bundles/terraform/porter.yaml .
 
 ${PORTER_HOME}/porter build
-${PORTER_HOME}/porter install --verbosity=debug --param file_contents='foo!' --param map_var='{"foo": "bar"}' --param array_var='["hello", "world"]' --param boolean_var=true --param number_var=1
+${PORTER_HOME}/porter install --verbosity=debug \
+  --param file_contents='foo!' \
+  --param map_var='{"foo": "bar"}' \
+  --param array_var='["mylist", "https://ml.azure.com/?wsid=/subscriptions/zzzz/resourceGroups/some-rsg/providers/Microsoft.MachineLearningServices/workspaces/myworkspace&tid=zzzzz"]' \
+  --param boolean_var=true \
+  --param number_var=1 \
+  --param json_encoded_html_string_var='testing?connection&string=<>' \
+  --param complex_object_var='{"top_value": "https://my.service?test=$id<>", "nested_object": {"internal_value": "https://my.connection.com?test&test=$hello"}}' \
+  --force
 
 echo "Verifying installation output after install"
 verify-output "file_contents" 'foo!'
 verify-output "map_var" '{"foo":"bar"}'
-verify-output "array_var" '["hello","world"]'
+verify-output "array_var" '["mylist","https://ml.azure.com/?wsid=/subscriptions/zzzz/resourceGroups/some-rsg/providers/Microsoft.MachineLearningServices/workspaces/myworkspace&tid=zzzzz"]'
 verify-output "boolean_var" 'true'
 verify-output "number_var" '1'
+verify-output "complex_object_var" '{"nested_object":{"internal_value":"https://my.connection.com?test&test=$hello"},"top_value":"https://my.service?test=$id<>"}'
+verify-output "json_encoded_html_string_var" 'testing?connection&string=<>'
 
 ${PORTER_HOME}/porter invoke --verbosity=debug --action=plan --debug
 
-${PORTER_HOME}/porter upgrade --verbosity=debug --param file_contents='bar!' --param map_var='{"bar": "baz"}' --param array_var='["goodbye", "world"]' --param boolean_var=false --param number_var=2
+${PORTER_HOME}/porter upgrade --verbosity=debug \
+  --param file_contents='bar!' \
+  --param map_var='{"bar": "baz"}' \
+  --param array_var='["mylist", "https://ml.azure.com/?wsid=/subscriptions/zzzz/resourceGroups/some-rsg/providers/Microsoft.MachineLearningServices/workspaces/myworkspace&tid=zzzzz"]' \
+  --param boolean_var=false \
+  --param number_var=2 \
+  --param json_encoded_html_string_var='?new#conn&string$characters~!' \
+  --param complex_object_var='{"top_value": "https://my.updated.service?test=$id<>", "nested_object": {"internal_value": "https://new.connection.com?test&test=$hello"}}'
 
 echo "Verifying installation output after upgrade"
 verify-output "file_contents" 'bar!'
 verify-output "map_var" '{"bar":"baz"}'
-verify-output "array_var" '["goodbye","world"]'
+verify-output "array_var" '["mylist","https://ml.azure.com/?wsid=/subscriptions/zzzz/resourceGroups/some-rsg/providers/Microsoft.MachineLearningServices/workspaces/myworkspace&tid=zzzzz"]'
 verify-output "boolean_var" 'false'
 verify-output "number_var" '2'
+verify-output "json_encoded_html_string_var" '?new#conn&string$characters~!'
+verify-output "complex_object_var" '{"nested_object":{"internal_value":"https://new.connection.com?test&test=$hello"},"top_value":"https://my.updated.service?test=$id<>"}'
 
 ${PORTER_HOME}/porter uninstall --debug

@@ -3,6 +3,7 @@ package terraform
 import (
 	"bufio"
 	"bytes"
+	"encoding/json"
 	"fmt"
 	"io/ioutil"
 	"os"
@@ -53,24 +54,46 @@ func (m *Mixin) getPayloadData() ([]byte, error) {
 }
 
 func (m *Mixin) getOutput(outputName string) ([]byte, error) {
+	// Using -json instead of -raw because terraform only allows for string, bool,
+	// and number output types when using -raw. This means that the outputs will
+	// need to be unencoded to raw string because -json does json compliant html
+	// special character encoding.
 	cmd := m.NewCommand("terraform", "output", "-json", outputName)
 	cmd.Stderr = m.Err
 
 	// Terraform appears to auto-append a newline character when printing outputs
 	// Trim this character before returning the output
 	out, err := cmd.Output()
-	out = bytes.TrimRight(out, "\n")
-	// Terraform quotes simple object types when using -json format argument
-	// No object type should be quoted at the top-level so trim those quotes if they exist
-	out = bytes.TrimLeft(out, "\"")
-	out = bytes.TrimRight(out, "\"")
-
 	if err != nil {
 		prettyCmd := fmt.Sprintf("%s %s", cmd.Path, strings.Join(cmd.Args, " "))
 		return nil, errors.Wrap(err, fmt.Sprintf("couldn't run command %s", prettyCmd))
 	}
 
-	return out, nil
+	// Implement a custom JSON encoder that doesn't do HTML escaping. This allows
+	// for recrusive decoding of complex JSON objects using the unmarshal and then
+	// re-encoding it but skipping the html escaping. This allows for complex types
+	// like maps to be represented as a byte slice without having go types be
+	// part of that byte slice, eg: without the re-encoding, a JSON byte slice with
+	// '{"foo": "bar"}' would become map[foo:bar].
+	var outDat interface{}
+	err = json.Unmarshal(out, &outDat)
+	if err != nil {
+		return []byte{}, err
+	}
+	// If the output is a string then don't re-encode it, just return the decoded
+	// json string. Re-encoding the string will wrap it in quotes which breaks
+	// the compabiltity with -raw
+	if outStr, ok := outDat.(string); ok {
+		return []byte(outStr), nil
+	}
+	buffer := &bytes.Buffer{}
+	encoder := json.NewEncoder(buffer)
+	encoder.SetEscapeHTML(false)
+	err = encoder.Encode(outDat)
+	if err != nil {
+		return []byte{}, err
+	}
+	return bytes.TrimRight(buffer.Bytes(), "\n"), nil
 }
 
 func (m *Mixin) handleOutputs(outputs []Output) error {
