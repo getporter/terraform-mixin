@@ -80,6 +80,12 @@ func (m *Mixin) getOutput(outputName string) ([]byte, error) {
 	if err != nil {
 		return []byte{}, err
 	}
+	// If the output is a string then don't re-encode it, just return the decoded
+	// json string. Re-encoding the string will wrap it in quotes which breaks
+	// the compabiltity with -raw
+	if outStr, ok := outDat.(string); ok {
+		return []byte(outStr), nil
+	}
 	buffer := &bytes.Buffer{}
 	encoder := json.NewEncoder(buffer)
 	encoder.SetEscapeHTML(false)
@@ -87,16 +93,7 @@ func (m *Mixin) getOutput(outputName string) ([]byte, error) {
 	if err != nil {
 		return []byte{}, err
 	}
-	outJSON := bytes.TrimRight(buffer.Bytes(), "\n")
-	// If the output data is of type string then do one last unmarshal to json
-	// string so that the outer quotes are stripped, otherwise return the raw
-	// json syntax directly.
-	var outString string
-	if err = json.Unmarshal(outJSON, &outString); err == nil {
-		return []byte(outString), nil
-	}
-	// For all other JSON types we'll return the raw JSON syntax directly.
-	return outJSON, nil
+	return bytes.TrimRight(buffer.Bytes(), "\n"), nil
 }
 
 func (m *Mixin) handleOutputs(outputs []Output) error {

@@ -40,4 +40,10 @@ variable "complex_object_var" {
       internal_value = string
     })
   })
+  default = {
+    top_value = "top_value"
+    nested_object = {
+      internal_value = "internal"
+    }
+  }
 }
