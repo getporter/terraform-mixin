@@ -1,6 +1,7 @@
 package terraform
 
 import (
+	"context"
 	"encoding/json"
 	"fmt"
 
@@ -12,14 +13,14 @@ import (
 const defaultTerraformVarsFilename = "terraform.tfvars.json"
 
 // Install runs a terraform apply
-func (m *Mixin) Install() error {
-	action, err := m.loadAction()
+func (m *Mixin) Install(ctx context.Context) error {
+	action, err := m.loadAction(ctx)
 	if err != nil {
 		return err
 	}
 	step := action.Steps[0]
 
-	err = m.commandPreRun(&step)
+	err = m.commandPreRun(ctx, &step)
 	if err != nil {
 		return err
 	}
@@ -53,7 +54,7 @@ func (m *Mixin) Install() error {
 			return err
 		}
 
-		if m.Debug {
+		if m.DebugMode {
 			fmt.Fprintf(m.Err, "DEBUG: TF var file created:\n%s\n", string(vbs))
 		}
 	}
@@ -65,10 +66,10 @@ func (m *Mixin) Install() error {
 		})
 	}
 	action.Steps[0] = step
-	_, err = builder.ExecuteSingleStepAction(m.Context, action)
+	_, err = builder.ExecuteSingleStepAction(ctx, m.RuntimeConfig, action)
 	if err != nil {
 		return err
 	}
 
-	return m.handleOutputs(step.Outputs)
+	return m.handleOutputs(ctx, step.Outputs)
 }

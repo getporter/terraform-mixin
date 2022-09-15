@@ -1,6 +1,7 @@
 package terraform
 
 import (
+	"context"
 	"text/template"
 
 	"get.porter.sh/porter/pkg/exec/builder"
@@ -36,11 +37,11 @@ type MixinConfig struct {
 	WorkingDir    string `yaml:"workingDir,omitempty"`
 }
 
-func (m *Mixin) Build() error {
+func (m *Mixin) Build(ctx context.Context) error {
 	input := BuildInput{
 		Config: &m.config, // Apply config directly to the mixin
 	}
-	err := builder.LoadAction(m.Context, "", func(contents []byte) (interface{}, error) {
+	err := builder.LoadAction(ctx, m.RuntimeConfig, "", func(contents []byte) (interface{}, error) {
 		err := yaml.Unmarshal(contents, &input)
 		return &input, err
 	})

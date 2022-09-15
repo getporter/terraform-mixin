@@ -13,7 +13,7 @@ func buildInvokeCommand(mixin *terraform.Mixin) *cobra.Command {
 		Use:   "invoke",
 		Short: "Execute the invoke functionality of this mixin",
 		RunE: func(cmd *cobra.Command, args []string) error {
-			return mixin.Invoke(opts)
+			return mixin.Invoke(cmd.Context(), opts)
 		},
 	}
 	flags := cmd.Flags()

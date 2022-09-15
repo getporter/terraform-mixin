@@ -2,6 +2,7 @@ package terraform
 
 import (
 	"bytes"
+	"context"
 	"io/ioutil"
 	"os"
 	"strings"
@@ -44,7 +45,7 @@ func TestMixin_Upgrade(t *testing.T) {
 	h.config.WorkingDir = h.Getwd()
 	require.NoError(t, err)
 
-	err = h.Upgrade()
+	err = h.Upgrade(context.Background())
 	require.NoError(t, err)
 
 	wd := h.Getwd()

@@ -3,6 +3,7 @@ package terraform
 import (
 	"bufio"
 	"bytes"
+	"context"
 	"encoding/json"
 	"fmt"
 	"io/ioutil"
@@ -10,7 +11,7 @@ import (
 	"path/filepath"
 	"strings"
 
-	"get.porter.sh/porter/pkg/context"
+	"get.porter.sh/porter/pkg/runtime"
 	"github.com/hashicorp/go-multierror"
 	"github.com/pkg/errors"
 )
@@ -28,14 +29,14 @@ const (
 
 // Mixin is the logic behind the terraform mixin
 type Mixin struct {
-	*context.Context
+	runtime.RuntimeConfig
 	config MixinConfig
 }
 
 // New terraform mixin client, initialized with useful defaults.
 func New() *Mixin {
 	return &Mixin{
-		Context: context.New(),
+		RuntimeConfig: runtime.NewConfig(),
 		config: MixinConfig{
 			WorkingDir:    DefaultWorkingDir,
 			ClientVersion: DefaultClientVersion,
@@ -53,12 +54,12 @@ func (m *Mixin) getPayloadData() ([]byte, error) {
 	return data, nil
 }
 
-func (m *Mixin) getOutput(outputName string) ([]byte, error) {
+func (m *Mixin) getOutput(ctx context.Context, outputName string) ([]byte, error) {
 	// Using -json instead of -raw because terraform only allows for string, bool,
 	// and number output types when using -raw. This means that the outputs will
 	// need to be unencoded to raw string because -json does json compliant html
 	// special character encoding.
-	cmd := m.NewCommand("terraform", "output", "-json", outputName)
+	cmd := m.NewCommand(ctx, "terraform", "output", "-json", outputName)
 	cmd.Stderr = m.Err
 
 	// Terraform appears to auto-append a newline character when printing outputs
@@ -96,11 +97,11 @@ func (m *Mixin) getOutput(outputName string) ([]byte, error) {
 	return bytes.TrimRight(buffer.Bytes(), "\n"), nil
 }
 
-func (m *Mixin) handleOutputs(outputs []Output) error {
+func (m *Mixin) handleOutputs(ctx context.Context, outputs []Output) error {
 	var bigErr *multierror.Error
 
 	for _, output := range outputs {
-		bytes, err := m.getOutput(output.Name)
+		bytes, err := m.getOutput(ctx, output.Name)
 		if err != nil {
 			bigErr = multierror.Append(bigErr, err)
 			continue
@@ -127,20 +128,20 @@ func (m *Mixin) handleOutputs(outputs []Output) error {
 }
 
 // commandPreRun runs setup tasks applicable for every action
-func (m *Mixin) commandPreRun(step *Step) error {
+func (m *Mixin) commandPreRun(ctx context.Context, step *Step) error {
 	if step.LogLevel != "" {
 		os.Setenv("TF_LOG", step.LogLevel)
 	}
 
 	// First, change to specified working dir
 	m.Chdir(m.config.WorkingDir)
-	if m.Debug {
-		fmt.Fprintln(m.Err, "Terraform working directory is", m.Getwd())
-	}
+	//if m.Debug {
+	//	fmt.Fprintln(m.Err, "Terraform working directory is", m.Getwd())
+	//}
 
 	// Initialize Terraform
 	fmt.Println("Initializing Terraform...")
-	err := m.Init(step.BackendConfig)
+	err := m.Init(ctx, step.BackendConfig)
 	if err != nil {
 		return fmt.Errorf("could not init terraform, %s", err)
 	}

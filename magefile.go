@@ -1,29 +1,27 @@
 //go:build mage
-// +build mage
 
 package main
 
 import (
-	"get.porter.sh/porter/mage/mixins"
+	"get.porter.sh/magefiles/mixins"
+	"get.porter.sh/magefiles/porter"
 	"github.com/carolynvs/magex/shx"
-
-	porter "get.porter.sh/magefiles/porter"
-	// Import common targets that all mixins should expose to the user
-	// mage:import
-	_ "get.porter.sh/porter/mage"
 )
 
 const (
-	mixinName     = "terraform"
-	mixinPackage  = "get.porter.sh/mixin/terraform"
-	mixinBin      = "bin/mixins/" + mixinName
-	porterVersion = "v1.0.0-beta.2"
+	mixinName    = "terraform"
+	mixinPackage = "get.porter.sh/mixin/terraform"
+	mixinBin     = "bin/mixins/" + mixinName
 )
 
 var (
 	magefile = mixins.NewMagefile(mixinPackage, mixinName, mixinBin)
 	must     = shx.CommandBuilder{StopOnError: true}
 )
+
+func ConfigureAgent() {
+	magefile.ConfigureAgent()
+}
 
 // Build the mixin
 func Build() {
@@ -61,13 +59,7 @@ func Clean() {
 	magefile.Clean()
 }
 
-// Install porter locally
-func EnsureLocalPorter() {
-	porter.UseBinForPorterHome()
-	porter.EnsurePorterAt(porterVersion)
-}
-
 func TestIntegration() {
-	EnsureLocalPorter()
+	porter.EnsurePorter()
 	must.Command("./scripts/test/test-cli.sh").RunV()
 }

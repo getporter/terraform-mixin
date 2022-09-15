@@ -2,6 +2,7 @@ package terraform
 
 import (
 	"bytes"
+	"context"
 	"io/ioutil"
 	"os"
 	"strings"
@@ -45,7 +46,7 @@ func TestMixin_Invoke(t *testing.T) {
 	require.NoError(t, err)
 
 	opts := InvokeOptions{}
-	err = h.Invoke(opts)
+	err = h.Invoke(context.Background(), opts)
 	require.NoError(t, err)
 
 	wd := h.Getwd()

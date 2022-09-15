@@ -2,6 +2,7 @@ package terraform
 
 import (
 	"bytes"
+	"context"
 	"io/ioutil"
 	"testing"
 
@@ -13,7 +14,8 @@ func TestMixin_Build(t *testing.T) {
 	t.Run("build with the default Terraform version", func(t *testing.T) {
 		m := NewTestMixin(t)
 
-		err := m.Build()
+		ctx := context.Background()
+		err := m.Build(ctx)
 		require.NoError(t, err)
 
 		gotOutput := m.TestContext.GetOutput()
@@ -25,9 +27,10 @@ func TestMixin_Build(t *testing.T) {
 		b, err := ioutil.ReadFile("testdata/build-input-with-version.yaml")
 		require.NoError(t, err)
 
+		ctx := context.Background()
 		m := NewTestMixin(t)
 		m.In = bytes.NewReader(b)
-		err = m.Build()
+		err = m.Build(ctx)
 		require.NoError(t, err)
 
 		gotOutput := m.TestContext.GetOutput()

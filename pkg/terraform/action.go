@@ -1,13 +1,15 @@
 package terraform
 
 import (
+	"context"
+
 	"get.porter.sh/porter/pkg/exec/builder"
 	yaml "gopkg.in/yaml.v2"
 )
 
-func (m *Mixin) loadAction() (*Action, error) {
+func (m *Mixin) loadAction(ctx context.Context) (*Action, error) {
 	var action Action
-	err := builder.LoadAction(m.Context, "", func(contents []byte) (interface{}, error) {
+	err := builder.LoadAction(ctx, m.RuntimeConfig, "", func(contents []byte) (interface{}, error) {
 		err := yaml.Unmarshal(contents, &action)
 		return &action, err
 	})

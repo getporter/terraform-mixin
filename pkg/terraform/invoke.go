@@ -1,6 +1,7 @@
 package terraform
 
 import (
+	"context"
 	"fmt"
 
 	"get.porter.sh/porter/pkg/exec/builder"
@@ -11,14 +12,14 @@ type InvokeOptions struct {
 }
 
 // Invoke runs a custom terraform action
-func (m *Mixin) Invoke(opts InvokeOptions) error {
-	action, err := m.loadAction()
+func (m *Mixin) Invoke(ctx context.Context, opts InvokeOptions) error {
+	action, err := m.loadAction(ctx)
 	if err != nil {
 		return err
 	}
 	step := action.Steps[0]
 
-	err = m.commandPreRun(&step)
+	err = m.commandPreRun(ctx, &step)
 	if err != nil {
 		return err
 	}
@@ -35,10 +36,10 @@ func (m *Mixin) Invoke(opts InvokeOptions) error {
 	}
 
 	action.Steps[0] = step
-	_, err = builder.ExecuteSingleStepAction(m.Context, action)
+	_, err = builder.ExecuteSingleStepAction(ctx, m.RuntimeConfig, action)
 	if err != nil {
 		return err
 	}
 
-	return m.handleOutputs(step.Outputs)
+	return m.handleOutputs(ctx, step.Outputs)
 }

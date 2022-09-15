@@ -1,13 +1,14 @@
 package terraform
 
 import (
+	"context"
 	"fmt"
 	"strings"
 )
 
 // Init runs terraform init with the provided backendConfig, if supplied
-func (m *Mixin) Init(backendConfig map[string]interface{}) error {
-	cmd := m.NewCommand("terraform", "init")
+func (m *Mixin) Init(ctx context.Context, backendConfig map[string]interface{}) error {
+	cmd := m.NewCommand(ctx, "terraform", "init")
 
 	if len(backendConfig) > 0 {
 		cmd.Args = append(cmd.Args, "-backend=true")
@@ -23,7 +24,9 @@ func (m *Mixin) Init(backendConfig map[string]interface{}) error {
 	cmd.Stderr = m.Err
 
 	prettyCmd := fmt.Sprintf("%s %s", cmd.Path, strings.Join(cmd.Args, " "))
-	fmt.Fprintln(m.Out, prettyCmd)
+	if m.DebugMode {
+		fmt.Fprintln(m.Out, prettyCmd)
+	}
 
 	err := cmd.Start()
 	if err != nil {
