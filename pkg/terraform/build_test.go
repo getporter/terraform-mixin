@@ -19,7 +19,7 @@ func TestMixin_Build(t *testing.T) {
 		require.NoError(t, err)
 
 		gotOutput := m.TestContext.GetOutput()
-		assert.Contains(t, gotOutput, "https://releases.hashicorp.com/terraform/1.0.4/terraform_1.0.4_linux_amd64.zip")
+		assert.Contains(t, gotOutput, "https://releases.hashicorp.com/terraform/1.2.9/terraform_1.2.9_linux_amd64.zip")
 		assert.NotContains(t, "{{.", gotOutput, "Not all of the template values were consumed")
 	})
 
