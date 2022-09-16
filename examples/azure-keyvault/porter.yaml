@@ -1,11 +1,8 @@
-mixins:
-  - exec
-  - terraform:
-      initFile: providers.tf
 
+schemaVersion: 1.0.0
 name: terraform-keyvault
-version: 0.1.0
-registry: getporter
+version: 0.2.0
+registry: ghcr.io/getporter
 
 credentials:
   - name: subscription_id
@@ -45,6 +42,11 @@ parameters:
     default: "porterkvtest"
     env: TF_VAR_resource_group_name
 
+mixins:
+  - exec
+  - terraform:
+      initFile: providers.tf
+
 customActions:
   show:
     description: "Invoke 'terraform show'"
@@ -54,10 +56,10 @@ install:
   - terraform:
       description: "Install Azure Key Vault"
       backendConfig:
-        key: "{{ bundle.name }}.tfstate"
-        storage_account_name: "{{ bundle.credentials.backend_storage_account }}"
-        container_name: "{{ bundle.credentials.backend_storage_container }}"
-        access_key: "{{ bundle.credentials.backend_storage_access_key }}"
+        key: ${ bundle.name  }.tfstate
+        storage_account_name: ${ bundle.credentials.backend_storage_account } 
+        container_name: ${ bundle.credentials.backend_storage_container } 
+        access_key: ${ bundle.credentials.backend_storage_access_key } 
       outputs:
       - name: vault_uri
 
@@ -65,10 +67,10 @@ upgrade:
   - terraform:
       description: "Upgrade Azure Key Vault"
       backendConfig:
-        key: "{{ bundle.name }}.tfstate"
-        storage_account_name: "{{ bundle.credentials.backend_storage_account }}"
-        container_name: "{{ bundle.credentials.backend_storage_container }}"
-        access_key: "{{ bundle.credentials.backend_storage_access_key }}"
+        key: ${ bundle.name  }.tfstate
+        storage_account_name: ${ bundle.credentials.backend_storage_account } 
+        container_name: ${ bundle.credentials.backend_storage_container } 
+        access_key: ${ bundle.credentials.backend_storage_access_key } 
       outputs:
       - name: vault_uri
 
@@ -76,10 +78,10 @@ show:
   - terraform:
       description: "Invoke 'terraform show'"
       backendConfig:
-        key: "{{ bundle.name }}.tfstate"
-        storage_account_name: "{{ bundle.credentials.backend_storage_account }}"
-        container_name: "{{ bundle.credentials.backend_storage_container }}"
-        access_key: "{{ bundle.credentials.backend_storage_access_key }}"
+        key: ${ bundle.name  }.tfstate
+        storage_account_name: ${ bundle.credentials.backend_storage_account } 
+        container_name: ${ bundle.credentials.backend_storage_container } 
+        access_key: ${ bundle.credentials.backend_storage_access_key } 
       outputs:
       - name: vault_uri
 
@@ -87,7 +89,7 @@ uninstall:
   - terraform:
       description: "Uninstall Azure Key Vault"
       backendConfig:
-        key: "{{ bundle.name }}.tfstate"
-        storage_account_name: "{{ bundle.credentials.backend_storage_account }}"
-        container_name: "{{ bundle.credentials.backend_storage_container }}"
-        access_key: "{{ bundle.credentials.backend_storage_access_key }}"
+        key: ${ bundle.name  }.tfstate
+        storage_account_name: ${ bundle.credentials.backend_storage_account } 
+        container_name: ${ bundle.credentials.backend_storage_container } 
+        access_key: ${ bundle.credentials.backend_storage_access_key } 
