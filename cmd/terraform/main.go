@@ -26,7 +26,7 @@ func main() {
 		// We don't have tracing working inside a bundle working currently.
 		// We are using StartRootSpan anyway because it creates a TraceLogger and sets it
 		// on the context, so we can grab it later
-		ctx, log := m.StartRootSpan(ctx, "kubernetes")
+		ctx, log := m.StartRootSpan(ctx, "terraform")
 		defer func() {
 			// Capture panics and trace them
 			if panicErr := recover(); panicErr != nil {

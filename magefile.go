@@ -59,7 +59,13 @@ func Clean() {
 	magefile.Clean()
 }
 
-func TestIntegration() {
+// Install porter locally
+func EnsureLocalPorter() {
+	porter.UseBinForPorterHome()
 	porter.EnsurePorter()
+}
+
+func TestIntegration() {
+	EnsureLocalPorter()
 	must.Command("./scripts/test/test-cli.sh").RunV()
 }
