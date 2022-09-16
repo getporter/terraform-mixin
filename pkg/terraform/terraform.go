@@ -21,7 +21,7 @@ const (
 	DefaultWorkingDir = "terraform"
 
 	// DefaultClientVersion is the default version of the terraform cli.
-	DefaultClientVersion = "1.0.4"
+	DefaultClientVersion = "1.2.9"
 
 	// DefaultInitFile is the default file used to initialize terraform providers during build.
 	DefaultInitFile = ""
