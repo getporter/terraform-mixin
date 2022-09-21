@@ -2,6 +2,7 @@ package terraform
 
 import (
 	"bytes"
+	"context"
 	"io/ioutil"
 	"os"
 	"path"
@@ -52,7 +53,7 @@ func TestMixin_Install(t *testing.T) {
 	h.config.WorkingDir = h.Getwd()
 	require.NoError(t, err)
 
-	err = h.Install()
+	err = h.Install(context.Background())
 	require.NoError(t, err)
 
 	assert.Equal(t, "TRACE", os.Getenv("TF_LOG"))
@@ -98,7 +99,7 @@ func TestMixin_InstallDisableSaveVars(t *testing.T) {
 	h.config.WorkingDir = h.Getwd()
 	require.NoError(t, err)
 
-	err = h.Install()
+	err = h.Install(context.Background())
 	require.NoError(t, err)
 
 	assert.Equal(t, "TRACE", os.Getenv("TF_LOG"))
@@ -127,7 +128,7 @@ func TestMixin_InstallNoVarsBlock(t *testing.T) {
 	h.config.WorkingDir = h.Getwd()
 	require.NoError(t, err)
 
-	err = h.Install()
+	err = h.Install(context.Background())
 	require.NoError(t, err)
 
 	assert.Equal(t, "TRACE", os.Getenv("TF_LOG"))

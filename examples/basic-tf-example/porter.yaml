@@ -1,10 +1,8 @@
-mixins:
-  - terraform:
-      clientVersion: 1.0.0
 
+schemaVersion: 1.0.0
 name: basic-tf-example
-version: 0.1.0
-registry: getporterci
+version: 0.2.0
+registry: ghcr.io/getporter
 
 parameters:
   - name: tfstate
@@ -25,12 +23,15 @@ outputs:
     applyTo:
       - install
       - upgrade
+mixins:
+  - terraform:
+      clientVersion: 1.0.0
 
 install:
   - terraform:
       description: "Install Terraform assets"
       vars:
-        myvar: "{{bundle.parameters.myvar}}"
+        myvar: ${bundle.parameters.myvar}
       outputs:
         - name: myvar
 
@@ -38,7 +39,7 @@ upgrade:
   - terraform:
       description: "Upgrade Terraform assets"
       vars:
-        myvar: "{{bundle.parameters.myvar}}"
+        myvar: ${bundle.parameters.myvar}
       outputs:
         - name: myvar
 
@@ -53,7 +54,7 @@ plan:
         no-color:
         out: "/dev/null"
         var:
-          - "'myvar={{bundle.parameters.myvar}}'"
+          - "'myvar=${bundle.parameters.myvar}'"
 
 # Note: this can't be 'version:' as this would conflict with top-level field
 # Hence the need for the 'arguments:' override

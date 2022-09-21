@@ -1,6 +1,7 @@
 package terraform
 
 import (
+	"context"
 	"os"
 	"testing"
 
@@ -14,7 +15,7 @@ func TestMixin_Init(t *testing.T) {
 
 	h := NewTestMixin(t)
 
-	err := h.Init(nil)
+	err := h.Init(context.Background(), nil)
 
 	require.NoError(t, err)
 }
@@ -31,7 +32,7 @@ func TestMixin_InitBackend(t *testing.T) {
 		"donuts": "definitely",
 	}
 
-	err := h.Init(backendConfig)
+	err := h.Init(context.Background(), backendConfig)
 
 	require.NoError(t, err)
 }

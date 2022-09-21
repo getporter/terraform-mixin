@@ -2,6 +2,7 @@ package terraform
 
 import (
 	"bytes"
+	"context"
 	"io/ioutil"
 	"testing"
 
@@ -13,11 +14,12 @@ func TestMixin_Build(t *testing.T) {
 	t.Run("build with the default Terraform version", func(t *testing.T) {
 		m := NewTestMixin(t)
 
-		err := m.Build()
+		ctx := context.Background()
+		err := m.Build(ctx)
 		require.NoError(t, err)
 
 		gotOutput := m.TestContext.GetOutput()
-		assert.Contains(t, gotOutput, "https://releases.hashicorp.com/terraform/1.0.4/terraform_1.0.4_linux_amd64.zip")
+		assert.Contains(t, gotOutput, "https://releases.hashicorp.com/terraform/1.2.9/terraform_1.2.9_linux_amd64.zip")
 		assert.NotContains(t, "{{.", gotOutput, "Not all of the template values were consumed")
 	})
 
@@ -25,9 +27,10 @@ func TestMixin_Build(t *testing.T) {
 		b, err := ioutil.ReadFile("testdata/build-input-with-version.yaml")
 		require.NoError(t, err)
 
+		ctx := context.Background()
 		m := NewTestMixin(t)
 		m.In = bytes.NewReader(b)
-		err = m.Build()
+		err = m.Build(ctx)
 		require.NoError(t, err)
 
 		gotOutput := m.TestContext.GetOutput()

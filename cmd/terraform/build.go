@@ -10,7 +10,7 @@ func buildBuildCommand(m *terraform.Mixin) *cobra.Command {
 		Use:   "build",
 		Short: "Generate Dockerfile lines for the bundle invocation image",
 		RunE: func(cmd *cobra.Command, args []string) error {
-			return m.Build()
+			return m.Build(cmd.Context())
 		},
 	}
 	return cmd

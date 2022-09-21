@@ -1,20 +1,21 @@
 package terraform
 
 import (
+	"context"
 	"fmt"
 
 	"get.porter.sh/porter/pkg/exec/builder"
 )
 
 // Uninstall runs a terraform destroy
-func (m *Mixin) Uninstall() error {
-	action, err := m.loadAction()
+func (m *Mixin) Uninstall(ctx context.Context) error {
+	action, err := m.loadAction(ctx)
 	if err != nil {
 		return err
 	}
 	step := action.Steps[0]
 
-	err = m.commandPreRun(&step)
+	err = m.commandPreRun(ctx, &step)
 	if err != nil {
 		return err
 	}
@@ -30,10 +31,10 @@ func (m *Mixin) Uninstall() error {
 	}
 
 	action.Steps[0] = step
-	_, err = builder.ExecuteSingleStepAction(m.Context, action)
+	_, err = builder.ExecuteSingleStepAction(ctx, m.RuntimeConfig, action)
 	if err != nil {
 		return err
 	}
 
-	return m.handleOutputs(step.Outputs)
+	return m.handleOutputs(ctx, step.Outputs)
 }
