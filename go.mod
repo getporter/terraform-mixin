@@ -18,7 +18,7 @@ replace (
 
 require (
 	get.porter.sh/magefiles v0.3.2
-	get.porter.sh/porter v1.0.0-rc.1.0.20220915161609-a787eef76259
+	get.porter.sh/porter v1.0.0-rc.2
 	github.com/carolynvs/magex v0.9.0
 	github.com/ghodss/yaml v1.0.0
 	github.com/hashicorp/go-multierror v1.1.1
@@ -116,7 +116,7 @@ require (
 	github.com/subosito/gotenv v1.2.0 // indirect
 	github.com/tidwall/match v1.1.1 // indirect
 	github.com/tidwall/pretty v1.2.0 // indirect
-	github.com/ulikunitz/xz v0.5.9 // indirect
+	github.com/ulikunitz/xz v0.5.10 // indirect
 	github.com/vbatts/tar-split v0.11.2 // indirect
 	github.com/xeipuuv/gojsonpointer v0.0.0-20190905194746-02993c407bfb // indirect
 	github.com/xeipuuv/gojsonreference v0.0.0-20180127040603-bd5ef7bd5415 // indirect
