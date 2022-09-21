@@ -135,9 +135,9 @@ func (m *Mixin) commandPreRun(ctx context.Context, step *Step) error {
 
 	// First, change to specified working dir
 	m.Chdir(m.config.WorkingDir)
-	//if m.Debug {
-	//	fmt.Fprintln(m.Err, "Terraform working directory is", m.Getwd())
-	//}
+	if m.DebugMode {
+		fmt.Fprintln(m.Err, "Terraform working directory is", m.Getwd())
+	}
 
 	// Initialize Terraform
 	fmt.Println("Initializing Terraform...")
