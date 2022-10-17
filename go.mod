@@ -19,6 +19,7 @@ replace (
 require (
 	get.porter.sh/magefiles v0.3.2
 	get.porter.sh/porter v1.0.0-rc.2
+	github.com/PaesslerAG/jsonpath v0.1.1
 	github.com/carolynvs/magex v0.9.0
 	github.com/ghodss/yaml v1.0.0
 	github.com/hashicorp/go-multierror v1.1.1
@@ -36,7 +37,6 @@ require (
 	github.com/Masterminds/semver v1.5.0 // indirect
 	github.com/Masterminds/semver/v3 v3.1.1 // indirect
 	github.com/PaesslerAG/gval v1.0.0 // indirect
-	github.com/PaesslerAG/jsonpath v0.1.1 // indirect
 	github.com/PuerkitoBio/goquery v1.5.0 // indirect
 	github.com/andybalholm/brotli v1.0.1 // indirect
 	github.com/andybalholm/cascadia v1.0.0 // indirect
