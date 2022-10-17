@@ -1,6 +1,43 @@
 {
   "$schema": "http://json-schema.org/draft-07/schema#",
   "definitions": {
+    "declaration": {
+      "oneOf": [
+        {
+          "description": "Declare the terraform mixin without configuration",
+          "type": "string",
+          "enum": ["terraform"]
+        },
+        {"$ref": "#/definitions/config"}
+      ]
+    },
+    "config": {
+      "description": "Declare the terraform mixin with additional configuration",
+      "type": "object",
+      "properties": {
+        "terraform": {
+          "description": "terraform mixin configuration",
+          "type": "object",
+          "properties": {
+            "clientVersion": {
+              "description": "Version of terraform to install in the bundle",
+              "type": "string"
+            },
+            "initFile": {
+              "description": "Relative path from the workingDir to a file defining all providers, used when running terraform init.",
+              "type": "string"
+            },
+            "workingDir": {
+              "description": "Relative path to your terraform files, defaults to 'terraform'",
+              "type": "string"
+            }
+          },
+          "additionalProperties": false
+        }
+      },
+      "additionalProperties": false,
+      "required": ["terraform"]
+    },
     "installStep": {
       "type": "object",
       "properties": {
@@ -191,15 +228,16 @@
       "items": {
         "$ref": "#/definitions/uninstallStep"
       }
-    }
-  },
-  "patternProperties": {
-    ".*": {
+    },
+     "mixins": {
       "type": "array",
-      "items": {
-        "$ref": "#/definitions/invokeStep"
-      }
+      "items": { "$ref": "#/definitions/declaration" }
     }
   },
-  "additionalProperties": false
+  "additionalProperties": {
+    "type": "array",
+    "items": {
+      "$ref": "#/definitions/invokeStep"
+    }
+  }
 }

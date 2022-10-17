@@ -1,11 +1,14 @@
 package terraform
 
 import (
+	"encoding/json"
+	"fmt"
 	"io/ioutil"
 	"strings"
 	"testing"
 
-	yaml "github.com/ghodss/yaml"
+	"github.com/PaesslerAG/jsonpath"
+	"github.com/ghodss/yaml"
 	"github.com/pkg/errors"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
@@ -97,4 +100,42 @@ func (m *Mixin) validatePayload(b []byte) error {
 	}
 
 	return nil
+}
+
+func TestMixin_CheckSchema(t *testing.T) {
+	// Long term it would be great to have a helper function in Porter that a mixin can use to check that it meets certain interfaces
+	// check that certain characteristics of the schema that Porter expects are present
+	// Once we have a mixin library, that would be a good place to package up this type of helper function
+	var schemaMap map[string]interface{}
+	err := json.Unmarshal([]byte(schema), &schemaMap)
+	require.NoError(t, err, "could not unmarshal the schema into a map")
+
+	t.Run("mixin configuration", func(t *testing.T) {
+		// Check that mixin config is defined, and has all the supported fields
+		configSchema, err := jsonpath.Get("$.definitions.config", schemaMap)
+		require.NoError(t, err, "could not find the mixin config schema declaration")
+		_, err = jsonpath.Get("$.properties.terraform.properties.clientVersion", configSchema)
+		require.NoError(t, err, "clientVersion was not included in the mixin config schema")
+		_, err = jsonpath.Get("$.properties.terraform.properties.initFile", configSchema)
+		require.NoError(t, err, "initFile was not included in the mixin config schema")
+		_, err = jsonpath.Get("$.properties.terraform.properties.workingDir", configSchema)
+		require.NoError(t, err, "workingDir was not included in the mixin config schema")
+	})
+
+	// Check that schema are defined for each action
+	actions := []string{"install", "upgrade", "invoke", "uninstall"}
+	for _, action := range actions {
+		t.Run("supports "+action, func(t *testing.T) {
+			actionPath := fmt.Sprintf("$.definitions.%sStep", action)
+			_, err := jsonpath.Get(actionPath, schemaMap)
+			require.NoErrorf(t, err, "could not find the %sStep declaration", action)
+		})
+	}
+
+	// Check that the invoke action is registered
+	additionalSchema, err := jsonpath.Get("$.additionalProperties.items", schemaMap)
+	require.NoError(t, err, "the invoke action was not registered in the schema")
+	require.Contains(t, additionalSchema, "$ref")
+	invokeRef := additionalSchema.(map[string]interface{})["$ref"]
+	require.Equal(t, "#/definitions/invokeStep", invokeRef, "the invoke action was not registered correctly")
 }
