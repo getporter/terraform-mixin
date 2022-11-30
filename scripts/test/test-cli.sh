@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-set -euo pipefail
+set -xeuo pipefail
 export REGISTRY=${REGISTRY:-$USER}
 export REPO_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )/../.." && pwd )"
 export PORTER_HOME=${PORTER_HOME:-$REPO_DIR/bin}

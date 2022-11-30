@@ -63,7 +63,6 @@ state:
     path: terraform/terraform.tfvars.json
 
 mixins:
-  - exec
   - terraform:
       clientVersion: 1.0.0
 
@@ -114,12 +113,6 @@ show:
 plan:
   - terraform:
       description: "Invoke 'terraform plan'"
-      flags:
-        no-color:
-        out: "/dev/null"
-        var:
-          - "'myvar=${bundle.parameters.myvar}'"
-
 # Note: this can't be 'version:' as this would conflict with top-level field
 # Hence the need for the 'arguments:' override
 printVersion:
