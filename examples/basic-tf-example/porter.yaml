@@ -1,6 +1,6 @@
 schemaVersion: 1.0.0
 name: basic-tf-example
-version: 0.2.0
+version: 0.3.0
 registry: ghcr.io/getporter
 
 parameters:
