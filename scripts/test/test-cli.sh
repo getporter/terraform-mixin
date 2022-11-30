@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-set -euo pipefail
+set -xeuo pipefail
 export REGISTRY=${REGISTRY:-$USER}
 export REPO_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )/../.." && pwd )"
 export PORTER_HOME=${PORTER_HOME:-$REPO_DIR/bin}
@@ -27,10 +27,10 @@ function verify-output() {
 
 
 # Copy terraform assets
-cp -r ${REPO_DIR}/build/testdata/bundles/terraform/terraform .
+cp -r ${REPO_DIR}/examples/basic-tf-example/terraform .
 
 # Copy in the terraform porter manifest
-cp ${REPO_DIR}/build/testdata/bundles/terraform/porter.yaml .
+cp ${REPO_DIR}/examples/basic-tf-example/porter.yaml .
 
 ${PORTER_HOME}/porter build
 ${PORTER_HOME}/porter install --verbosity=debug \
