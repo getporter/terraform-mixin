@@ -2,9 +2,12 @@ package terraform
 
 import (
 	"context"
+	"encoding/json"
+	"fmt"
 
 	"get.porter.sh/porter/pkg/exec/builder"
-	yaml "gopkg.in/yaml.v2"
+	"github.com/tidwall/gjson"
+	"gopkg.in/yaml.v2"
 )
 
 func (m *Mixin) loadAction(ctx context.Context) (*Action, error) {
@@ -98,6 +101,31 @@ func (s Step) GetOutputs() []builder.Output {
 		outputs[i] = s.Outputs[i]
 	}
 	return outputs
+}
+
+// applyVarsToStepFlags converts the Terraform vars specified in YAML into a list of -var flags
+// with the variable value set in a format that terraform expects.
+func applyVarsToStepFlags(step *Step) error {
+	if len(step.Vars) == 0 {
+		// return early because otherwise parseVars.ForEach below will print `-var =` even when the result is empty
+		return nil
+	}
+
+	vars, err := json.Marshal(step.Vars)
+	if err != nil {
+		return fmt.Errorf("error marshaling terraform variables to json")
+	}
+
+	parsedVars := gjson.Parse(string(vars))
+	parsedVars.ForEach(func(key, value gjson.Result) bool {
+		// ensure that the flag value is set using a format that terraform expects
+		// primitive data types should print the value directly, e.g. astring, 1, true, 2.4
+		// complex data types should be json, e.g. [1,2,3] or {"color":"blue}
+		step.Flags = append(step.Flags, builder.NewFlag("var", fmt.Sprintf("'%s=%s'", key.String(), value.String())))
+		return true
+	})
+
+	return nil
 }
 
 type Instruction struct {

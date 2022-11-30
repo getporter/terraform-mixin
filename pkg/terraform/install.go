@@ -6,7 +6,6 @@ import (
 	"fmt"
 
 	"get.porter.sh/porter/pkg/exec/builder"
-	"github.com/tidwall/gjson"
 )
 
 // defaultTerraformVarFilename is the default name for terrafrom tfvars json file
@@ -58,13 +57,9 @@ func (m *Mixin) Install(ctx context.Context) error {
 			fmt.Fprintf(m.Err, "DEBUG: TF var file created:\n%s\n", string(vbs))
 		}
 	}
-	if len(step.Vars) != 0 {
-		result := gjson.Parse(string(vbs))
-		result.ForEach(func(key, value gjson.Result) bool {
-			step.Flags = append(step.Flags, builder.NewFlag("var", fmt.Sprintf("'%s=%s'", key.String(), value.String())))
-			return true
-		})
-	}
+
+	applyVarsToStepFlags(&step)
+
 	action.Steps[0] = step
 	_, err = builder.ExecuteSingleStepAction(ctx, m.RuntimeConfig, action)
 	if err != nil {

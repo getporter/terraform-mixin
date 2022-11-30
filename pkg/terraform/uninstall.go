@@ -2,7 +2,6 @@ package terraform
 
 import (
 	"context"
-	"fmt"
 
 	"get.porter.sh/porter/pkg/exec/builder"
 )
@@ -26,9 +25,7 @@ func (m *Mixin) Uninstall(ctx context.Context) error {
 	step.Flags = append(step.Flags, builder.NewFlag("auto-approve"))
 	step.Flags = append(step.Flags, builder.NewFlag("input=false"))
 
-	for _, k := range sortKeys(step.Vars) {
-		step.Flags = append(step.Flags, builder.NewFlag("var", fmt.Sprintf("'%s=%s'", k, step.Vars[k])))
-	}
+	applyVarsToStepFlags(&step)
 
 	action.Steps[0] = step
 	_, err = builder.ExecuteSingleStepAction(ctx, m.RuntimeConfig, action)
