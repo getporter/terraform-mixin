@@ -10,9 +10,9 @@ import (
 )
 
 const dockerfileLines = `
-RUN apt-get update && apt-get install -y wget unzip && \
- apt-get clean -y && rm -rf /var/lib/apt/lists/* && \
- wget https://releases.hashicorp.com/terraform/{{.ClientVersion}}/terraform_{{.ClientVersion}}_linux_amd64.zip && \
+RUN --mount=type=cache,target=/var/cache/apt --mount=type=cache,target=/var/lib/apt \
+ apt-get update && apt-get install -y wget unzip && \
+ wget https://releases.hashicorp.com/terraform/{{.ClientVersion}}/terraform_{{.ClientVersion}}_linux_amd64.zip --progress=dot:giga && \
  unzip terraform_{{.ClientVersion}}_linux_amd64.zip -d /usr/bin && \
  rm terraform_{{.ClientVersion}}_linux_amd64.zip
 COPY {{.WorkingDir}}/{{.InitFile}} $BUNDLE_DIR/{{.WorkingDir}}/
