@@ -8,7 +8,11 @@ import (
 )
 
 func (m *Mixin) PrintVersion(opts version.Options) error {
-	metadata := mixin.Metadata{
+	return version.PrintVersion(m.Context, opts, m.Version())
+}
+
+func (m *Mixin) Version() mixin.Metadata {
+	return mixin.Metadata{
 		Name: "terraform",
 		VersionInfo: pkgmgmt.VersionInfo{
 			Version: pkg.Version,
@@ -16,5 +20,4 @@ func (m *Mixin) PrintVersion(opts version.Options) error {
 			Author:  "Porter Authors",
 		},
 	}
-	return version.PrintVersion(m.Context, opts, metadata)
 }
