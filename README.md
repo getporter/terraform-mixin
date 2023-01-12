@@ -51,6 +51,28 @@ Then use `initFile` to specify the relative path to this file within workingDir.
 This will dramatically improve Docker image layer caching and performance when building, publishing and installing the bundle.
 > Note: this approach isn't suitable when using terraform modules as those need to be "initilized" as well but aren't specified in the `initFile`. You shouldn't specifiy an `initFile` in this situation.
 
+### User Agent Opt Out
+
+When you declare the mixin, you can disable the mixin from customizing the azure user agent string
+
+```yaml
+mixins:
+- terraform:
+    userAgentOptOut: true
+```
+
+By default, the terraform mixin adds the porter and mixin version to the user agent string used by the azure provider.
+We use this to understand which version of porter and the mixin are being used by a bundle, and assist with troubleshooting.
+Below is an example of what the user agent string looks like:
+
+```
+AZURE_HTTP_USER_AGENT="getporter/porter/v1.0.0 getporter/terraform/v1.2.3"
+```
+
+You can add your own custom strings to the user agent string by editing your [template Dockerfile] and setting the AZURE_HTTP_USER_AGENT environment variable.
+
+[template Dockerfile]: https://getporter.org/bundle/custom-dockerfile/
+
 ## Terraform state
 
 ### Let Porter do the heavy lifting

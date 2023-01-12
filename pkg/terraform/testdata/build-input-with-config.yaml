@@ -1,5 +1,6 @@
 config:
     clientVersion: 0.13.0-rc1
+    userAgentOptOut: true
     install:
         - terraform:
             description: "noop"

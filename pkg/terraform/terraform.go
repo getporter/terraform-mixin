@@ -31,18 +31,28 @@ const (
 type Mixin struct {
 	runtime.RuntimeConfig
 	config MixinConfig
+
+	userAgent string
 }
 
 // New terraform mixin client, initialized with useful defaults.
 func New() *Mixin {
-	return &Mixin{
-		RuntimeConfig: runtime.NewConfig(),
+	return NewFor(runtime.NewConfig())
+}
+
+func NewFor(cfg runtime.RuntimeConfig) *Mixin {
+
+	m := &Mixin{
+		RuntimeConfig: cfg,
 		config: MixinConfig{
 			WorkingDir:    DefaultWorkingDir,
 			ClientVersion: DefaultClientVersion,
 			InitFile:      DefaultInitFile,
 		},
 	}
+
+	m.SetUserAgent()
+	return m
 }
 
 func (m *Mixin) getPayloadData() ([]byte, error) {
