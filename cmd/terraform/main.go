@@ -17,7 +17,8 @@ func main() {
 	run := func() int {
 		ctx := context.Background()
 		m := terraform.New()
-		if err := m.ConfigureLogging(ctx); err != nil {
+		ctx, err := m.RuntimeConfig.ConfigureLogging(ctx)
+		if err != nil {
 			fmt.Println(err)
 			os.Exit(cli.ExitCodeErr)
 		}
@@ -26,7 +27,7 @@ func main() {
 		// We don't have tracing working inside a bundle working currently.
 		// We are using StartRootSpan anyway because it creates a TraceLogger and sets it
 		// on the context, so we can grab it later
-		ctx, log := m.StartRootSpan(ctx, "terraform")
+		ctx, log := m.RuntimeConfig.StartRootSpan(ctx, "exec")
 		defer func() {
 			// Capture panics and trace them
 			if panicErr := recover(); panicErr != nil {
