@@ -17,11 +17,20 @@ RUN --mount=type=cache,target=/var/cache/apt --mount=type=cache,target=/var/lib/
  wget https://releases.hashicorp.com/terraform/{{.ClientVersion}}/terraform_{{.ClientVersion}}_linux_amd64.zip --progress=dot:giga && \
  unzip terraform_{{.ClientVersion}}_linux_amd64.zip -d /usr/bin && \
  rm terraform_{{.ClientVersion}}_linux_amd64.zip
+{{if .WorkingDir}}
 COPY {{.WorkingDir}}/{{.InitFile}} $BUNDLE_DIR/{{.WorkingDir}}/
 RUN cd $BUNDLE_DIR/{{.WorkingDir}} && \
  terraform init -backend=false && \
  rm -fr .terraform/providers && \
  terraform providers mirror /usr/local/share/terraform/plugins
+{{else if .WorkingDirs}}
+{{range .WorkingDirs}}
+RUN cd $BUNDLE_DIR/{{.}} && \
+ terraform init -backend=false && \
+ rm -fr .terraform/providers && \
+ terraform providers mirror /usr/local/share/terraform/plugins
+{{end}}
+{{end}}
 `
 
 // BuildInput represents stdin passed to the mixin for the build command.
@@ -40,8 +49,9 @@ type MixinConfig struct {
 	// UserAgentOptOut allows a bundle author to opt out from adding porter and the mixin's version to the terraform user agent string.
 	UserAgentOptOut bool `yaml:"userAgentOptOut,omitempty"`
 
-	InitFile   string `yaml:"initFile,omitempty"`
-	WorkingDir string `yaml:"workingDir,omitempty"`
+	InitFile    string   `yaml:"initFile,omitempty"`
+	WorkingDir  string   `yaml:"workingDir,omitempty"`
+	WorkingDirs []string `yaml:"workingDirs,omitempty"`
 }
 
 type buildConfig struct {
@@ -61,6 +71,11 @@ func (m *Mixin) Build(ctx context.Context) error {
 	})
 	if err != nil {
 		return err
+	}
+
+	// Check for mutual exclusivity of workingDir and workingDirs
+	if input.Config.WorkingDir != "" && len(input.Config.WorkingDirs) > 0 {
+		return errors.New("cannot specify both workingDir and workingDirs")
 	}
 
 	tmpl, err := template.New("Dockerfile").Parse(dockerfileLines)

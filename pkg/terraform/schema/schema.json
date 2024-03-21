@@ -6,9 +6,13 @@
         {
           "description": "Declare the terraform mixin without configuration",
           "type": "string",
-          "enum": ["terraform"]
+          "enum": [
+            "terraform"
+          ]
         },
-        {"$ref": "#/definitions/config"}
+        {
+          "$ref": "#/definitions/config"
+        }
       ]
     },
     "config": {
@@ -30,13 +34,38 @@
             "workingDir": {
               "description": "Relative path to your terraform files, defaults to 'terraform'",
               "type": "string"
+            },
+            "workingDirs": {
+              "description": "List of relative paths to different terraform working directories. Is mutually exclusive with 'workingDir'",
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
             }
           },
-          "additionalProperties": false
+          "additionalProperties": false,
+          "dependencies": {
+            "workingDir": {
+              "not": {
+                "required": [
+                  "workingDirs"
+                ]
+              }
+            },
+            "workingDirs": {
+              "not": {
+                "required": [
+                  "workingDir"
+                ]
+              }
+            }
+          }
         }
       },
       "additionalProperties": false,
-      "required": ["terraform"]
+      "required": [
+        "terraform"
+      ]
     },
     "installStep": {
       "type": "object",
@@ -73,6 +102,9 @@
         },
         "backendConfig": {
           "type": "object"
+        },
+        "workingDir": {
+          "type": "string"
         },
         "description": {
           "$ref": "#/definitions/stepDescription"
@@ -229,9 +261,11 @@
         "$ref": "#/definitions/uninstallStep"
       }
     },
-     "mixins": {
+    "mixins": {
       "type": "array",
-      "items": { "$ref": "#/definitions/declaration" }
+      "items": {
+        "$ref": "#/definitions/declaration"
+      }
     }
   },
   "additionalProperties": {

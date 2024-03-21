@@ -75,6 +75,9 @@ func (s Step) GetCommand() string {
 }
 
 func (s Step) GetWorkingDir() string {
+	if s.WorkingDir != "" {
+		return s.WorkingDir
+	}
 	return "."
 }
 
@@ -143,6 +146,7 @@ type TerraformFields struct {
 	DisableVarFile bool                   `yaml:"disableVarFile,omitempty"`
 	LogLevel       string                 `yaml:"logLevel,omitempty"`
 	BackendConfig  map[string]interface{} `yaml:"backendConfig,omitempty"`
+	WorkingDir     string                 `yaml:"workingDir,omitempty"`
 }
 
 type Output struct {
