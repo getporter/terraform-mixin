@@ -25,6 +25,7 @@ RUN cd $BUNDLE_DIR/{{.WorkingDir}} && \
  terraform providers mirror /usr/local/share/terraform/plugins
 {{else if .WorkingDirs}}
 {{range .WorkingDirs}}
+COPY {{.}}/ $BUNDLE_DIR/{{.}}/
 RUN cd $BUNDLE_DIR/{{.}} && \
  terraform init -backend=false && \
  rm -fr .terraform/providers && \
@@ -72,10 +73,9 @@ func (m *Mixin) Build(ctx context.Context) error {
 	if err != nil {
 		return err
 	}
-
-	// Check for mutual exclusivity of workingDir and workingDirs
-	if input.Config.WorkingDir != "" && len(input.Config.WorkingDirs) > 0 {
-		return errors.New("cannot specify both workingDir and workingDirs")
+	// If the WorkingDirs array is specified then clear the configs workingdir value and use that instead for the template
+	if len(input.Config.WorkingDirs) > 0 {
+		input.Config.WorkingDir = ""
 	}
 
 	tmpl, err := template.New("Dockerfile").Parse(dockerfileLines)
