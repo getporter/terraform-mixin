@@ -3,15 +3,18 @@
 package main
 
 import (
+	"os"
+
 	"get.porter.sh/magefiles/mixins"
 	"get.porter.sh/magefiles/porter"
 	"github.com/carolynvs/magex/shx"
 )
 
 const (
-	mixinName    = "terraform"
-	mixinPackage = "get.porter.sh/mixin/terraform"
-	mixinBin     = "bin/mixins/" + mixinName
+	mixinName            = "terraform"
+	mixinPackage         = "get.porter.sh/mixin/terraform"
+	mixinBin             = "bin/mixins/" + mixinName
+	DefaultPorterVersion = "v1.0.16"
 )
 
 var (
@@ -68,7 +71,11 @@ func Clean() {
 // Install porter locally
 func EnsureLocalPorter() {
 	porter.UseBinForPorterHome()
-	porter.EnsurePorter()
+	version := DefaultPorterVersion
+	if os.Getenv("PORTER_VERSION") != "" {
+		version = os.Getenv("PORTER_VERSION")
+	}
+	porter.EnsurePorterAt(version)
 }
 
 func TestIntegration() {

@@ -12,81 +12,23 @@ mixins:
 install:
   - terraform:
       description: 'infra 1'
+      workingDir: 'infra1'
   - terraform:
       description: 'infra 2'
+      workingDir: 'infra2'
 
 upgrade:
   - terraform:
-      description: 'Upgrade Terraform assets'
-      vars:
-        file_contents: ${bundle.parameters.file_contents}
-        map_var: ${bundle.parameters.map_var}
-        array_var: ${bundle.parameters.array_var}
-        boolean_var: ${bundle.parameters.boolean_var}
-        number_var: ${bundle.parameters.number_var}
-        json_encoded_html_string_var: ${bundle.parameters.json_encoded_html_string_var}
-        complex_object_var: ${bundle.parameters.complex_object_var}
-      outputs:
-        - name: file_contents
-        - name: map_var
-        - name: array_var
-        - name: boolean_var
-        - name: number_var
-        - name: json_encoded_html_string_var
-        - name: complex_object_var
-
-show:
+      description: 'Upgrade infra 1 assets'
+      workingDir: 'infra1'
   - terraform:
-      description: "Invoke 'terraform show'"
-
-plan:
-  - terraform:
-      description: "Invoke 'terraform plan'"
-# Note: this can't be 'version:' as this would conflict with top-level field
-# Hence the need for the 'arguments:' override
-printVersion:
-  - terraform:
-      description: "Invoke 'terraform version'"
-      arguments:
-        - 'version'
+      description: 'Upgrade infra 2 assets'
+      workingDir: 'infra2'
 
 uninstall:
   - terraform:
-      description: 'Uninstall Terraform assets'
-
-outputs:
-  - name: file_contents
-    type: string
-    applyTo:
-      - install
-      - upgrade
-  - name: map_var
-    type: object
-    applyTo:
-      - install
-      - upgrade
-  - name: array_var
-    type: array
-    applyTo:
-      - install
-      - upgrade
-  - name: boolean_var
-    type: boolean
-    applyTo:
-      - install
-      - upgrade
-  - name: number_var
-    type: number
-    applyTo:
-      - install
-      - upgrade
-  - name: json_encoded_html_string_var
-    type: string
-    applyTo:
-      - install
-      - upgrade
-  - name: complex_object_var
-    type: object
-    applyTo:
-      - install
-      - upgrade
+      description: 'Uninstall infra 1 assets'
+      workingDir: 'infra1'
+  - terraform:
+      description: 'Uninstall infra 2 assets'
+      workingDir: 'infra2'

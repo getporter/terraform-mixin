@@ -2,6 +2,7 @@ package terraform
 
 import (
 	"context"
+	"fmt"
 	"text/template"
 
 	"get.porter.sh/porter/pkg/exec/builder"
@@ -17,16 +18,17 @@ RUN --mount=type=cache,target=/var/cache/apt --mount=type=cache,target=/var/lib/
  wget https://releases.hashicorp.com/terraform/{{.ClientVersion}}/terraform_{{.ClientVersion}}_linux_amd64.zip --progress=dot:giga && \
  unzip terraform_{{.ClientVersion}}_linux_amd64.zip -d /usr/bin && \
  rm terraform_{{.ClientVersion}}_linux_amd64.zip
-{{if .WorkingDir}}
-COPY {{.WorkingDir}}/{{.InitFile}} $BUNDLE_DIR/{{.WorkingDir}}/
-RUN cd $BUNDLE_DIR/{{.WorkingDir}} && \
+{{if .WorkingDirs}}
+{{ $InitFile := .InitFile }} 
+{{range .WorkingDirs}}
+COPY {{.}}/{{$InitFile}} $BUNDLE_DIR/{{.}}/
+RUN cd $BUNDLE_DIR/{{.}} && \
  terraform init -backend=false && \
  rm -fr .terraform/providers && \
  terraform providers mirror /usr/local/share/terraform/plugins
-{{else if .WorkingDirs}}
-{{range .WorkingDirs}}
-COPY {{.}}/ $BUNDLE_DIR/{{.}}/
-RUN cd $BUNDLE_DIR/{{.}} && \
+{{else}}
+COPY {{.WorkingDir}}/{{.InitFile}} $BUNDLE_DIR/{{.WorkingDir}}/
+RUN cd $BUNDLE_DIR/{{.WorkingDir}} && \
  terraform init -backend=false && \
  rm -fr .terraform/providers && \
  terraform providers mirror /usr/local/share/terraform/plugins
@@ -75,7 +77,9 @@ func (m *Mixin) Build(ctx context.Context) error {
 	}
 	// If the WorkingDirs array is specified then clear the configs workingdir value and use that instead for the template
 	if len(input.Config.WorkingDirs) > 0 {
-		input.Config.WorkingDir = ""
+		if m.DebugMode {
+			fmt.Fprintf(m.Err, "DEBUG: List of working dirs was provided, using :\n%v\n", input.Config.WorkingDirs)
+		}
 	}
 
 	tmpl, err := template.New("Dockerfile").Parse(dockerfileLines)
