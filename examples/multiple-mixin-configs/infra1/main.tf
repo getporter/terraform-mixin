@@ -1,4 +1,4 @@
 resource "local_file" "foo" {
-  content  = "foo" 
-  filename = "${path.module}/foo"
+  content  = var.infra1_var
+  filename = "${path.module}/infra1"
 }

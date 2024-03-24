@@ -142,25 +142,18 @@ func (m *Mixin) commandPreRun(ctx context.Context, step *Step) error {
 	if step.LogLevel != "" {
 		os.Setenv("TF_LOG", step.LogLevel)
 	}
-
+	fmt.Fprintf(m.Err, "\n\nSTEP:\n\n%+v\n\n", step)
+	fmt.Fprintf(m.Err, "\n\nCONFIG:\n\n%+v\n\n", m.config)
 	// Determine the working directory for this step.
 	// If the config has WorkingDirs set then validate that the step has WorkingDir set to one of the values
 	// in the configs "WorkingDirs"
-	if m.config.WorkingDirs != nil {
-		// Validate that the step working dir is one of the values in the mixin config
-		validDir := false
+	if step.WorkingDir != "" {
 		stepDir := step.GetWorkingDir()
-		for _, dir := range m.config.WorkingDirs {
-			if dir == stepDir {
-				validDir = true
-				break
-			}
-		}
-		if !validDir {
-			return fmt.Errorf("requested working dir %s not found in configs working dirs", stepDir)
-		}
+		fmt.Fprintf(m.Err, "\n\nCDing STEP WORKINGDIR to %v\n\n", stepDir)
+		// Validate that the step working dir is one of the values in the mixin config
 		m.Chdir(stepDir)
 	} else {
+		fmt.Fprintf(m.Err, "\n\nCDing CONFIG to %v\n\n", m.config.WorkingDir)
 		m.Chdir(m.config.WorkingDir)
 	}
 	if m.DebugMode {
@@ -169,6 +162,7 @@ func (m *Mixin) commandPreRun(ctx context.Context, step *Step) error {
 
 	// Initialize Terraform
 	fmt.Println("Initializing Terraform...")
+	fmt.Println("HELLO")
 	err := m.Init(ctx, step.BackendConfig)
 	if err != nil {
 		return fmt.Errorf("could not init terraform, %s", err)
