@@ -34,6 +34,7 @@ func TestMixin_UnmarshalStep(t *testing.T) {
 	assert.Equal(t, builder.NewFlag("backendConfig", "key=my.tfstate"), step.Flags[0])
 	assert.Equal(t, builder.NewFlag("logLevel", "TRACE"), step.Flags[1])
 	assert.Equal(t, builder.NewFlag("vars", "myvar=foo"), step.Flags[2])
+	assert.Equal(t, "testDir", step.WorkingDir)
 }
 
 func TestApplyVarsToStepFlags(t *testing.T) {
@@ -74,4 +75,30 @@ func TestApplyVarsToStepFlags(t *testing.T) {
 		gotFlags := s.Flags.ToSlice(s.GetDashes())
 		assert.Empty(t, gotFlags)
 	})
+}
+
+func TestStepGetWorkingDir_ReturnsValidDirectory(t *testing.T) {
+	tests := []struct {
+		name       string
+		workingDir string
+		exp        string
+	}{
+		{
+			name:       "Returns . if WorkingDir is empty",
+			workingDir: "",
+			exp:        ".",
+		},
+		{
+			name:       "Returns value set in WorkingDir",
+			workingDir: "testDir",
+			exp:        "testDir",
+		},
+	}
+	for _, test := range tests {
+		t.Run(test.name, func(t *testing.T) {
+			s := Step{}
+			s.WorkingDir = test.workingDir
+			assert.Equal(t, test.exp, s.GetWorkingDir())
+		})
+	}
 }

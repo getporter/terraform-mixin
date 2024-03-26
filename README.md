@@ -37,6 +37,16 @@ mixins:
     workingDir: myinfra
     initFile: providers.tf
 ```
+Or
+```yaml
+mixins:
+- terraform:
+    clientVersion: 1.0.3
+    workingDirs:
+      - infra1
+      - infra2
+    initFile: providers.tf
+```
 
 ### clientVersion
 The Terraform client version can be specified via the `clientVersion` configuration when declaring this mixin.
@@ -44,11 +54,15 @@ The Terraform client version can be specified via the `clientVersion` configurat
 ### workingDir
 The `workingDir` configuration setting is the relative path to your terraform files. Defaults to "terraform".
 
+### workingDirs
+The `workingDirs` configuraiton setting is used when multiple terraform plans are part of a single bundle. When the `workingDirs` setting is specified then the `workingDir` setting is ignored.
+
 ### initFile
 Terraform providers are installed into the bundle during porter build. 
 We recommend that you put your provider declarations into a single file, e.g. "terraform/providers.tf".
 Then use `initFile` to specify the relative path to this file within workingDir.
 This will dramatically improve Docker image layer caching and performance when building, publishing and installing the bundle.
+If `workingDirs` is specified instead of `workingDir` then the `initFile` must be the same in all of the terraform plans for the bundle.
 > Note: this approach isn't suitable when using terraform modules as those need to be "initilized" as well but aren't specified in the `initFile`. You shouldn't specifiy an `initFile` in this situation.
 
 ### User Agent Opt Out
@@ -77,28 +91,7 @@ You can add your own custom strings to the user agent string by editing your [te
 
 ### Let Porter do the heavy lifting
 
-The simplest way to use this mixin with Porter is to let Porter track the Terraform [state](https://www.terraform.io/docs/state/index.html) as actions are executed.  This can be done via a parameter of type `file` that has a source of a corresponding output (of the same `file` type).  Each time the bundle is executed, the output will capture the updated state file and inject it into the next action via its parameter correlate.
-
-Here is an example setup that works with Porter v0.38:
-
-```yaml
-parameters:
-  - name: tfstate
-    type: file
-    # This designates the path within the installer to place the parameter value
-    path: /cnab/app/terraform/terraform.tfstate
-    # Here we tell Porter that the value for this parameter should come from the 'tfstate' output
-    source:
-      output: tfstate
-
-outputs:
-  - name: tfstate
-    type: file
-    # This designates the path within the installer to read the output from
-    path: /cnab/app/terraform/terraform.tfstate
-```
-
-If you are working with the Porter v1 prerelease, use the new state section:
+The simplest way to use this mixin with Porter is to let Porter track the Terraform [state](https://www.terraform.io/docs/state/index.html) as actions are executed.  This can be done via the state section:
 
 ```yaml
 state:
@@ -108,9 +101,29 @@ state:
     path: terraform/terraform.tfvars.json
 ```
 
-The [TabbyCats Tracker bundle](https://github.com/carolynvs/tabbycat-demo) is a good example of how to use the terraform mixin with the Porter v1 prerelease.
+The [TabbyCats Tracker bundle](https://github.com/carolynvs/tabbycat-demo) is a good example of how to use the terraform mixin with Porter v1.
 
 The specified path inside the installer (`/cnab/app/terraform/terraform.tfstate`) should be where Terraform will be looking to read/write its state.  For a full example bundle using this approach, see the [basic-tf-example](examples/basic-tf-example).
+
+Any arbitrary file can be added to the state including any files created by terraform during install or upgrade.
+
+When working with multiple different terraform plans in the same bundle make sure to specify the path to the corresponding plans state:
+
+```yaml
+state:
+  - name: infra1-tfstate
+    path: infra1/terraform.tfstate
+  - name: infra1-tfvars
+    path: infra1/terraform.tfvars.json
+  - name: infra1-file
+    path: infra1/infra1-file
+  - name: infra2-tfstate
+    path: infra2/terraform.tfstate
+  - name: infra2-tfvars
+    path: infra2/terraform.tfvars.json
+  - name: infra2-file
+    path: infra2/infra2-file
+```
 
 ### Remote Backends
 
@@ -303,3 +316,108 @@ install:
 
 See the Porter [Outputs documentation](https://porter.sh/wiring/#outputs) on how to wire up
 outputs for use in a bundle.
+
+
+### Multiple Terraform Plans In A Single Bundle
+
+Multiple terraform plans can be specified for a single bundle. When using the mixin with this configuration then every step **MUST** include a `workingDir` configuration setting so that porter can resolve the corresponding plan for that step at runtime. 
+
+The `workingDir` and `workingDirs` configuration settings are mutally exclusive. If the `workingDirs` configuration setting is provided then anything set for `workingDir` will be ignored at bundle build time.
+
+```yaml
+schemaVersion: 1.0.0
+name: mulitple-mixin-configs
+version: 0.1.0
+registry: ghcr.io/getporter
+
+parameters:
+  - name: infra1_var
+    type: string
+    default: 'infra1'
+    applyTo:
+      - 'install'
+      - 'upgrade'
+      - 'uninstall'
+  - name: infra2_var
+    type: string
+    default: 'infra2'
+    applyTo:
+      - 'install'
+      - 'upgrade'
+      - 'uninstall'
+mixins:
+  - terraform:
+      workingDirs:
+        - infra1
+        - infra2
+
+install:
+  - terraform:
+      description: 'infra 1'
+      workingDir: 'infra1'
+      vars:
+        infra1_var: ${bundle.parameters.infra1_var}
+      outputs:
+        - name: infra1_output
+  - terraform:
+      description: 'infra 2'
+      workingDir: 'infra2'
+      vars:
+        infra2_var: ${bundle.parameters.infra2_var}
+      outputs:
+        - name: infra2_output
+
+upgrade:
+  - terraform:
+      description: 'Upgrade infra 1 assets'
+      workingDir: 'infra1'
+      vars:
+        infra1_var: ${bundle.parameters.infra1_var}
+      outputs:
+        - name: infra1_output
+  - terraform:
+      description: 'infra 2'
+      workingDir: 'infra2'
+      vars:
+        infra2_var: ${bundle.parameters.infra2_var}
+      outputs:
+        - name: infra2_output
+
+uninstall:
+  - terraform:
+      description: 'Uninstall infra 1 assets'
+      workingDir: 'infra1'
+      vars:
+        infra1_var: ${bundle.parameters.infra1_var}
+  - terraform:
+      description: 'infra 2'
+      workingDir: 'infra2'
+      vars:
+        infra2_var: ${bundle.parameters.infra2_var}
+outputs:
+  - name: infra1_output
+    type: string
+    applyTo:
+      - 'install'
+      - 'upgrade'
+  - name: infra2_output
+    type: string
+    applyTo:
+      - 'install'
+      - 'upgrade'
+
+state:
+  - name: infra1-tfstate
+    path: infra1/terraform.tfstate
+  - name: infra1-tfvars
+    path: infra1/terraform.tfvars.json
+  - name: infra1-file
+    path: infra1/infra1-file
+  - name: infra2-tfstate
+    path: infra2/terraform.tfstate
+  - name: infra2-tfvars
+    path: infra2/terraform.tfvars.json
+  - name: infra2-file
+    path: infra2/infra2-file
+
+```

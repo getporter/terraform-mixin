@@ -142,9 +142,14 @@ func (m *Mixin) commandPreRun(ctx context.Context, step *Step) error {
 	if step.LogLevel != "" {
 		os.Setenv("TF_LOG", step.LogLevel)
 	}
-
-	// First, change to specified working dir
-	m.Chdir(m.config.WorkingDir)
+	// Determine the working directory for this step.
+	// TODO: (gettys) this should validate against the mixin config configuration settings
+	if step.WorkingDir != "" {
+		stepDir := step.GetWorkingDir()
+		m.Chdir(stepDir)
+	} else {
+		m.Chdir(m.config.WorkingDir)
+	}
 	if m.DebugMode {
 		fmt.Fprintln(m.Err, "Terraform working directory is", m.Getwd())
 	}

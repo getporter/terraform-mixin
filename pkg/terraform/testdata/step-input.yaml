@@ -1,6 +1,7 @@
 custom:
 - terraform:
     description: "Custom Action"
+    workingDir: "testDir"
     arguments:
       - "custom"
     flags:
