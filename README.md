@@ -318,8 +318,106 @@ See the Porter [Outputs documentation](https://porter.sh/wiring/#outputs) on how
 outputs for use in a bundle.
 
 
-## Multiple Terraform Plans In A Single Bundle
+### Multiple Terraform Plans In A Single Bundle
 
 Multiple terraform plans can be specified for a single bundle. When using the mixin with this configuration then every step **MUST** include a `workingDir` configuration setting so that porter can resolve the corresponding plan for that step at runtime. 
 
 The `workingDir` and `workingDirs` configuration settings are mutally exclusive. If the `workingDirs` configuration setting is provided then anything set for `workingDir` will be ignored at bundle build time.
+
+```yaml
+schemaVersion: 1.0.0
+name: mulitple-mixin-configs
+version: 0.1.0
+registry: ghcr.io/getporter
+
+parameters:
+  - name: infra1_var
+    type: string
+    default: 'infra1'
+    applyTo:
+      - 'install'
+      - 'upgrade'
+      - 'uninstall'
+  - name: infra2_var
+    type: string
+    default: 'infra2'
+    applyTo:
+      - 'install'
+      - 'upgrade'
+      - 'uninstall'
+mixins:
+  - terraform:
+      workingDirs:
+        - infra1
+        - infra2
+
+install:
+  - terraform:
+      description: 'infra 1'
+      workingDir: 'infra1'
+      vars:
+        infra1_var: ${bundle.parameters.infra1_var}
+      outputs:
+        - name: infra1_output
+  - terraform:
+      description: 'infra 2'
+      workingDir: 'infra2'
+      vars:
+        infra2_var: ${bundle.parameters.infra2_var}
+      outputs:
+        - name: infra2_output
+
+upgrade:
+  - terraform:
+      description: 'Upgrade infra 1 assets'
+      workingDir: 'infra1'
+      vars:
+        infra1_var: ${bundle.parameters.infra1_var}
+      outputs:
+        - name: infra1_output
+  - terraform:
+      description: 'infra 2'
+      workingDir: 'infra2'
+      vars:
+        infra2_var: ${bundle.parameters.infra2_var}
+      outputs:
+        - name: infra2_output
+
+uninstall:
+  - terraform:
+      description: 'Uninstall infra 1 assets'
+      workingDir: 'infra1'
+      vars:
+        infra1_var: ${bundle.parameters.infra1_var}
+  - terraform:
+      description: 'infra 2'
+      workingDir: 'infra2'
+      vars:
+        infra2_var: ${bundle.parameters.infra2_var}
+outputs:
+  - name: infra1_output
+    type: string
+    applyTo:
+      - 'install'
+      - 'upgrade'
+  - name: infra2_output
+    type: string
+    applyTo:
+      - 'install'
+      - 'upgrade'
+
+state:
+  - name: infra1-tfstate
+    path: infra1/terraform.tfstate
+  - name: infra1-tfvars
+    path: infra1/terraform.tfvars.json
+  - name: infra1-file
+    path: infra1/infra1-file
+  - name: infra2-tfstate
+    path: infra2/terraform.tfstate
+  - name: infra2-tfvars
+    path: infra2/terraform.tfvars.json
+  - name: infra2-file
+    path: infra2/infra2-file
+
+```
