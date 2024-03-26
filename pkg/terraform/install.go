@@ -13,8 +13,6 @@ const defaultTerraformVarsFilename = "terraform.tfvars.json"
 
 // Install runs a terraform apply
 func (m *Mixin) Install(ctx context.Context) error {
-	fmt.Fprintf(m.Err, "\n\nIN INSTALL\n\n")
-	fmt.Printf("\n\nIN INSTALL\n\n")
 	action, err := m.loadAction(ctx)
 	if err != nil {
 		return err

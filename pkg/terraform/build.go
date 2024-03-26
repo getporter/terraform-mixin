@@ -26,13 +26,13 @@ RUN cd $BUNDLE_DIR/{{.}} && \
  terraform init -backend=false && \
  rm -fr .terraform/providers && \
  terraform providers mirror /usr/local/share/terraform/plugins
+{{end}}
 {{else}}
 COPY {{.WorkingDir}}/{{.InitFile}} $BUNDLE_DIR/{{.WorkingDir}}/
 RUN cd $BUNDLE_DIR/{{.WorkingDir}} && \
  terraform init -backend=false && \
  rm -fr .terraform/providers && \
  terraform providers mirror /usr/local/share/terraform/plugins
-{{end}}
 {{end}}
 `
 
@@ -81,7 +81,6 @@ func (m *Mixin) Build(ctx context.Context) error {
 			fmt.Fprintf(m.Err, "DEBUG: List of working dirs was provided, using :\n%v\n", input.Config.WorkingDirs)
 		}
 	}
-
 	tmpl, err := template.New("Dockerfile").Parse(dockerfileLines)
 	if err != nil {
 		return errors.Wrapf(err, "error parsing terraform mixin Dockerfile template")

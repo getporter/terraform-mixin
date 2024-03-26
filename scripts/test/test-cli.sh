@@ -26,6 +26,7 @@ function verify-output() {
 }
 
 
+##### Basic Example Test #####
 # Copy terraform assets
 cp -r ${REPO_DIR}/examples/basic-tf-example/terraform .
 
@@ -73,3 +74,29 @@ verify-output "json_encoded_html_string_var" '?new#conn&string$characters~!'
 verify-output "complex_object_var" '{"nested_object":{"internal_value":"https://new.connection.com?test&test=$hello"},"top_value":"https://my.updated.service?test=$id<>"}'
 
 ${PORTER_HOME}/porter uninstall --debug
+
+rm -rf *
+
+##### Multiple Working Dirs Test #####
+# Copy terraform assets
+cp -r ${REPO_DIR}/examples/multiple-mixin-configs/ .
+
+${PORTER_HOME}/porter build
+${PORTER_HOME}/porter install --verbosity=debug \
+  --param infra1_var="foo" \
+  --param infra2_var="bar"
+
+verify-output "infra1_output" "foo"
+verify-output "infra2_output" "bar"
+
+${PORTER_HOME}/porter upgrade --verbosity=debug \
+  --param infra1_var="upgradeFoo" \
+  --param infra2_var="upgradeBar"
+
+verify-output "infra1_output" "upgradeFoo"
+verify-output "infra2_output" "upgradeBar"
+
+${PORTER_HOME}/porter uninstall --verbosity=debug
+
+
+

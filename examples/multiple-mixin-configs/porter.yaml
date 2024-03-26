@@ -78,3 +78,17 @@ outputs:
     applyTo:
       - 'install'
       - 'upgrade'
+
+state:
+  - name: infra1-tfstate
+    path: infra1/terraform.tfstate
+  - name: infra1-tfvars
+    path: infra1/terraform.tfvars.json
+  - name: infra1-file
+    path: infra1/infra1-file
+  - name: infra2-tfstate
+    path: infra2/terraform.tfstate
+  - name: infra2-tfvars
+    path: infra2/terraform.tfvars.json
+  - name: infra2-file
+    path: infra2/infra2-file
