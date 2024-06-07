@@ -3,6 +3,7 @@
 package main
 
 import (
+	"get.porter.sh/magefiles/git"
 	"get.porter.sh/magefiles/mixins"
 	"get.porter.sh/magefiles/porter"
 	"github.com/carolynvs/magex/shx"
@@ -74,4 +75,10 @@ func EnsureLocalPorter() {
 func TestIntegration() {
 	EnsureLocalPorter()
 	must.Command("./scripts/test/test-cli.sh").RunV()
+}
+
+// SetupDCO configures your git repository to automatically sign your commits
+// to comply with our DCO
+func SetupDCO() error {
+	return git.SetupDCO()
 }
