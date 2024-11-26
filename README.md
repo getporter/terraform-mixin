@@ -2,7 +2,7 @@
 
 This is a Terraform mixin for [Porter](https://porter.sh).
 
-[![Build Status](https://dev.azure.com/getporter/porter/_apis/build/status/terraform-mixin?branchName=main)](https://dev.azure.com/getporter/porter/_build/latest?definitionId=10&branchName=main)
+[![porter/terraform-mixin](https://github.com/getporter/terraform-mixin/actions/workflows/terraform-mixin.yml/badge.svg?branch=main)](https://github.com/getporter/terraform-mixin/actions/workflows/terraform-mixin.yml)
 
 <img src="https://porter.sh/images/mixins/terraform.svg" align="right" width="150px"/>
 
