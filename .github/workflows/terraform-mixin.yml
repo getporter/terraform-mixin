@@ -1,0 +1,32 @@
+name: porter/terraform-mixin
+on:
+  push:
+    branches:
+    - main
+    - v*
+  pull_request:
+    branches:
+    - main
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+    - name: checkout
+      uses: actions/checkout@v4
+      with:
+        fetch-depth: 0
+    - uses: actions/setup-go@v5
+      with:
+        go-version-file: go.mod
+        cache: true
+    - name: Configure Agent
+      run: go run mage.go ConfigureAgent
+    - name: Test
+      run: mage Test
+    - name: Cross Compile
+      run: mage XBuildAll
+    - name: Publish
+      if: success() && github.event_name != 'PullRequest'
+      env:
+        GITHUB_TOKEN: "${{ secrets.PUBLISH_TOKEN }}"
+      run: mage Publish
