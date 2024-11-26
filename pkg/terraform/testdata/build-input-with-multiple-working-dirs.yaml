@@ -1,0 +1,9 @@
+config:
+  clientVersion: 1.5.0
+  userAgentOptOut: true
+  workingDirs:
+    - 'testDir1'
+    - 'testDir2'
+  install:
+    - terraform:
+        description: 'noop'
