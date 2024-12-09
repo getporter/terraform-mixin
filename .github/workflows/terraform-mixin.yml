@@ -4,6 +4,10 @@ on:
     branches:
     - main
     - v*
+    tags:
+    - v*
+    - "!canary*"
+    - "!latest*"
   pull_request:
     branches:
     - main
