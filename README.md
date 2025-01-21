@@ -17,6 +17,7 @@ porter mixin install terraform
 ## Build from source
 
 Following commands build the terraform mixin.
+
 ```bash
 git clone https://github.com/getporter/terraform-mixin.git
 cd terraform-mixin
@@ -36,20 +37,37 @@ mixins:
     clientVersion: 1.0.3
     workingDir: myinfra
     initFile: providers.tf
+    installHost: install.example.com
+    providerHost: providers.example.com
 ```
 
 ### clientVersion
+
 The Terraform client version can be specified via the `clientVersion` configuration when declaring this mixin.
 
 ### workingDir
+
 The `workingDir` configuration setting is the relative path to your terraform files. Defaults to "terraform".
 
 ### initFile
-Terraform providers are installed into the bundle during porter build. 
+
+Terraform providers are installed into the bundle during porter build.
 We recommend that you put your provider declarations into a single file, e.g. "terraform/providers.tf".
 Then use `initFile` to specify the relative path to this file within workingDir.
 This will dramatically improve Docker image layer caching and performance when building, publishing and installing the bundle.
 > Note: this approach isn't suitable when using terraform modules as those need to be "initilized" as well but aren't specified in the `initFile`. You shouldn't specifiy an `initFile` in this situation.
+
+### installHost
+
+Optional host that mirrors the official terraform installation at
+`https://releases.hashicorp.com/*` in order to install in an air-gapped
+environment.
+
+### providerHost
+
+Optional host to use as a network mirror when installing terraform providers.
+This needs to conform to the [Terraform registry
+protocol](https://www.terraform.io/docs/internals/provider-registry-protocol.html).
 
 ### User Agent Opt Out
 
@@ -116,10 +134,9 @@ The specified path inside the installer (`/cnab/app/terraform/terraform.tfstate`
 
 Alternatively, state can be managed by a remote backend.  When doing so, each action step needs to supply the remote backend config via `backendConfig`.  In the step examples below, the configuration has key/value pairs according to the [Azurerm](https://www.terraform.io/docs/backends/types/azurerm.html) backend.
 
-
 ## Terraform variables file
 
-By default the mixin will create a default 
+By default the mixin will create a default
 [`terraform.tfvars.json`](https://www.terraform.io/docs/language/values/variables.html#variable-definitions-tfvars-files)
 file from the `vars` block during during the install step.
 

@@ -18,8 +18,22 @@ func TestMixin_Build(t *testing.T) {
 		expectedVersion   string
 		expectedUserAgent string
 	}{
-		{name: "build with custom config", inputFile: "testdata/build-input-with-config.yaml", expectedVersion: "https://releases.hashicorp.com/terraform/0.13.0-rc1/terraform_0.13.0-rc1_linux_amd64.zip", expectedUserAgent: "ENV PORTER_TERRAFORM_MIXIN_USER_AGENT_OPT_OUT=\"true\"\nENV AZURE_HTTP_USER_AGENT=\"\""},
-		{name: "build with the default Terraform config", expectedVersion: "https://releases.hashicorp.com/terraform/1.2.9/terraform_1.2.9_linux_amd64.zip", expectedUserAgent: "ENV PORTER_TERRAFORM_MIXIN_USER_AGENT_OPT_OUT=\"false\"\nENV AZURE_HTTP_USER_AGENT=\"getporter/porter getporter/terraform/v1.2.3"},
+		{
+			name:              "build with custom config",
+			inputFile:         "testdata/build-input-with-config.yaml",
+			expectedVersion:   "https://releases.hashicorp.com/terraform/0.13.0-rc1/terraform_0.13.0-rc1_linux_amd64.zip",
+			expectedUserAgent: "ENV PORTER_TERRAFORM_MIXIN_USER_AGENT_OPT_OUT=\"true\"\nENV AZURE_HTTP_USER_AGENT=\"\"",
+		},
+		{
+			name:              "build with the default Terraform config",
+			expectedVersion:   "https://releases.hashicorp.com/terraform/1.2.9/terraform_1.2.9_linux_amd64.zip",
+			expectedUserAgent: "ENV PORTER_TERRAFORM_MIXIN_USER_AGENT_OPT_OUT=\"false\"\nENV AZURE_HTTP_USER_AGENT=\"getporter/porter getporter/terraform/v1.2.3",
+		},
+		{
+			name:            "build in airgrapped environment",
+			inputFile:       "testdata/build-input-in-airgapped-env.yaml",
+			expectedVersion: "https://install.example.com/terraform/1.2.3/terraform_1.2.3_linux_amd64.zip",
+		},
 	}
 
 	for _, tc := range testcases {

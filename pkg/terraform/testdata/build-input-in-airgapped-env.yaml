@@ -1,0 +1,4 @@
+config:
+  clientVersion: 1.2.3
+  installHost: https://install.example.com
+  providerHost: https://providers.example.com/
