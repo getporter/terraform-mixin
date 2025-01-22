@@ -13,10 +13,11 @@ import (
 
 func TestMixin_Build(t *testing.T) {
 	testcases := []struct {
-		name              string
-		inputFile         string
-		expectedVersion   string
-		expectedUserAgent string
+		name                 string
+		inputFile            string
+		expectedVersion      string
+		expectedUserAgent    string
+		expectedProviderHost string
 	}{
 		{
 			name:              "build with custom config",
@@ -30,9 +31,10 @@ func TestMixin_Build(t *testing.T) {
 			expectedUserAgent: "ENV PORTER_TERRAFORM_MIXIN_USER_AGENT_OPT_OUT=\"false\"\nENV AZURE_HTTP_USER_AGENT=\"getporter/porter getporter/terraform/v1.2.3",
 		},
 		{
-			name:            "build in airgrapped environment",
-			inputFile:       "testdata/build-input-in-airgapped-env.yaml",
-			expectedVersion: "https://install.example.com/terraform/1.2.3/terraform_1.2.3_linux_amd64.zip",
+			name:                 "build in airgrapped environment",
+			inputFile:            "testdata/build-input-in-airgapped-env.yaml",
+			expectedVersion:      "https://install.example.com/terraform/1.2.3/terraform_1.2.3_linux_amd64.zip",
+			expectedProviderHost: "https://providers.example.com",
 		},
 	}
 
@@ -57,6 +59,13 @@ func TestMixin_Build(t *testing.T) {
 			gotOutput := m.TestContext.GetOutput()
 			assert.Contains(t, gotOutput, tc.expectedVersion)
 			assert.Contains(t, gotOutput, tc.expectedUserAgent)
+
+			if tc.expectedProviderHost != "" {
+				assert.Contains(t, gotOutput, tc.expectedProviderHost)
+			} else {
+				assert.NotContains(t, gotOutput, "network_mirror")
+			}
+
 			assert.NotContains(t, "{{.", gotOutput, "Not all of the template values were consumed")
 		})
 	}
