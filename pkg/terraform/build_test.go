@@ -13,13 +13,29 @@ import (
 
 func TestMixin_Build(t *testing.T) {
 	testcases := []struct {
-		name              string
-		inputFile         string
-		expectedVersion   string
-		expectedUserAgent string
+		name                 string
+		inputFile            string
+		expectedVersion      string
+		expectedUserAgent    string
+		expectedProviderHost string
 	}{
-		{name: "build with custom config", inputFile: "testdata/build-input-with-config.yaml", expectedVersion: "https://releases.hashicorp.com/terraform/0.13.0-rc1/terraform_0.13.0-rc1_linux_amd64.zip", expectedUserAgent: "ENV PORTER_TERRAFORM_MIXIN_USER_AGENT_OPT_OUT=\"true\"\nENV AZURE_HTTP_USER_AGENT=\"\""},
-		{name: "build with the default Terraform config", expectedVersion: "https://releases.hashicorp.com/terraform/1.2.9/terraform_1.2.9_linux_amd64.zip", expectedUserAgent: "ENV PORTER_TERRAFORM_MIXIN_USER_AGENT_OPT_OUT=\"false\"\nENV AZURE_HTTP_USER_AGENT=\"getporter/porter getporter/terraform/v1.2.3"},
+		{
+			name:              "build with custom config",
+			inputFile:         "testdata/build-input-with-config.yaml",
+			expectedVersion:   "https://releases.hashicorp.com/terraform/0.13.0-rc1/terraform_0.13.0-rc1_linux_amd64.zip",
+			expectedUserAgent: "ENV PORTER_TERRAFORM_MIXIN_USER_AGENT_OPT_OUT=\"true\"\nENV AZURE_HTTP_USER_AGENT=\"\"",
+		},
+		{
+			name:              "build with the default Terraform config",
+			expectedVersion:   "https://releases.hashicorp.com/terraform/1.2.9/terraform_1.2.9_linux_amd64.zip",
+			expectedUserAgent: "ENV PORTER_TERRAFORM_MIXIN_USER_AGENT_OPT_OUT=\"false\"\nENV AZURE_HTTP_USER_AGENT=\"getporter/porter getporter/terraform/v1.2.3",
+		},
+		{
+			name:                 "build in airgrapped environment",
+			inputFile:            "testdata/build-input-in-airgapped-env.yaml",
+			expectedVersion:      "https://install.example.com/terraform/1.2.3/terraform_1.2.3_linux_amd64.zip",
+			expectedProviderHost: "https://providers.example.com",
+		},
 	}
 
 	for _, tc := range testcases {
@@ -43,6 +59,13 @@ func TestMixin_Build(t *testing.T) {
 			gotOutput := m.TestContext.GetOutput()
 			assert.Contains(t, gotOutput, tc.expectedVersion)
 			assert.Contains(t, gotOutput, tc.expectedUserAgent)
+
+			if tc.expectedProviderHost != "" {
+				assert.Contains(t, gotOutput, tc.expectedProviderHost)
+			} else {
+				assert.NotContains(t, gotOutput, "network_mirror")
+			}
+
 			assert.NotContains(t, "{{.", gotOutput, "Not all of the template values were consumed")
 		})
 	}

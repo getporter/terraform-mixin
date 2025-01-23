@@ -14,14 +14,27 @@ ENV PORTER_TERRAFORM_MIXIN_USER_AGENT_OPT_OUT="{{ .UserAgentOptOut}}"
 ENV AZURE_HTTP_USER_AGENT="{{ .AzureUserAgent }}"
 RUN --mount=type=cache,target=/var/cache/apt --mount=type=cache,target=/var/lib/apt \
  apt-get update && apt-get install -y wget unzip && \
- wget https://releases.hashicorp.com/terraform/{{.ClientVersion}}/terraform_{{.ClientVersion}}_linux_amd64.zip --progress=dot:giga && \
+  wget {{or .InstallHost "https://releases.hashicorp.com"}}/terraform/{{.ClientVersion}}/terraform_{{.ClientVersion}}_linux_amd64.zip --progress=dot:giga && \
  unzip terraform_{{.ClientVersion}}_linux_amd64.zip -d /usr/bin && \
  rm terraform_{{.ClientVersion}}_linux_amd64.zip
 COPY {{.WorkingDir}}/{{.InitFile}} $BUNDLE_DIR/{{.WorkingDir}}/
 RUN cd $BUNDLE_DIR/{{.WorkingDir}} && \
- terraform init -backend=false && \
- rm -fr .terraform/providers && \
- terraform providers mirror /usr/local/share/terraform/plugins
+{{if .ProviderHost }}
+ tee <<EOF > provider_mirror.tfrc && terraform init -backend=false && mkdir -p /usr/local/share/terraform/plugins/ && cp --recursive .terraform/providers /usr/local/share/terraform/plugins/
+  provider_installation {
+      direct {
+          exclude = ["registry.terraform.io/*/*"]
+      }
+      network_mirror {
+          url = "{{ .ProviderHost }}"
+      }
+  }
+EOF
+{{ else }}
+  terraform init -backend=false && \
+  rm -fr .terraform/providers && \
+  terraform providers mirror /usr/local/share/terraform/plugins
+{{ end }}
 `
 
 // BuildInput represents stdin passed to the mixin for the build command.
@@ -42,6 +55,14 @@ type MixinConfig struct {
 
 	InitFile   string `yaml:"initFile,omitempty"`
 	WorkingDir string `yaml:"workingDir,omitempty"`
+
+	// Host from which to install `terraform`.
+	InstallHost string `yaml:"installHost,omitempty"`
+
+	// Host from which to download providers, i.e. a provider registry. See
+	// terraform provider registry documentation:
+	// https://developer.hashicorp.com/terraform/internals/provider-registry-protocol
+	ProviderHost string `yaml:"providerHost,omitempty"`
 }
 
 type buildConfig struct {
