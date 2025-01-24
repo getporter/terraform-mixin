@@ -18,9 +18,10 @@ RUN --mount=type=cache,target=/var/cache/apt --mount=type=cache,target=/var/lib/
  unzip terraform_{{.ClientVersion}}_linux_amd64.zip -d /usr/bin && \
  rm terraform_{{.ClientVersion}}_linux_amd64.zip
 COPY {{.WorkingDir}}/{{.InitFile}} $BUNDLE_DIR/{{.WorkingDir}}/
-RUN cd $BUNDLE_DIR/{{.WorkingDir}} && \
+RUN cd $BUNDLE_DIR/{{.WorkingDir}} && mkdir -p /usr/local/share/terraform/plugins/
 {{if .ProviderHost }}
- tee <<EOF > provider_mirror.tfrc && terraform init -backend=false && mkdir -p /usr/local/share/terraform/plugins/ && cp --recursive .terraform/providers /usr/local/share/terraform/plugins/
+ENV TF_CLI_CONFIG_FILE=$BUNDLE_DIR/{{.WorkingDir}}/provider_mirror.tfrc
+RUN tee <<EOF > provider_mirror.tfrc && terraform init -backend=false && cp --recursive .terraform/providers /usr/local/share/terraform/plugins/
   provider_installation {
       direct {
           exclude = ["registry.terraform.io/*/*"]
@@ -31,7 +32,7 @@ RUN cd $BUNDLE_DIR/{{.WorkingDir}} && \
   }
 EOF
 {{ else }}
-  terraform init -backend=false && \
+RUN terraform init -backend=false && \
   rm -fr .terraform/providers && \
   terraform providers mirror /usr/local/share/terraform/plugins
 {{ end }}
