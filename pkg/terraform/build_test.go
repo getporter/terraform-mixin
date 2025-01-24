@@ -62,8 +62,10 @@ func TestMixin_Build(t *testing.T) {
 
 			if tc.expectedProviderHost != "" {
 				assert.Contains(t, gotOutput, tc.expectedProviderHost)
+				assert.Contains(t, gotOutput, "ENV TF_CLI_CONFIG_FILE=")
 			} else {
 				assert.NotContains(t, gotOutput, "network_mirror")
+				assert.NotContains(t, gotOutput, "TF_CLI_CONFIG_FILE")
 			}
 
 			assert.NotContains(t, "{{.", gotOutput, "Not all of the template values were consumed")
