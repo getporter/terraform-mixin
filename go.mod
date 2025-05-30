@@ -1,7 +1,6 @@
 module get.porter.sh/mixin/terraform
 
-go 1.23
-toolchain go1.24.1
+go 1.23.9
 
 replace (
 	// These are replace directives copied from porter
