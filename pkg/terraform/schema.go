@@ -9,5 +9,5 @@ import (
 var schema string
 
 func (m *Mixin) PrintSchema() {
-	fmt.Fprintf(m.Out, schema)
+	fmt.Fprint(m.Out, schema)
 }
