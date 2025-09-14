@@ -11,8 +11,8 @@ cloud.google.com/go/firestore v1.1.0/go.mod h1:ulACoGHTpvq5r8rxGJ4ddJZBZqakUQqCl
 cloud.google.com/go/pubsub v1.0.1/go.mod h1:R0Gpsv3s54REJCy4fxDixWD93lHJMoZTyQ2kNxGRt3I=
 cloud.google.com/go/storage v1.0.0/go.mod h1:IhtSnM/ZTZV8YYJWCY8RULGVqBDmpoyjwiyrjsg+URw=
 dmitri.shuralyov.com/gpu/mtl v0.0.0-20190408044501-666a987793e9/go.mod h1:H6x//7gZCb22OMCxBHrMx7a5I7Hp++hsVxbQ4BYO7hU=
-get.porter.sh/magefiles v0.6.11 h1:SrRjMVZgbr0l4Usxb0PSQrqgJTU6U8+kbwelbAvw8UQ=
-get.porter.sh/magefiles v0.6.11/go.mod h1:cOhVvwcNpBEkQdq7HNHaPXDf1WjudM0/Tist+xINtw0=
+get.porter.sh/magefiles v0.6.12 h1:Q1ZyBMnua8YrVVOEZcdZdk3rlAnGLXt5kgYLZb9n+B8=
+get.porter.sh/magefiles v0.6.12/go.mod h1:9+190dSt6poJg0oOrwLOV02djrAA64c8SWNxcy4HhnE=
 get.porter.sh/porter v1.3.0 h1:y1eC3FZPQhwjzDqzwW2O0Ffv46e8wnRVls4Hy1tSrpk=
 get.porter.sh/porter v1.3.0/go.mod h1:+UvJDeowLEKw8jJGDJHjmFn7w5xYHW9VbPfpH6mX5mY=
 github.com/BurntSushi/toml v0.3.1/go.mod h1:xHWCNGjB5oqiDr8zfno3MHue2Ht5sIBksp03qcyfWMU=
