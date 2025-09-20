@@ -17,7 +17,7 @@ replace (
 )
 
 require (
-	get.porter.sh/magefiles v0.6.11
+	get.porter.sh/magefiles v0.6.12
 	get.porter.sh/porter v1.3.0
 	github.com/PaesslerAG/jsonpath v0.1.1
 	github.com/ghodss/yaml v1.0.0
