@@ -13,15 +13,14 @@ const dockerfileLines = `
 ENV PORTER_TERRAFORM_MIXIN_USER_AGENT_OPT_OUT="{{ .UserAgentOptOut}}"
 ENV AZURE_HTTP_USER_AGENT="{{ .AzureUserAgent }}"
 RUN --mount=type=cache,target=/var/cache/apt --mount=type=cache,target=/var/lib/apt \
- apt-get update && apt-get install -y wget unzip && \
-  wget {{or .InstallHost "https://releases.hashicorp.com"}}/terraform/{{.ClientVersion}}/terraform_{{.ClientVersion}}_linux_amd64.zip --progress=dot:giga && \
+ apt-get update && apt-get install -y wget unzip && \ 
+ wget {{or .InstallHost "https://releases.hashicorp.com"}}/terraform/{{.ClientVersion}}/terraform_{{.ClientVersion}}_linux_amd64.zip --progress=dot:giga && \
  unzip terraform_{{.ClientVersion}}_linux_amd64.zip -d /usr/bin && \
  rm terraform_{{.ClientVersion}}_linux_amd64.zip
 COPY {{.WorkingDir}}/{{.InitFile}} $BUNDLE_DIR/{{.WorkingDir}}/
-RUN cd $BUNDLE_DIR/{{.WorkingDir}} && mkdir -p /usr/local/share/terraform/plugins/
 {{if .ProviderHost }}
 ENV TF_CLI_CONFIG_FILE=$BUNDLE_DIR/{{.WorkingDir}}/provider_mirror.tfrc
-RUN tee <<EOF > provider_mirror.tfrc && terraform init -backend=false && cp --recursive .terraform/providers /usr/local/share/terraform/plugins/
+RUN tee <<EOF > $TF_CLI_CONFIG_FILE
   provider_installation {
       direct {
           exclude = ["registry.terraform.io/*/*"]
@@ -31,11 +30,11 @@ RUN tee <<EOF > provider_mirror.tfrc && terraform init -backend=false && cp --re
       }
   }
 EOF
-{{ else }}
-RUN terraform init -backend=false && \
+{{ end }}
+RUN cd $BUNDLE_DIR/{{.WorkingDir}} && \
+  terraform init -backend=false && \
   rm -fr .terraform/providers && \
   terraform providers mirror /usr/local/share/terraform/plugins
-{{ end }}
 `
 
 // BuildInput represents stdin passed to the mixin for the build command.
