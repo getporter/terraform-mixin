@@ -33,8 +33,8 @@ EOF
 {{ end }}
 RUN cd $BUNDLE_DIR/{{.WorkingDir}} && \
   terraform init -backend=false && \
-  rm -fr .terraform/providers && \
-  terraform providers mirror /usr/local/share/terraform/plugins
+  cp -r .terraform/providers/* /usr/local/share/terraform/plugins/ && \
+  rm -fr .terraform/providers
 `
 
 // BuildInput represents stdin passed to the mixin for the build command.
