@@ -33,6 +33,7 @@ EOF
 {{ end }}
 RUN cd $BUNDLE_DIR/{{.WorkingDir}} && \
   terraform init -backend=false && \
+  mkdir -p /usr/local/share/terraform/plugins/ && \
   cp -r .terraform/providers/* /usr/local/share/terraform/plugins/ && \
   rm -fr .terraform/providers
 `
