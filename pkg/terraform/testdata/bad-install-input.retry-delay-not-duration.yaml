@@ -1,0 +1,6 @@
+install:
+- terraform:
+    description: "Install MySQL"
+    retry:
+      attempts: 2
+      delay: 30

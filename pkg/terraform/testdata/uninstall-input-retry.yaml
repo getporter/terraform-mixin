@@ -1,0 +1,8 @@
+uninstall:
+- terraform:
+    description: "Uninstall MySQL"
+    backendConfig:
+      key: "my.tfstate"
+    retry:
+      attempts: 2
+      delay: 1h30m

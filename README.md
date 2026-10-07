@@ -222,6 +222,30 @@ uninstall: # Var block required
         baz: biz
 ```
 
+## Retrying a failed command
+
+A step can rerun its terraform command when it fails, for example when a resource
+depends on a credential or role assignment that the cloud provider honours a little
+after it is written. Set `retry` on the step:
+
+```yaml
+install:
+  - terraform:
+      description: "Install Azure Key Vault"
+      retry:
+        attempts: 3
+        delay: 30s
+```
+
+* `attempts` is required: how many times the command runs before the step fails.
+* `delay` is how long to wait between attempts, as a duration such as `30s` or `2m`. Defaults to no wait.
+
+A `retry` block without `attempts`, or with a `delay` that is not a duration, fails the step before terraform runs.
+
+Only the step's command (`apply`, `destroy` or the custom action) is rerun; `terraform init`
+and reading outputs are not. Terraform keeps the state of the resources that succeeded, so a
+rerun creates or replaces only what failed and continues from there.
+
 ## Examples
 
 ### Install

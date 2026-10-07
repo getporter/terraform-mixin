@@ -94,6 +94,9 @@
         "outputs": {
           "$ref": "#/definitions/outputs"
         },
+        "retry": {
+          "$ref": "#/definitions/retry"
+        },
         "vars": {
           "type": "object"
         },
@@ -141,6 +144,9 @@
             "outputs": {
               "$ref": "#/definitions/outputs"
             },
+            "retry": {
+              "$ref": "#/definitions/retry"
+            },
             "vars": {
               "type": "object"
             }
@@ -174,6 +180,9 @@
             "outputs": {
               "$ref": "#/definitions/outputs"
             },
+            "retry": {
+              "$ref": "#/definitions/retry"
+            },
             "vars": {
               "type": "object"
             }
@@ -192,6 +201,26 @@
     "stepDescription": {
       "type": "string",
       "minLength": 1
+    },
+    "retry": {
+      "description": "Rerun the terraform command when it fails",
+      "type": "object",
+      "properties": {
+        "attempts": {
+          "description": "How many times the command runs before the step fails",
+          "type": "integer",
+          "minimum": 1
+        },
+        "delay": {
+          "description": "How long to wait between attempts, as a duration such as 30s",
+          "type": "string",
+          "pattern": "^(([0-9]+(\\.[0-9]*)?|\\.[0-9]+)(ns|us|µs|μs|ms|s|m|h))+$"
+        }
+      },
+      "additionalProperties": false,
+      "required": [
+        "attempts"
+      ]
     },
     "outputs": {
       "type": "array",

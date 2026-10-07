@@ -4,6 +4,7 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"time"
 
 	"get.porter.sh/porter/pkg/exec/builder"
 	"github.com/tidwall/gjson"
@@ -134,7 +135,46 @@ type Instruction struct {
 	Arguments       []string      `yaml:"arguments,omitempty"`
 	Flags           builder.Flags `yaml:"flags,omitempty"`
 	Outputs         []Output      `yaml:"outputs,omitempty"`
+	Retry           *Retry        `yaml:"retry,omitempty"`
 	TerraformFields `yaml:",inline"`
+}
+
+// Retry controls how a failed terraform command is rerun.
+type Retry struct {
+	// Attempts is how many times the command runs before the step fails.
+	Attempts int `yaml:"attempts"`
+	// Delay is how long to wait between attempts, as a duration such as 30s.
+	Delay time.Duration `yaml:"delay,omitempty"`
+}
+
+// UnmarshalYAML rejects a retry block that would never retry or wait a negative time, naming the field at fault.
+func (r *Retry) UnmarshalYAML(unmarshal func(interface{}) error) error {
+	var raw struct {
+		Attempts *int   `yaml:"attempts"`
+		Delay    string `yaml:"delay"`
+	}
+	if err := unmarshal(&raw); err != nil {
+		return err
+	}
+	if raw.Attempts == nil {
+		return fmt.Errorf("retry.attempts is required")
+	}
+	if *raw.Attempts < 1 {
+		return fmt.Errorf("retry.attempts must be at least 1, got %d", *raw.Attempts)
+	}
+	r.Attempts = *raw.Attempts
+	if raw.Delay == "" {
+		return nil
+	}
+	delay, err := time.ParseDuration(raw.Delay)
+	if err != nil {
+		return fmt.Errorf("retry.delay must be a duration such as 30s, got %q", raw.Delay)
+	}
+	if delay < 0 {
+		return fmt.Errorf("retry.delay must not be negative, got %q", raw.Delay)
+	}
+	r.Delay = delay
+	return nil
 }
 
 // TerraformFields represent fields specific to Terraform

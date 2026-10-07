@@ -1,10 +1,6 @@
 package terraform
 
-import (
-	"context"
-
-	"get.porter.sh/porter/pkg/exec/builder"
-)
+import "context"
 
 type InvokeOptions struct {
 	Action string
@@ -33,7 +29,7 @@ func (m *Mixin) Invoke(ctx context.Context, opts InvokeOptions) error {
 	applyVarsToStepFlags(&step)
 
 	action.Steps[0] = step
-	_, err = builder.ExecuteSingleStepAction(ctx, m.RuntimeConfig, action)
+	err = m.executeAction(ctx, action)
 	if err != nil {
 		return err
 	}

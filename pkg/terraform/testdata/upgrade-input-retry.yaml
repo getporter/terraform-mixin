@@ -1,0 +1,7 @@
+upgrade:
+- terraform:
+    description: "Upgrade MySQL"
+    backendConfig:
+      key: "my.tfstate"
+    retry:
+      attempts: 2

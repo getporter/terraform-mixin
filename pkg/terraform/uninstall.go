@@ -28,7 +28,7 @@ func (m *Mixin) Uninstall(ctx context.Context) error {
 	applyVarsToStepFlags(&step)
 
 	action.Steps[0] = step
-	_, err = builder.ExecuteSingleStepAction(ctx, m.RuntimeConfig, action)
+	err = m.executeAction(ctx, action)
 	if err != nil {
 		return err
 	}
