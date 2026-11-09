@@ -5,6 +5,7 @@ import (
 	"context"
 	"os"
 	"os/exec"
+	"runtime"
 	"strings"
 	"testing"
 	"time"
@@ -12,101 +13,127 @@ import (
 	"get.porter.sh/porter/pkg/test"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
-	"gopkg.in/yaml.v2"
 )
 
-func TestMixin_UnmarshalRetry(t *testing.T) {
-	b, err := os.ReadFile("testdata/install-input-retry.yaml")
-	require.NoError(t, err)
-
-	var action Action
-	err = yaml.Unmarshal(b, &action)
-	require.NoError(t, err)
-	require.Len(t, action.Steps, 1)
-
-	assert.Equal(t, &Retry{Attempts: 3, Delay: time.Millisecond}, action.Steps[0].Retry)
-}
-
-func TestMixin_UnmarshalRetry_Invalid(t *testing.T) {
-	testcases := []struct {
-		name    string
-		retry   string
-		wantErr string
+func TestMixin_ExecuteWithRetry(t *testing.T) {
+	actions := []struct {
+		name string
+		key  string
+		verb string
+		cmd  string
+		run  func(h *TestMixin) error
 	}{
-		{"attempts missing", "delay: 30s", "retry.attempts is required"},
-		{"attempts zero", "attempts: 0", "retry.attempts must be at least 1, got 0"},
-		{"delay without unit", "attempts: 2\n      delay: 30", `retry.delay must be a duration such as 30s, got "30"`},
-		{"delay negative", "attempts: 2\n      delay: -30s", `retry.delay must not be negative, got "-30s"`},
+		{"install", "install", "apply", "terraform apply -auto-approve -input=false -var myvar=foo",
+			func(h *TestMixin) error { return h.Install(context.Background()) }},
+		{"upgrade", "upgrade", "apply", "terraform apply -auto-approve -input=false -var myvar=foo",
+			func(h *TestMixin) error { return h.Upgrade(context.Background()) }},
+		{"uninstall", "uninstall", "destroy", "terraform destroy -auto-approve -input=false -var myvar=foo",
+			func(h *TestMixin) error { return h.Uninstall(context.Background()) }},
+		{"invoke", "custom", "custom", "terraform custom -var myvar=foo",
+			func(h *TestMixin) error { return h.Invoke(context.Background(), InvokeOptions{}) }},
 	}
-
-	for _, tc := range testcases {
-		t.Run(tc.name, func(t *testing.T) {
-			input := "install:\n- terraform:\n    description: x\n    retry:\n      " + tc.retry + "\n"
-			var action Action
-			err := yaml.Unmarshal([]byte(input), &action)
-			require.ErrorContains(t, err, tc.wantErr)
-		})
-	}
-}
-
-func TestMixin_ExecuteAction_Retry(t *testing.T) {
 	testcases := []struct {
-		name        string
-		input       string
-		failApplies int
-		wantApplies int
-		wantErr     string
-		wantNotice  string
+		name       string
+		retry      string
+		failRuns   int
+		wantRuns   int
+		wantErr    string
+		wantNotice string
 	}{
-		{"no retry by default", "testdata/install-input.yaml", 1, 1, "error running command", ""},
-		{"passes on a later attempt", "testdata/install-input-retry.yaml", 2, 3, "", "Attempt 2 of 3 failed"},
-		{"fails when attempts are exhausted", "testdata/install-input-retry.yaml", 3, 3, "giving up after 3 attempts", "Attempt 2 of 3 failed"},
+		{"no retry by default", "", 1, 1, "error running command", ""},
+		{"passes on a later attempt", "retry:\n      attempts: 3\n      delay: 1ms\n", 2, 3, "", "Attempt 2 of 3 failed"},
+		{"fails when attempts are exhausted", "retry:\n      attempts: 3\n      delay: 1ms\n", 3, 3, "giving up after 3 attempts", "Attempt 2 of 3 failed"},
 	}
 
-	for _, tc := range testcases {
-		t.Run(tc.name, func(t *testing.T) {
-			h := newInstallTestMixin(t, tc.input)
-			applies := 0
-			onApply(h, func(n int, cmd *exec.Cmd) {
-				applies = n
-				if n <= tc.failApplies {
-					cmd.Env = append(cmd.Env, test.ExpectedCommandExitCodeEnv+"=1")
+	for _, a := range actions {
+		for _, tc := range testcases {
+			t.Run(a.name+"/"+tc.name, func(t *testing.T) {
+				input := a.key + ":\n- terraform:\n    description: x\n    arguments:\n      - " + a.verb +
+					"\n    backendConfig:\n      key: my.tfstate\n    vars:\n      myvar: foo\n    " + tc.retry
+				h := newTestMixinWithInput(t, []byte(input), a.cmd)
+				inits, runs := 0, 0
+				onCommand(h, "init", func(n int, cmd *exec.Cmd) { inits = n })
+				onCommand(h, a.verb, func(n int, cmd *exec.Cmd) {
+					runs = n
+					if n <= tc.failRuns {
+						cmd.Env = append(cmd.Env, test.ExpectedCommandExitCodeEnv+"=1")
+					}
+				})
+
+				err := a.run(h)
+				if tc.wantErr == "" {
+					require.NoError(t, err)
+				} else {
+					require.ErrorContains(t, err, tc.wantErr)
+					var exitErr *exec.ExitError
+					assert.ErrorAs(t, err, &exitErr, "the command's exit error should stay in the chain")
+				}
+				assert.Equal(t, tc.wantRuns, runs)
+				assert.Equal(t, 1, inits, "init should not be rerun")
+				if tc.wantNotice == "" {
+					assert.NotContains(t, h.TestContext.GetError(), "Attempt ")
+				} else {
+					assert.Contains(t, h.TestContext.GetError(), tc.wantNotice)
 				}
 			})
-
-			err := h.Install(context.Background())
-			if tc.wantErr == "" {
-				require.NoError(t, err)
-			} else {
-				require.ErrorContains(t, err, tc.wantErr)
-				var exitErr *exec.ExitError
-				assert.ErrorAs(t, err, &exitErr, "the command's exit error should stay in the chain")
-			}
-			assert.Equal(t, tc.wantApplies, applies)
-			if tc.wantNotice == "" {
-				assert.NotContains(t, h.TestContext.GetError(), "Attempt ")
-			} else {
-				assert.Contains(t, h.TestContext.GetError(), tc.wantNotice)
-			}
-		})
+		}
 	}
 }
 
-func TestMixin_ExecuteAction_NoRetryWhenCommandCannotStart(t *testing.T) {
+func TestMixin_ExecuteWithRetry_NoRetryWhenCommandCannotStart(t *testing.T) {
+	t.Run("on the first attempt", func(t *testing.T) {
+		h := newInstallTestMixin(t, "testdata/install-input-retry.yaml")
+		applies := 0
+		onApply(h, func(n int, cmd *exec.Cmd) {
+			applies = n
+			cmd.Path = "/nonexistent/terraform"
+		})
+
+		err := h.Install(context.Background())
+		require.ErrorContains(t, err, "couldn't run command")
+		assert.NotContains(t, err.Error(), "giving up")
+		assert.Equal(t, 1, applies)
+		assert.NotContains(t, h.TestContext.GetError(), "Attempt ")
+	})
+
+	t.Run("on the last attempt", func(t *testing.T) {
+		h := newInstallTestMixin(t, "testdata/install-input-retry.yaml")
+		applies := 0
+		onApply(h, func(n int, cmd *exec.Cmd) {
+			applies = n
+			if n < 3 {
+				cmd.Env = append(cmd.Env, test.ExpectedCommandExitCodeEnv+"=1")
+			} else {
+				cmd.Path = "/nonexistent/terraform"
+			}
+		})
+
+		err := h.Install(context.Background())
+		require.ErrorContains(t, err, "giving up after 3 attempts")
+		assert.ErrorContains(t, err, "couldn't run command")
+		assert.Equal(t, 3, applies)
+	})
+}
+
+func TestMixin_ExecuteWithRetry_NoRetryWhenKilledBySignal(t *testing.T) {
+	if runtime.GOOS == "windows" {
+		t.Skip("needs a POSIX shell to kill the command")
+	}
 	h := newInstallTestMixin(t, "testdata/install-input-retry.yaml")
 	applies := 0
 	onApply(h, func(n int, cmd *exec.Cmd) {
 		applies = n
-		cmd.Path = "/nonexistent/terraform"
+		cmd.Path = "/bin/sh"
+		cmd.Args = []string{"sh", "-c", "kill -KILL $$"}
 	})
 
 	err := h.Install(context.Background())
-	require.ErrorContains(t, err, "couldn't run command")
+	require.ErrorContains(t, err, "signal: killed")
 	assert.Equal(t, 1, applies)
 	assert.NotContains(t, h.TestContext.GetError(), "Attempt ")
 }
 
-func TestMixin_ExecuteAction_RetryStopsWhenCancelled(t *testing.T) {
+func TestMixin_ExecuteWithRetry_StopsWhenCancelled(t *testing.T) {
 	t.Run("before an attempt", func(t *testing.T) {
 		h := newInstallTestMixin(t, "testdata/install-input-retry.yaml")
 		ctx, cancel := context.WithCancel(context.Background())
@@ -120,6 +147,7 @@ func TestMixin_ExecuteAction_RetryStopsWhenCancelled(t *testing.T) {
 		err := h.Install(ctx)
 		require.ErrorIs(t, err, context.Canceled)
 		assert.ErrorContains(t, err, "giving up after attempt 1 failed")
+		assert.Equal(t, 1, strings.Count(err.Error(), "context canceled"), "the cause should be named once")
 		assert.Equal(t, 1, applies)
 	})
 
@@ -156,29 +184,38 @@ func (f writerFunc) Write(p []byte) (int, error) { return f(p) }
 
 // newInstallTestMixin prepares a mixin that reads the given install step and expects init then apply.
 func newInstallTestMixin(t *testing.T, input string) *TestMixin {
-	t.Setenv(test.ExpectedCommandEnv, strings.Join([]string{
-		"terraform init -backend=true -backend-config=key=my.tfstate -reconfigure",
-		"terraform apply -auto-approve -input=false -var myvar=foo",
-	}, "\n"))
-
 	b, err := os.ReadFile(input)
 	require.NoError(t, err)
+	return newTestMixinWithInput(t, b, "terraform apply -auto-approve -input=false -var myvar=foo")
+}
+
+// newTestMixinWithInput prepares a mixin that reads input and expects init then cmd.
+func newTestMixinWithInput(t *testing.T, input []byte, cmd string) *TestMixin {
+	t.Setenv(test.ExpectedCommandEnv, strings.Join([]string{
+		"terraform init -backend=true -backend-config=key=my.tfstate -reconfigure",
+		cmd,
+	}, "\n"))
 
 	h := NewTestMixin(t)
-	h.In = bytes.NewReader(b)
+	h.In = bytes.NewReader(input)
 	h.config.WorkingDir = h.Getwd()
 	return h
 }
 
 // onApply calls fn with each terraform apply command before it runs, numbered from 1.
 func onApply(h *TestMixin, fn func(n int, cmd *exec.Cmd)) {
-	applies := 0
+	onCommand(h, "apply", fn)
+}
+
+// onCommand calls fn with each terraform command whose first argument is verb before it runs, numbered from 1.
+func onCommand(h *TestMixin, verb string, fn func(n int, cmd *exec.Cmd)) {
+	runs := 0
 	newCommand := h.NewCommand
 	h.NewCommand = func(ctx context.Context, name string, args ...string) *exec.Cmd {
 		cmd := newCommand(ctx, name, args...)
-		if len(args) > 0 && args[0] == "apply" {
-			applies++
-			fn(applies, cmd)
+		if len(args) > 0 && args[0] == verb {
+			runs++
+			fn(runs, cmd)
 		}
 		return cmd
 	}

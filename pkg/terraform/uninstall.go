@@ -28,7 +28,7 @@ func (m *Mixin) Uninstall(ctx context.Context) error {
 	applyVarsToStepFlags(&step)
 
 	action.Steps[0] = step
-	err = m.executeAction(ctx, action)
+	err = m.executeWithRetry(ctx, action, step.Retry)
 	if err != nil {
 		return err
 	}

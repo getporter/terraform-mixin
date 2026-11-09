@@ -10,14 +10,17 @@ import (
 	"get.porter.sh/porter/pkg/exec/builder"
 )
 
-// executeAction runs the action's step, rerunning it on failure as the step's retry block allows.
-func (m *Mixin) executeAction(ctx context.Context, action *Action) error {
+// executeWithRetry runs the action's step, rerunning it on failure as retry allows.
+func (m *Mixin) executeWithRetry(ctx context.Context, action *Action, retry *Retry) error {
 	attempts, delay := 1, time.Duration(0)
-	if retry := action.Steps[0].Retry; retry != nil {
+	if retry != nil {
 		attempts, delay = retry.Attempts, retry.Delay
 	}
 	giveUp := func(attempt int, err error) error {
-		return fmt.Errorf("%w, giving up after attempt %d failed: %w", ctx.Err(), attempt, err)
+		if errors.Is(err, ctx.Err()) {
+			return fmt.Errorf("giving up after attempt %d failed: %w", attempt, err)
+		}
+		return fmt.Errorf("giving up after attempt %d failed: %w: %w", attempt, err, ctx.Err())
 	}
 
 	for attempt := 1; ; attempt++ {
@@ -28,13 +31,13 @@ func (m *Mixin) executeAction(ctx context.Context, action *Action) error {
 		if ctx.Err() != nil {
 			return giveUp(attempt, err)
 		}
-		// Only a command that ran and failed can pass on a rerun
-		var exitErr *exec.ExitError
-		if !errors.As(err, &exitErr) {
-			return err
-		}
 		if attempt >= attempts {
 			return fmt.Errorf("giving up after %d attempts: %w", attempts, err)
+		}
+		// Only a command that ran and failed on its own can pass on a rerun; a signal means something stopped it
+		var exitErr *exec.ExitError
+		if !errors.As(err, &exitErr) || exitErr.ExitCode() == -1 {
+			return err
 		}
 
 		wait := ""

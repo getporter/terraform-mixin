@@ -213,8 +213,7 @@
         },
         "delay": {
           "description": "How long to wait between attempts, as a duration such as 30s",
-          "type": "string",
-          "pattern": "^(([0-9]+(\\.[0-9]*)?|\\.[0-9]+)(ns|us|µs|μs|ms|s|m|h))+$"
+          "type": "string"
         }
       },
       "additionalProperties": false,

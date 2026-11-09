@@ -150,8 +150,8 @@ type Retry struct {
 // UnmarshalYAML rejects a retry block that would never retry or wait a negative time, naming the field at fault.
 func (r *Retry) UnmarshalYAML(unmarshal func(interface{}) error) error {
 	var raw struct {
-		Attempts *int   `yaml:"attempts"`
-		Delay    string `yaml:"delay"`
+		Attempts *int    `yaml:"attempts"`
+		Delay    *string `yaml:"delay"`
 	}
 	if err := unmarshal(&raw); err != nil {
 		return err
@@ -163,15 +163,15 @@ func (r *Retry) UnmarshalYAML(unmarshal func(interface{}) error) error {
 		return fmt.Errorf("retry.attempts must be at least 1, got %d", *raw.Attempts)
 	}
 	r.Attempts = *raw.Attempts
-	if raw.Delay == "" {
+	if raw.Delay == nil {
 		return nil
 	}
-	delay, err := time.ParseDuration(raw.Delay)
+	delay, err := time.ParseDuration(*raw.Delay)
 	if err != nil {
-		return fmt.Errorf("retry.delay must be a duration such as 30s, got %q", raw.Delay)
+		return fmt.Errorf("retry.delay must be a duration such as 30s, got %q", *raw.Delay)
 	}
 	if delay < 0 {
-		return fmt.Errorf("retry.delay must not be negative, got %q", raw.Delay)
+		return fmt.Errorf("retry.delay must not be negative, got %q", *raw.Delay)
 	}
 	r.Delay = delay
 	return nil

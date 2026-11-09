@@ -29,7 +29,7 @@ func (m *Mixin) Invoke(ctx context.Context, opts InvokeOptions) error {
 	applyVarsToStepFlags(&step)
 
 	action.Steps[0] = step
-	err = m.executeAction(ctx, action)
+	err = m.executeWithRetry(ctx, action, step.Retry)
 	if err != nil {
 		return err
 	}

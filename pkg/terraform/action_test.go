@@ -2,8 +2,10 @@ package terraform
 
 import (
 	"io/ioutil"
+	"os"
 	"sort"
 	"testing"
+	"time"
 
 	"get.porter.sh/porter/pkg/exec/builder"
 
@@ -74,4 +76,39 @@ func TestApplyVarsToStepFlags(t *testing.T) {
 		gotFlags := s.Flags.ToSlice(s.GetDashes())
 		assert.Empty(t, gotFlags)
 	})
+}
+
+func TestMixin_UnmarshalRetry(t *testing.T) {
+	b, err := os.ReadFile("testdata/install-input-retry.yaml")
+	require.NoError(t, err)
+
+	var action Action
+	err = yaml.Unmarshal(b, &action)
+	require.NoError(t, err)
+	require.Len(t, action.Steps, 1)
+
+	assert.Equal(t, &Retry{Attempts: 3, Delay: time.Millisecond}, action.Steps[0].Retry)
+}
+
+func TestMixin_UnmarshalRetry_Invalid(t *testing.T) {
+	testcases := []struct {
+		name    string
+		retry   string
+		wantErr string
+	}{
+		{"attempts missing", "delay: 30s", "retry.attempts is required"},
+		{"attempts zero", "attempts: 0", "retry.attempts must be at least 1, got 0"},
+		{"delay without unit", "attempts: 2\n      delay: 30", `retry.delay must be a duration such as 30s, got "30"`},
+		{"delay negative", "attempts: 2\n      delay: -30s", `retry.delay must not be negative, got "-30s"`},
+		{"delay empty", "attempts: 2\n      delay: \"\"", `retry.delay must be a duration such as 30s, got ""`},
+	}
+
+	for _, tc := range testcases {
+		t.Run(tc.name, func(t *testing.T) {
+			input := "install:\n- terraform:\n    description: x\n    retry:\n      " + tc.retry + "\n"
+			var action Action
+			err := yaml.Unmarshal([]byte(input), &action)
+			require.ErrorContains(t, err, tc.wantErr)
+		})
+	}
 }
