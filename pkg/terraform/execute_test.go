@@ -3,6 +3,7 @@ package terraform
 import (
 	"bytes"
 	"context"
+	"errors"
 	"os"
 	"os/exec"
 	"runtime"
@@ -11,6 +12,7 @@ import (
 	"time"
 
 	"get.porter.sh/porter/pkg/test"
+	"github.com/spf13/afero"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )
@@ -41,6 +43,7 @@ func TestMixin_ExecuteWithRetry(t *testing.T) {
 		wantNotice string
 	}{
 		{"no retry by default", "", 1, 1, "error running command", ""},
+		{"a single attempt never retries", "retry:\n      attempts: 1\n", 1, 1, "error running command", ""},
 		{"passes on a later attempt", "retry:\n      attempts: 3\n      delay: 1ms\n", 2, 3, "", "Attempt 2 of 3 failed"},
 		{"fails when attempts are exhausted", "retry:\n      attempts: 3\n      delay: 1ms\n", 3, 3, "giving up after 3 attempts", "Attempt 2 of 3 failed"},
 	}
@@ -178,24 +181,68 @@ func TestMixin_ExecuteWithRetry_StopsWhenCancelled(t *testing.T) {
 	})
 }
 
-type writerFunc func(p []byte) (int, error)
+func TestMixin_ExecuteWithRetry_StopsWhenStateWasNotSaved(t *testing.T) {
+	testcases := []struct {
+		name        string
+		attempts    string
+		unsavedOn   int
+		wantApplies int
+		wantErr     string
+	}{
+		{"on the first attempt", "3", 1, 1, "attempt 1 of 3 failed and terraform could not save its state, which it wrote to errored.tfstate"},
+		{"on the last attempt", "3", 3, 3, "attempt 3 of 3 failed and terraform could not save its state, which it wrote to errored.tfstate"},
+		{"on the only attempt", "1", 1, 1, "attempt 1 of 1 failed and terraform could not save its state, which it wrote to errored.tfstate"},
+	}
+	for _, tc := range testcases {
+		t.Run(tc.name, func(t *testing.T) {
+			input := "install:\n- terraform:\n    description: x\n    backendConfig:\n      key: my.tfstate\n    vars:\n      myvar: foo\n    retry:\n      attempts: " + tc.attempts + "\n"
+			h := newTestMixinWithInput(t, []byte(input), "terraform apply -auto-approve -input=false -var myvar=foo")
+			applies := 0
+			onApply(h, func(n int, cmd *exec.Cmd) {
+				applies = n
+				cmd.Env = append(cmd.Env, test.ExpectedCommandExitCodeEnv+"=1")
+				if n == tc.unsavedOn {
+					require.NoError(t, h.FileSystem.WriteFile(erroredStateFilename, []byte("{}"), 0600))
+				}
+			})
 
-func TestMixin_ExecuteWithRetry_NoRetryWhenStateWasNotSaved(t *testing.T) {
+			err := h.Install(context.Background())
+			require.ErrorContains(t, err, tc.wantErr)
+			var exitErr *exec.ExitError
+			assert.ErrorAs(t, err, &exitErr, "the command's exit error should stay in the chain")
+			assert.Equal(t, tc.wantApplies, applies)
+			assert.Equal(t, tc.wantApplies-1, strings.Count(h.TestContext.GetError(), "Attempt "), "only the attempts before the unsaved state should be retried")
+		})
+	}
+}
+
+func TestMixin_ExecuteWithRetry_StopsWhenStateCheckFails(t *testing.T) {
 	h := newInstallTestMixin(t, "testdata/install-input-retry.yaml")
+	h.FileSystem.Afero = &afero.Afero{Fs: statFailsFs{h.FileSystem.Afero.Fs}}
 	applies := 0
 	onApply(h, func(n int, cmd *exec.Cmd) {
 		applies = n
 		cmd.Env = append(cmd.Env, test.ExpectedCommandExitCodeEnv+"=1")
-		require.NoError(t, h.FileSystem.WriteFile(erroredStateFilename, []byte("{}"), 0600))
 	})
 
 	err := h.Install(context.Background())
-	require.ErrorContains(t, err, "not retrying after attempt 1 because terraform could not save its state and wrote errored.tfstate")
-	var exitErr *exec.ExitError
-	assert.ErrorAs(t, err, &exitErr, "the command's exit error should stay in the chain")
+	require.ErrorContains(t, err, "attempt 1 of 3 failed and looking for errored.tfstate failed too")
+	assert.ErrorContains(t, err, "stat refused")
 	assert.Equal(t, 1, applies)
 	assert.NotContains(t, h.TestContext.GetError(), "Attempt ")
 }
+
+// statFailsFs fails every stat of the errored state file.
+type statFailsFs struct{ afero.Fs }
+
+func (f statFailsFs) Stat(name string) (os.FileInfo, error) {
+	if strings.HasSuffix(name, erroredStateFilename) {
+		return nil, errors.New("stat refused")
+	}
+	return f.Fs.Stat(name)
+}
+
+type writerFunc func(p []byte) (int, error)
 
 func (f writerFunc) Write(p []byte) (int, error) { return f(p) }
 

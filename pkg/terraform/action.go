@@ -141,7 +141,7 @@ type Instruction struct {
 
 // Retry controls how a failed terraform command is rerun.
 type Retry struct {
-	// Attempts is how many times the command runs before the step fails.
+	// Attempts is how many times the command runs, counting the first.
 	Attempts int `yaml:"attempts"`
 	// Delay is how long to wait between attempts, as a duration such as 30s.
 	Delay time.Duration `yaml:"delay,omitempty"`

@@ -28,7 +28,18 @@ func (m *Mixin) executeWithRetry(ctx context.Context, action *Action, retry *Ret
 
 	for attempt := 1; ; attempt++ {
 		_, err := builder.ExecuteSingleStepAction(ctx, m.RuntimeConfig, action)
-		if err == nil || attempts == 1 {
+		if err == nil || retry == nil {
+			return err
+		}
+		// The backend lacks what this attempt created, so running again would duplicate it or fail on it
+		unsaved, statErr := m.FileSystem.Exists(erroredStateFilename)
+		if statErr != nil {
+			return fmt.Errorf("attempt %d of %d failed and looking for %s failed too, stopping: %w: %w", attempt, attempts, erroredStateFilename, err, statErr)
+		}
+		if unsaved {
+			return fmt.Errorf("attempt %d of %d failed and terraform could not save its state, which it wrote to %s, stopping: %w", attempt, attempts, erroredStateFilename, err)
+		}
+		if attempts == 1 {
 			return err
 		}
 		if ctx.Err() != nil {
@@ -41,10 +52,6 @@ func (m *Mixin) executeWithRetry(ctx context.Context, action *Action, retry *Ret
 		var exitErr *exec.ExitError
 		if !errors.As(err, &exitErr) || exitErr.ExitCode() == -1 {
 			return err
-		}
-		// The backend lacks what this attempt created, so a rerun would create it again
-		if unsaved, _ := m.FileSystem.Exists(erroredStateFilename); unsaved {
-			return fmt.Errorf("not retrying after attempt %d because terraform could not save its state and wrote %s: %w", attempt, erroredStateFilename, err)
 		}
 
 		wait := ""
