@@ -147,7 +147,7 @@ type Retry struct {
 	Delay time.Duration `yaml:"delay,omitempty"`
 }
 
-// UnmarshalYAML rejects a retry block that would never retry or wait a negative time, naming the field at fault.
+// UnmarshalYAML rejects a retry block without a usable attempts or delay, naming the field at fault.
 func (r *Retry) UnmarshalYAML(unmarshal func(interface{}) error) error {
 	var raw struct {
 		Attempts *int    `yaml:"attempts"`

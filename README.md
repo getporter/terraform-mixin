@@ -243,12 +243,17 @@ install:
 A `retry` block without `attempts`, or with a `delay` that is not a duration, fails the step before terraform runs.
 
 Any non-zero exit is retried, including real configuration errors such as a bad variable,
-so with `attempts: 3` those fail only after every attempt and delay. A command killed by a
-signal, such as with `kill -9`, is not retried.
+so with `attempts: 3` those fail only after every attempt and delay. That includes a
+terraform that was interrupted: it handles `SIGINT` and `SIGTERM` itself, shuts down and
+exits non-zero. Only a terraform killed outright, such as with `kill -9`, is not retried.
 
 Only the step's command (`apply`, `destroy` or the custom action) is rerun; `terraform init`
 and reading outputs are not. Terraform keeps the state of the resources that succeeded, so a
 rerun creates or replaces only what failed and continues from there.
+
+The exception is a terraform that could not save its state to the backend. It then writes
+`errored.tfstate` in the working directory, and a rerun would create the same resources
+again, so the step fails without another attempt.
 
 ## Examples
 

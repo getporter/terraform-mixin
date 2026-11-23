@@ -10,6 +10,9 @@ import (
 	"get.porter.sh/porter/pkg/exec/builder"
 )
 
+// erroredStateFilename is what terraform writes in its working directory when it cannot save state to the backend
+const erroredStateFilename = "errored.tfstate"
+
 // executeWithRetry runs the action's step, rerunning it on failure as retry allows.
 func (m *Mixin) executeWithRetry(ctx context.Context, action *Action, retry *Retry) error {
 	attempts, delay := 1, time.Duration(0)
@@ -34,10 +37,14 @@ func (m *Mixin) executeWithRetry(ctx context.Context, action *Action, retry *Ret
 		if attempt >= attempts {
 			return fmt.Errorf("giving up after %d attempts: %w", attempts, err)
 		}
-		// Only a command that ran and failed on its own can pass on a rerun; a signal means something stopped it
+		// Only a command that ran and exited on its own can pass on a rerun
 		var exitErr *exec.ExitError
 		if !errors.As(err, &exitErr) || exitErr.ExitCode() == -1 {
 			return err
+		}
+		// The backend lacks what this attempt created, so a rerun would create it again
+		if unsaved, _ := m.FileSystem.Exists(erroredStateFilename); unsaved {
+			return fmt.Errorf("not retrying after attempt %d because terraform could not save its state and wrote %s: %w", attempt, erroredStateFilename, err)
 		}
 
 		wait := ""

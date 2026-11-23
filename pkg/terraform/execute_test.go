@@ -180,6 +180,23 @@ func TestMixin_ExecuteWithRetry_StopsWhenCancelled(t *testing.T) {
 
 type writerFunc func(p []byte) (int, error)
 
+func TestMixin_ExecuteWithRetry_NoRetryWhenStateWasNotSaved(t *testing.T) {
+	h := newInstallTestMixin(t, "testdata/install-input-retry.yaml")
+	applies := 0
+	onApply(h, func(n int, cmd *exec.Cmd) {
+		applies = n
+		cmd.Env = append(cmd.Env, test.ExpectedCommandExitCodeEnv+"=1")
+		require.NoError(t, h.FileSystem.WriteFile(erroredStateFilename, []byte("{}"), 0600))
+	})
+
+	err := h.Install(context.Background())
+	require.ErrorContains(t, err, "not retrying after attempt 1 because terraform could not save its state and wrote errored.tfstate")
+	var exitErr *exec.ExitError
+	assert.ErrorAs(t, err, &exitErr, "the command's exit error should stay in the chain")
+	assert.Equal(t, 1, applies)
+	assert.NotContains(t, h.TestContext.GetError(), "Attempt ")
+}
+
 func (f writerFunc) Write(p []byte) (int, error) { return f(p) }
 
 // newInstallTestMixin prepares a mixin that reads the given install step and expects init then apply.
